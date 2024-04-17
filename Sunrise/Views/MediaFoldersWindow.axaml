@@ -1,0 +1,46 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="using:Sunrise.ViewModels"
+		xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Sunrise.Views.MediaFoldersWindow"
+		x:DataType="vm:MediaFoldersViewModel"
+		x:CompileBindings="False"
+		Height="300" MinHeight="300"
+		Width="500" MinWidth="500"
+		CanResize="False"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="{x:Static res:Texts.MediaLibrary}">
+  <Design.DataContext>
+	<vm:MediaFoldersViewModel />
+  </Design.DataContext>
+
+  <Grid>
+	<Grid.RowDefinitions>
+	  <RowDefinition Height="Auto" />
+	  <RowDefinition />
+	</Grid.RowDefinitions>
+
+	<Menu Grid.Row="0">
+	  <MenuItem Header="{x:Static res:Texts.Add}"/>
+	  <MenuItem Header="{x:Static res:Texts.Delete}"/>
+	</Menu>
+
+	<DataGrid Grid.Row="1"
+			  ItemsSource="{Binding Folders}"
+			  SelectedItem="{Binding SelectedFolder}"
+			  IsReadOnly="True"
+			  HeadersVisibility="None"
+			  CanUserReorderColumns="True"
+			  CanUserResizeColumns="True"
+			  GridLinesVisibility="All"
+			  BorderThickness="1" BorderBrush="LightGray">
+	  <DataGrid.Columns>
+		<DataGridTextColumn Binding="{Binding FolderPath}" Tag="Name" />
+	  </DataGrid.Columns>
+	</DataGrid>
+
+  </Grid>
+</Window>

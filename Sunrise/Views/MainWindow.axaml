@@ -1,19 +1,208 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:vm="using:Sunrise.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+		xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:svm="clr-namespace:Sunrise.ViewModels"
+        xmlns:sv="clr-namespace:Sunrise.Views"
+        xmlns:sb="clr-namespace:Sunrise.Behaviors"
+        xmlns:scv="clr-namespace:Sunrise.Converters"
+        xmlns:su="clr-namespace:Sunrise.Utils"
+		xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Sunrise.Views.MainWindow"
+		x:DataType="svm:MainViewModel"
+		x:CompileBindings="False"
+		Height="600" MinHeight="300"
+		Width="1400" MinWidth="800"
         Icon="/Assets/avalonia-logo.ico"
         Title="Sunrise">
+  <Design.DataContext>
+	<svm:MainViewModel />
+  </Design.DataContext>
+  <Window.Styles>
 
-    <Design.DataContext>
-        <!-- This only sets the DataContext for the previewer in an IDE,
-             to set the actual DataContext for runtime, set the DataContext property in code (look at App.axaml.cs) -->
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
+	<Style Selector="TextBox">
+	  <Setter Property="FontSize" Value="14" />
+	</Style>
 
-    <TextBlock Text="{Binding Greeting}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+	<Style Selector="DataGridColumnHeader">
+	  <Setter Property="MinHeight" Value="20" />
+	  <Setter Property="Padding" Value="5 0" />
+	</Style>
 
+	<Style Selector="DataGridRow">
+	  <Setter Property="Height" Value="20" />
+	</Style>
+
+	<Style Selector="DataGridCell">
+	  <Setter Property="Padding" Value="2 0" />
+	</Style>
+
+	<Style Selector="Grid.HeadGrid">
+	  <Setter Property="MinHeight" Value="20" />
+	  <Setter Property="Background" Value="White" />
+	</Style>
+
+	<Style Selector="TextBlock.HeadText">
+	  <Setter Property="VerticalAlignment" Value="Center" />
+	  <Setter Property="FontWeight" Value="Bold" />
+	  <Setter Property="Margin" Value="10 0 0 0" />
+	</Style>
+
+	<Style Selector="Button.AddBtn">
+	  <Setter Property="VerticalAlignment" Value="Center" />
+	  <Setter Property="HorizontalAlignment" Value="Right" />
+	  <Setter Property="Padding" Value="5 0" />
+	  <Setter Property="Margin" Value="5 0 0 0" />
+	  <Setter Property="MinWidth" Value="50" />
+	  <Setter Property="FontSize" Value="11" />
+	  <Setter Property="Theme" Value="{StaticResource MaterialFlatButton}" />
+	  <Setter Property="Content" Value="" />
+	  <Style Selector="^:pointerover">
+		<Setter Property="Content" Value="{x:Static res:Texts.Add}" />
+	  </Style>
+	</Style>
+  </Window.Styles>
+
+  <DockPanel>
+	<sv:TrackPlayView DockPanel.Dock="Top" DataContext="{Binding TrackPlay}" />
+
+	<ScrollViewer DockPanel.Dock="Left" MinWidth="170">
+	  <Grid>
+		<Grid.RowDefinitions>
+		  <RowDefinition Height="Auto" />
+		  <RowDefinition Height="Auto" />
+		  <RowDefinition Height="Auto" />
+		  <RowDefinition Height="Auto" />
+		  <RowDefinition Height="Auto" />
+		  <RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<Grid Grid.Row="0" x:Name="mediaGrid" Classes="HeadGrid">
+		  <Grid.ColumnDefinitions>
+			<ColumnDefinition />
+			<ColumnDefinition Width="Auto" MinWidth="25" />
+		  </Grid.ColumnDefinitions>
+
+		  <TextBlock Grid.Column="0" Text="{x:Static res:Texts.MediaLibrary}" Classes="HeadText" />
+
+		  <Button Grid.Column="1" Classes="AddBtn"
+				  Command="{Binding AddFolderCommand, Mode=OneWay}" />
+		</Grid>
+
+		<ListBox Grid.Row="1"
+				 ItemsSource="{Binding Rubricks, Mode=OneWay}"
+				 SelectedValue="{Binding SelectedRubrick}"
+				 Tapped="Rubricks_Tapped">
+		  <ListBox.ItemTemplate>
+			<DataTemplate>
+			  <Grid>
+				<Grid.ColumnDefinitions>
+				  <ColumnDefinition Width="Auto" MinWidth="25" />
+				  <ColumnDefinition />
+				</Grid.ColumnDefinitions>
+
+				<Image Grid.Column="0" Source="{Binding Icon, Mode=OneWay}" MaxHeight="16" MaxWidth="16" />
+
+				<TextBlock Grid.Column="1" Text="{Binding Name, Mode=OneWay}" />
+			  </Grid>
+			</DataTemplate>
+		  </ListBox.ItemTemplate>
+		</ListBox>
+
+		<Grid Grid.Row="2" x:Name="categoryGrid" Classes="HeadGrid">
+		  <Grid.ColumnDefinitions>
+			<ColumnDefinition />
+			<ColumnDefinition Width="Auto" MinWidth="25" />
+		  </Grid.ColumnDefinitions>
+
+		  <TextBlock Grid.Column="0" Text="{x:Static res:Texts.Categories}" Classes="HeadText" />
+
+		  <Button Grid.Column="1" Classes="AddBtn"
+				  Command="{Binding AddCategoryCommand, Mode=OneWay}" />
+		</Grid>
+
+		<ListBox Grid.Row="3" ItemsSource="{Binding Categories, Mode=OneWay}">
+		</ListBox>
+
+		<Grid Grid.Row="4" x:Name="playlistGrid" Classes="HeadGrid">
+		  <Grid.ColumnDefinitions>
+			<ColumnDefinition />
+			<ColumnDefinition Width="Auto" MinWidth="25" />
+		  </Grid.ColumnDefinitions>
+
+		  <TextBlock Grid.Column="0" Text="{x:Static res:Texts.Playlists}" Classes="HeadText" />
+
+		  <Button Grid.Column="1" Classes="AddBtn"
+				  Command="{Binding AddPlaylistCommand, Mode=OneWay}" />
+		</Grid>
+
+		<ListBox Grid.Row="5"
+				 ItemsSource="{Binding Playlists, Mode=OneWay}"
+				 Tapped="Playlist_Tapped" />
+
+	  </Grid>
+	</ScrollViewer>
+
+	<DataGrid Name="tracksGrid"
+			  ItemsSource="{Binding Tracks, Mode=OneWay}"
+			  CanUserReorderColumns="True"
+			  CanUserResizeColumns="True"
+			  GridLinesVisibility="All"
+			  HorizontalScrollBarVisibility="Visible"
+			  VerticalScrollBarVisibility="Visible"
+			  BorderThickness="1" CornerRadius="0" BorderBrush="LightGray"
+			  Margin="1"
+			  Loaded="DataGrid_Loaded"
+			  CellPointerPressed="DataGrid_CellPointerPressed">
+	  <DataGrid.Columns>
+		<DataGridTemplateColumn Tag="IsPlaying"
+								Width="20" CanUserResize="False" CanUserSort="False" CanUserReorder="True">
+		  <DataGridTemplateColumn.CellTemplate>
+			<DataTemplate DataType="svm:TrackViewModel">
+			  <Image Source="{Binding IsPlaying, Mode=OneWay, Converter={x:Static scv:IsPlayingToIconConverter.Instance}}"
+					 HorizontalAlignment="Center" VerticalAlignment="Center"
+					 OpacityMask="Gray" Opacity="0.25"
+					 MaxHeight="12" MaxWidth="12" />
+			</DataTemplate>
+		  </DataGridTemplateColumn.CellTemplate>
+		</DataGridTemplateColumn>
+		<DataGridCheckBoxColumn Binding="{Binding Picked}" Tag="Picked"
+								Width="20" CanUserResize="False" CanUserSort="False" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Title}" Width="230"
+							Binding="{Binding Title}" IsReadOnly="False" Tag="Title" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Year}" Width="50"
+							Binding="{Binding Year}" Tag="Year" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Duration}" Width="50"
+							Binding="{Binding Duration, Mode=OneWay, Converter={x:Static scv:DurationConverter.Instance}}"
+							IsReadOnly="True" Tag="Duration" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Rating}" Width="80"
+							Binding="{Binding Rating}" Tag="Rating" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Artist}" Width="200"
+							Binding="{Binding Artist}" Tag="Artist" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Genre}" Width="100"
+							Binding="{Binding Genre}" Tag="Genre" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Reproduced}" Width="100"
+							Binding="{Binding Reproduced, Mode=OneWay}" IsReadOnly="True" Tag="Reproduced" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Album}" Width="200"
+							Binding="{Binding Album}" Tag="Album" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Created}" Width="120"
+							Binding="{Binding Created, Mode=OneWay, StringFormat={}{0:g}}" IsReadOnly="True" Tag="Created" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Added}" Width="100"
+							Binding="{Binding Added, Mode=OneWay, StringFormat={}{0:g}}" IsReadOnly="True" Tag="Added" IsVisible="False" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Bitrate}" Width="100"
+							Binding="{Binding Bitrate, Mode=OneWay}" IsReadOnly="True" Tag="Bitrate" IsVisible="False" />
+		<DataGridTextColumn Header="{x:Static res:Texts.Size}" Width="100"
+							Binding="{Binding Size, Mode=OneWay}" IsReadOnly="True" Tag="Size" IsVisible="False" />
+	  </DataGrid.Columns>
+	  <i:Interaction.Behaviors>
+		<i:BehaviorCollection>
+		  <sb:RowDoubleClickDataGridBehavior DoubleClickCommand="{Binding DoubleClickCommand, Mode=OneTime}" />
+		</i:BehaviorCollection>
+	  </i:Interaction.Behaviors>
+	</DataGrid>
+  </DockPanel>
 </Window>

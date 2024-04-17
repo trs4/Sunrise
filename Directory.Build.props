@@ -1,0 +1,30 @@
+<Project>
+  <PropertyGroup>
+	<Authors>Alexey Mikheyev</Authors>
+	<AssemblyTitle>Sunrise audio player</AssemblyTitle>
+	<Description>Audio player for .NET</Description>
+	<Product>Sunrise for $(TargetFramework)</Product>
+	<Copyright>Alexey Mikheyev 2024</Copyright>
+	<Version>1.0.0</Version>
+	<NeutralLanguage>ru-RU</NeutralLanguage>
+	<LangVersion>latest</LangVersion>
+	<AnalysisLevel>latest</AnalysisLevel>
+	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	<NoWarn>1573;1591</NoWarn>
+	<CodeAnalysisRuleSet Condition="'$(SolutionDir)' != ''">$(SolutionDir)RuleSet.ruleset</CodeAnalysisRuleSet>
+	<DebugType>portable</DebugType>
+	<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	<OutputPath>..\bin\$(Configuration)</OutputPath>
+	<RepositoryType>git</RepositoryType>
+	<PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+	<PublishRepositoryUrl>true</PublishRepositoryUrl>
+	
+    <Nullable>enable</Nullable>
+    <AvaloniaVersion>11.0.6</AvaloniaVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+	<Optimize>true</Optimize>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+  </PropertyGroup>
+</Project>

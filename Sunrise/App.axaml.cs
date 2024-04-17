@@ -1,34 +1,35 @@
-using Avalonia;
+﻿using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Data.Core;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using Sunrise.Model;
 using Sunrise.ViewModels;
 using Sunrise.Views;
 
-namespace Sunrise
+namespace Sunrise;
+
+public partial class App : Application
 {
-    public partial class App : Application
+    public override void Initialize()
+        => AvaloniaXamlLoader.Load(this);
+    
+    public override async void OnFrameworkInitializationCompleted()
     {
-        public override void Initialize()
-        {
-            AvaloniaXamlLoader.Load(this);
-        }
+        BindingPlugins.DataValidators.RemoveAt(0);
+        var player = await Player.InitAsync();
+        var viewModel = new MainViewModel(player);
 
-        public override void OnFrameworkInitializationCompleted()
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) // Windows
         {
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                // Line below is needed to remove Avalonia data validation.
-                // Without this line you will get duplicate validations from both Avalonia and CT
-                ExpressionObserver.DataValidators.RemoveAll(x => x is DataAnnotationsValidationPlugin);
-                desktop.MainWindow = new MainWindow
-                {
-                    DataContext = new MainWindowViewModel(),
-                };
-            }
-
-            base.OnFrameworkInitializationCompleted();
+            desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            desktop.MainWindow = viewModel.Owner = new MainWindow { DataContext = viewModel };
         }
+        //else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform) // Android
+        //    singleViewPlatform.MainView = new MainView { DataContext = viewModel };
+
+        await viewModel.ReloadTracksAsync();
+        base.OnFrameworkInitializationCompleted();
     }
+
 }

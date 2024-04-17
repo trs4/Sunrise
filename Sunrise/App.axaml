@@ -1,12 +1,9 @@
 <Application xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="using:Sunrise"
-             x:Class="Sunrise.App">
-    <Application.DataTemplates>
-        <local:ViewLocator/>
-    </Application.DataTemplates>
-
-    <Application.Styles>
-        <FluentTheme Mode="Light"/>
-    </Application.Styles>
+             xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
+             x:Class="Sunrise.App"
+			 RequestedThemeVariant="Default">
+  <Application.Styles>
+	<themes:MaterialTheme BaseTheme="Light" PrimaryColor="Purple" SecondaryColor="Lime" />
+  </Application.Styles>
 </Application>
