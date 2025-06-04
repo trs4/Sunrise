@@ -1,6 +1,7 @@
 ﻿using System.Text;
 using IcyRain.Tables;
 using RedLight;
+using RedLight.SQLite;
 using Sunrise.Model.Resources;
 using Sunrise.Model.Schemes;
 
@@ -45,12 +46,16 @@ public sealed class Player
 
     public static async Task<Player> InitAsync(CancellationToken token = default)
     {
-        string folderPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyMusic), "Sunrise");
+        string rootFolder = OperatingSystem.IsAndroid()
+            ? Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
+            : Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+
+        string folderPath = Path.Combine(rootFolder, "Sunrise");
         Directory.CreateDirectory(folderPath);
 
         string databaseFilePath = Path.Combine(folderPath, "MediaLibrary.db");
         string connectionString = $@"Provider=SQLite;Data Source='{databaseFilePath}'";
-        var connection = DatabaseConnection.Create(connectionString);
+        var connection = SQLiteDatabaseConnection.Create(connectionString);
 
         if (!File.Exists(databaseFilePath))
             await CreateDatabase(connection, token);

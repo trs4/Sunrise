@@ -85,7 +85,7 @@ public class Mp3FileReaderBase : WaveStream
             // try for an ID3v1 tag as well
             _mp3Stream.Position = _mp3Stream.Length - 128;
             byte[] tag = new byte[128];
-            _mp3Stream.Read(tag, 0, 128);
+            _mp3Stream.ReadExactly(tag, 0, 128);
 
             if (tag[0] == 'T' && tag[1] == 'A' && tag[2] == 'G')
             {
@@ -149,9 +149,12 @@ public class Mp3FileReaderBase : WaveStream
 
             do
             {
-                var index = new Mp3Index();
-                index.FilePosition = _mp3Stream.Position;
-                index.SamplePosition = _totalSamples;
+                var index = new Mp3Index
+                {
+                    FilePosition = _mp3Stream.Position,
+                    SamplePosition = _totalSamples
+                };
+
                 frame = ReadNextFrame(false);
 
                 if (frame is not null)

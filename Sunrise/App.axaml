@@ -3,7 +3,7 @@
              xmlns:themes="clr-namespace:Material.Styles.Themes;assembly=Material.Styles"
              x:Class="Sunrise.App"
 			 RequestedThemeVariant="Default">
-  <Application.Styles>
-	<themes:MaterialTheme BaseTheme="Light" PrimaryColor="Purple" SecondaryColor="Lime" />
-  </Application.Styles>
+	<Application.Styles>
+		<themes:MaterialTheme BaseTheme="Light" PrimaryColor="Purple" SecondaryColor="Lime" />
+	</Application.Styles>
 </Application>
