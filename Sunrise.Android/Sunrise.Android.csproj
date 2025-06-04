@@ -18,13 +18,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Avalonia.Android" Version="11.3.0" />
-		<PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" Version="1.0.1.15" />
+		<PackageReference Include="Avalonia.Android" />
+		<PackageReference Include="Xamarin.AndroidX.Core.SplashScreen" />
 	</ItemGroup>
 	<ItemGroup Label="Dependencies">
-		<PackageReference Include="Microsoft.Data.Sqlite" Version="9.0.5" />
-		<PackageReference Include="RedLight.SQLite" Version="1.0.3" />
-		<PackageReference Include="RedLight" Version="1.0.3" />
+		<PackageReference Include="Microsoft.Data.Sqlite" />
+		<PackageReference Include="RedLight.SQLite" />
+		<PackageReference Include="RedLight" />
 	</ItemGroup>
 
 	<ItemGroup>

@@ -7,8 +7,8 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="IcyRain.Tables" Version="2.0.2" />
-		<PackageReference Include="RedLight.SQLite" Version="1.0.3" />
+		<PackageReference Include="IcyRain.Tables" />
+		<PackageReference Include="RedLight.SQLite" />
 	</ItemGroup>
 
 	<ItemGroup>

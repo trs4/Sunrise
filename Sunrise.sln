@@ -7,6 +7,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		Directory.Build.targets = Directory.Build.targets
+		Directory.Packages.props = Directory.Packages.props
 		NuGet.Config = NuGet.Config
 		RuleSet.ruleset = RuleSet.ruleset
 	EndProjectSection
@@ -31,6 +32,7 @@ Global
 		{3A7171F7-8278-48BA-830E-B86984E48BA0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{73B88811-00E8-4943-858A-ABC1F9726BDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{73B88811-00E8-4943-858A-ABC1F9726BDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73B88811-00E8-4943-858A-ABC1F9726BDA}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
 		{73B88811-00E8-4943-858A-ABC1F9726BDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{73B88811-00E8-4943-858A-ABC1F9726BDA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{EA853C41-D6EB-4AA2-8BE8-CDE8B4E9524E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
