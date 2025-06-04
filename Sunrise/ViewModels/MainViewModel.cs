@@ -37,6 +37,7 @@ public partial class MainViewModel : ObservableObject
         AddFolderCommand = new AsyncRelayCommand(AddFolderAsync);
         AddCategoryCommand = new RelayCommand(AddCategory);
         AddPlaylistCommand = new RelayCommand(AddPlaylist);
+        DeletePlaylistCommand = new AsyncRelayCommand(DeletePlaylist);
         DoubleClickCommand = new RelayCommand<TrackViewModel>(OnDoubleClick);
 
         Rubricks = new([_artists, _albums, _songs, _genres]);
@@ -65,6 +66,10 @@ public partial class MainViewModel : ObservableObject
 
     public ObservableCollection<PlaylistViewModel> Playlists { get; } = [];
 
+    public PlaylistViewModel? SelectedPlaylist { get; set; }
+
+    public IRelayCommand DeletePlaylistCommand { get; }
+
     public IRelayCommand DoubleClickCommand { get; }
 
     public object TracksOwner { get; set; }
@@ -84,6 +89,13 @@ public partial class MainViewModel : ObservableObject
         var playlists = await TrackPlay.Player.GetAllPlaylists(token);
         ChangeTracks(rubricViewModel, tracks);
         ChangePlaylists(playlists.Values);
+    }
+
+    public async Task SelectSongsAsync(CancellationToken token = default)
+    {
+        var rubricViewModel = _songs;
+        var tracks = await rubricViewModel.GetTracks(token);
+        ChangeTracks(rubricViewModel, tracks);
     }
 
     public void ChangeTracks(object tracksOwner, IEnumerable<Track> tracks)
@@ -130,6 +142,18 @@ public partial class MainViewModel : ObservableObject
     private void AddPlaylist()
     {
 
+    }
+
+    private async Task DeletePlaylist()
+    {
+        var selectedPlaylist = SelectedPlaylist;
+
+        if (!await TrackPlay.Player.DeletePlaylist(selectedPlaylist?.Playlist))
+            return;
+
+        SelectedPlaylist = null;
+        Playlists.Remove(selectedPlaylist);
+        await SelectSongsAsync();
     }
 
     private void OnDoubleClick(TrackViewModel? trackViewModel)

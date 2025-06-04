@@ -34,6 +34,8 @@ public sealed class TrackPlayViewModel : ObservableObject
     private object? _trackIcon;
     private object _repeatPlayIcon = _repeatPlayIconSource;
 
+    public TrackPlayViewModel() { } // For designer
+
     public TrackPlayViewModel(MainViewModel owner, Player player)
     {
         Owner = owner ?? throw new ArgumentNullException(nameof(owner));

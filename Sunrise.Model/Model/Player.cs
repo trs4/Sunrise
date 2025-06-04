@@ -168,6 +168,28 @@ public sealed class Player
         return allPlaylistsByName;
     }
 
+    public async Task<bool> DeletePlaylist(Playlist? playlist, CancellationToken token = default)
+    {
+        if (playlist is null)
+            return false;
+
+        lock (_allPlaylistsSync)
+            _allPlaylistsByName?.Remove(playlist.Name);
+
+        bool result = await _connection.Delete.CreateQuery<Playlists>()
+            .WithTerm(Playlists.Id, playlist.Id)
+            .RunAsync(token) > 0;
+
+        if (!result)
+            return false;
+
+        await _connection.Delete.CreateQuery<PlaylistTracks>()
+            .WithTerm(PlaylistTracks.PlaylistId, playlist.Id)
+            .RunAsync(token);
+
+        return true;
+    }
+
     public void ClearAllTracks()
     {
         lock (_allTracksSync)

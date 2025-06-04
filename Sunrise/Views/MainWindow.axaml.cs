@@ -35,9 +35,13 @@ public partial class MainWindow : Window
         albumColumn.IsReadOnly = true;
     }
 
-    private static T? GetDataContext<T>(TappedEventArgs e)
+    private static T? GetDataContext<T>(RoutedEventArgs e)
         where T : class
         => (e.Source as StyledElement)?.DataContext as T ?? (e.Source as ContentPresenter)?.Content as T;
+
+    private static T? GetSelectedItem<T>(SelectionChangedEventArgs e)
+        where T : class
+        => e.AddedItems?.Count > 0 ? e.AddedItems[0] as T : null;
 
     private async void Rubricks_Tapped(object? sender, TappedEventArgs e)
     {
@@ -48,6 +52,16 @@ public partial class MainWindow : Window
 
         var tracks = await rubricViewModel.GetTracks();
         mainViewModel.ChangeTracks(rubricViewModel, tracks);
+    }
+
+    private void Playlist_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        var playlistViewModel = GetSelectedItem<PlaylistViewModel>(e);
+
+        if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
+            return;
+
+        mainViewModel.SelectedPlaylist = playlistViewModel;
     }
 
     private void Playlist_Tapped(object? sender, TappedEventArgs e)

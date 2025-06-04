@@ -89,13 +89,13 @@
 					<TextBlock Grid.Column="0" Text="{x:Static res:Texts.MediaLibrary}" Classes="HeadText" />
 
 					<Button Grid.Column="1" Classes="AddBtn"
-							Command="{Binding AddFolderCommand, Mode=OneWay}" />
+									Command="{Binding AddFolderCommand, Mode=OneWay}" />
 				</Grid>
 
 				<ListBox Grid.Row="1"
-						 ItemsSource="{Binding Rubricks, Mode=OneWay}"
-						 SelectedValue="{Binding SelectedRubrick}"
-						 Tapped="Rubricks_Tapped">
+								 ItemsSource="{Binding Rubricks, Mode=OneWay}"
+								 SelectedValue="{Binding SelectedRubrick}"
+								 Tapped="Rubricks_Tapped">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<Grid>
@@ -121,7 +121,7 @@
 					<TextBlock Grid.Column="0" Text="{x:Static res:Texts.Categories}" Classes="HeadText" />
 
 					<Button Grid.Column="1" Classes="AddBtn"
-							Command="{Binding AddCategoryCommand, Mode=OneWay}" />
+									Command="{Binding AddCategoryCommand, Mode=OneWay}" />
 				</Grid>
 
 				<ListBox Grid.Row="3" ItemsSource="{Binding Categories, Mode=OneWay}">
@@ -136,66 +136,74 @@
 					<TextBlock Grid.Column="0" Text="{x:Static res:Texts.Playlists}" Classes="HeadText" />
 
 					<Button Grid.Column="1" Classes="AddBtn"
-							Command="{Binding AddPlaylistCommand, Mode=OneWay}" />
+									Command="{Binding AddPlaylistCommand, Mode=OneWay}" />
 				</Grid>
 
 				<ListBox Grid.Row="5"
-						 ItemsSource="{Binding Playlists, Mode=OneWay}"
-						 Tapped="Playlist_Tapped" />
+								 ItemsSource="{Binding Playlists, Mode=OneWay}"
+								 SelectionChanged="Playlist_SelectionChanged"
+								 Tapped="Playlist_Tapped">
+					<ListBox.ContextMenu>
+						<ContextMenu>
+							<MenuItem Header="{x:Static res:Texts.Delete}"
+												Command="{Binding DeletePlaylistCommand, Mode=OneWay}" />
+						</ContextMenu>
+					</ListBox.ContextMenu>
+				</ListBox>
 
 			</Grid>
 		</ScrollViewer>
 
 		<DataGrid Name="tracksGrid"
-					ItemsSource="{Binding Tracks, Mode=OneWay}"
-					CanUserReorderColumns="True"
-					CanUserResizeColumns="True"
-					GridLinesVisibility="All"
-					HorizontalScrollBarVisibility="Visible"
-					VerticalScrollBarVisibility="Visible"
-					BorderThickness="1" CornerRadius="0" BorderBrush="LightGray"
-					Margin="1"
-					Loaded="DataGrid_Loaded"
-					CellPointerPressed="DataGrid_CellPointerPressed">
+							ItemsSource="{Binding Tracks, Mode=OneWay}"
+							CanUserReorderColumns="True"
+							CanUserResizeColumns="True"
+							GridLinesVisibility="All"
+							HorizontalScrollBarVisibility="Visible"
+							VerticalScrollBarVisibility="Visible"
+							BorderThickness="1" CornerRadius="0" BorderBrush="LightGray"
+							Margin="1"
+							Loaded="DataGrid_Loaded"
+							CellPointerPressed="DataGrid_CellPointerPressed">
 			<DataGrid.Columns>
 				<DataGridTemplateColumn Tag="IsPlaying"
-										Width="20" CanUserResize="False" CanUserSort="False" CanUserReorder="True">
+																Width="20" CanUserResize="False" CanUserSort="False" CanUserReorder="True">
 					<DataGridTemplateColumn.CellTemplate>
 						<DataTemplate DataType="svm:TrackViewModel">
 							<Image Source="{Binding IsPlaying, Mode=OneWay, Converter={x:Static scv:IsPlayingToIconConverter.Instance}}"
-								 HorizontalAlignment="Center" VerticalAlignment="Center"
-								 OpacityMask="Gray" Opacity="0.25"
-								 MaxHeight="12" MaxWidth="12" />
+										 HorizontalAlignment="Center" VerticalAlignment="Center"
+										 OpacityMask="Gray" Opacity="0.25"
+										 MaxHeight="12" MaxWidth="12" />
 						</DataTemplate>
 					</DataGridTemplateColumn.CellTemplate>
 				</DataGridTemplateColumn>
 				<DataGridCheckBoxColumn Binding="{Binding Picked}" Tag="Picked"
-										Width="20" CanUserResize="False" CanUserSort="False" />
+																Width="20" CanUserResize="False" CanUserSort="False" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Title}" Width="230"
-									Binding="{Binding Title}" IsReadOnly="False" Tag="Title" />
+														Binding="{Binding Title}" IsReadOnly="False" Tag="Title" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Year}" Width="50"
-									Binding="{Binding Year}" Tag="Year" />
+														Binding="{Binding Year}" Tag="Year" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Duration}" Width="50"
-									Binding="{Binding Duration, Mode=OneWay, Converter={x:Static scv:DurationConverter.Instance}}"
-									IsReadOnly="True" Tag="Duration" />
+														Binding="{Binding Duration, Mode=OneWay, Converter={x:Static scv:DurationConverter.Instance}}"
+														IsReadOnly="True" Tag="Duration" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Rating}" Width="80"
-									Binding="{Binding Rating}" Tag="Rating" />
+														Binding="{Binding Rating}" Tag="Rating" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Artist}" Width="200"
-									Binding="{Binding Artist}" Tag="Artist" />
+														Binding="{Binding Artist}" Tag="Artist" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Genre}" Width="100"
-									Binding="{Binding Genre}" Tag="Genre" />
+														Binding="{Binding Genre}" Tag="Genre" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Reproduced}" Width="100"
-									Binding="{Binding Reproduced, Mode=OneWay}" IsReadOnly="True" Tag="Reproduced" />
+														Binding="{Binding Reproduced, Mode=OneWay}" IsReadOnly="True" Tag="Reproduced" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Album}" Width="200"
-									Binding="{Binding Album}" Tag="Album" />
+														Binding="{Binding Album}" Tag="Album" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Created}" Width="120"
-									Binding="{Binding Created, Mode=OneWay, StringFormat={}{0:g}}" IsReadOnly="True" Tag="Created" />
+														Binding="{Binding Created, Mode=OneWay, StringFormat={}{0:g}}" IsReadOnly="True" Tag="Created" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Added}" Width="100"
-									Binding="{Binding Added, Mode=OneWay, StringFormat={}{0:g}}" IsReadOnly="True" Tag="Added" IsVisible="False" />
+														Binding="{Binding Added, Mode=OneWay, StringFormat={}{0:g}}" IsReadOnly="True" Tag="Added" IsVisible="False" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Bitrate}" Width="100"
-									Binding="{Binding Bitrate, Mode=OneWay}" IsReadOnly="True" Tag="Bitrate" IsVisible="False" />
+														Binding="{Binding Bitrate, Mode=OneWay}" IsReadOnly="True" Tag="Bitrate" IsVisible="False" />
 				<DataGridTextColumn Header="{x:Static res:Texts.Size}" Width="100"
-									Binding="{Binding Size, Mode=OneWay}" IsReadOnly="True" Tag="Size" IsVisible="False" />
+														Binding="{Binding Size, Mode=OneWay}" IsReadOnly="True" Tag="Size" IsVisible="False" />
 			</DataGrid.Columns>
 			<Interaction.Behaviors>
 				<BehaviorCollection>
