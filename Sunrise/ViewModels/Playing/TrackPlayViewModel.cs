@@ -300,9 +300,9 @@ public sealed class TrackPlayViewModel : ObservableObject
 
     private void GoToPrevTrack()
     {
-        var currentTrack = CurrentTrack;
+        var track = CurrentTrack;
 
-        if (currentTrack is null)
+        if (track is null)
             return;
 
         if (_repeatPlay == true || _position > _prevStayTime)
@@ -311,19 +311,28 @@ public sealed class TrackPlayViewModel : ObservableObject
             return;
         }
 
-        var prevTrack = Strategy.GetPrev(currentTrack);
+        while (true)
+        {
+            track = Strategy.GetPrev(track);
 
-        if (prevTrack is null)
-            Clear();
-        else
-            Change(prevTrack);
+            if (track is null)
+            {
+                Clear();
+                break;
+            }
+            else if (Owner.SelectedRubrick is not SongsRubricViewModel || track.Picked)
+            {
+                Change(track);
+                break;
+            }
+        }
     }
 
     private void GoToNextTrack()
     {
-        var currentTrack = CurrentTrack;
+        var track = CurrentTrack;
 
-        if (currentTrack is null)
+        if (track is null)
         {
             PlayPauseTrack();
             return;
@@ -335,24 +344,32 @@ public sealed class TrackPlayViewModel : ObservableObject
             return;
         }
 
-        var nextTrack = Strategy.GetNext(currentTrack);
-
-        if (nextTrack is null)
+        while (true)
         {
-            if (_repeatPlay == false)
+            var nextTrack = Strategy.GetNext(track);
+
+            if (nextTrack is null)
             {
-                currentTrack = Strategy.GetFirst();
+                if (_repeatPlay == false)
+                {
+                    track = Strategy.GetFirst();
 
-                if (currentTrack is null)
-                    return;
+                    if (track is not null)
+                        Change(track);
+                }
+                else
+                    Clear();
 
-                Change(currentTrack);
+                break;
             }
+            else if (Owner.SelectedRubrick is SongsRubricViewModel && !nextTrack.Picked)
+                track = nextTrack;
             else
-                Clear();
+            {
+                Change(nextTrack);
+                break;
+            }
         }
-        else
-            Change(nextTrack);
     }
 
     private async ValueTask OnStopped()

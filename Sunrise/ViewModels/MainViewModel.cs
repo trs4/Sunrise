@@ -108,7 +108,7 @@ public partial class MainViewModel : ObservableObject
 
         foreach (var track in tracks)
         {
-            var trackViewModel = new TrackViewModel(track);
+            var trackViewModel = new TrackViewModel(track, TrackPlay.Player);
             Tracks.Add(trackViewModel);
         }
     }

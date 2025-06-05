@@ -705,6 +705,21 @@ public sealed class Player
             .RunAsync(token);
     }
 
+    public async Task ChangePickedAsync(Track track, bool value, CancellationToken token = default)
+    {
+        ArgumentNullException.ThrowIfNull(track);
+
+        if (track.Picked == value)
+            return;
+
+        track.Picked = value;
+
+        await _connection.Update.CreateQuery<Tracks>()
+            .WithTerm(Tracks.Id, track.Id)
+            .AddColumn(Tracks.Picked, value)
+            .RunAsync(token);
+    }
+
     public async Task<TrackPicture?> LoadPictureAsync(Track track, CancellationToken token = default)
         => track.Picture = await _connection.Select.CreateWithParseQuery<TrackPicture, TrackPictures>().GetOneAsync(TrackPictures.Id, track.Id, token);
 }

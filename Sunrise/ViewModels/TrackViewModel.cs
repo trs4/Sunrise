@@ -1,5 +1,7 @@
 ﻿using System;
+using System.ComponentModel;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Sunrise.Model;
 using Track = Sunrise.Model.Track;
 
 namespace Sunrise.ViewModels;
@@ -22,9 +24,10 @@ public class TrackViewModel : ObservableObject
     private double _bitrate;
     private long _size;
 
-    public TrackViewModel(Track track)
+    public TrackViewModel(Track track, Player player)
     {
         Track = track ?? throw new ArgumentNullException(nameof(track));
+        Player = player ?? throw new ArgumentNullException(nameof(player));
         _picked = track.Picked;
         _title = track.Title;
         _year = track.Year;
@@ -41,6 +44,8 @@ public class TrackViewModel : ObservableObject
     }
 
     public Track Track { get; }
+
+    public Player Player { get; }
 
     /// <summary>Воспроизводится</summary>
     public bool? IsPlaying
@@ -145,6 +150,14 @@ public class TrackViewModel : ObservableObject
     {
         get => _size;
         set => SetProperty(ref _size, value);
+    }
+
+    protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        if (e.PropertyName == nameof(Picked))
+            await Player.ChangePickedAsync(Track, _picked);
     }
 
     public override string ToString() => $"{_artist} - {_title}";
