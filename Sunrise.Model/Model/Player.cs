@@ -24,10 +24,8 @@ public sealed class Player
     private readonly string _folderPath;
     private readonly DatabaseConnection _connection;
 
-    private List<Track>? _allTracks;
-    private Dictionary<int, Track> _allTracksById;
-    private Dictionary<string, Track>? _allTracksByPath;
-    private readonly object _allTracksSync = new();
+    private TracksScreenshot? _tracksScreenshot;
+    private readonly object _tracksScreenshotSync = new();
 
     private Dictionary<string, Playlist>? _allPlaylistsByName;
     private readonly object _allPlaylistsSync = new();
@@ -87,44 +85,32 @@ public sealed class Player
 
     public bool IsAllTracksLoaded()
     {
-        lock (_allTracksSync)
-            return _allTracks is not null && _allTracksByPath is not null;
+        lock (_tracksScreenshotSync)
+            return _tracksScreenshot is not null;
     }
 
     public async Task<TracksScreenshot> GetAllTracks(CancellationToken token = default)
     {
-        List<Track> allTracks;
-        Dictionary<int, Track> allTracksById;
-        Dictionary<string, Track> allTracksByPath;
+        TracksScreenshot? tracksScreenshot;
 
-        lock (_allTracksSync)
-        {
-            allTracks = _allTracks;
-            allTracksById = _allTracksById;
-            allTracksByPath = _allTracksByPath;
-        }
+        lock (_tracksScreenshotSync)
+            tracksScreenshot = _tracksScreenshot;
 
-        if (allTracks is not null && allTracksById is not null && allTracksByPath is not null)
-            return new(allTracks, allTracksById, allTracksByPath);
+        if (tracksScreenshot is not null)
+            return tracksScreenshot;
 
-        allTracks = await _connection.Select.CreateWithParseQuery<Track, Tracks>().GetAsync(token);
-        allTracksById = new(allTracks.Count);
-        allTracksByPath = new(allTracks.Count, StringComparer.OrdinalIgnoreCase);
+        var allTracks = await _connection.Select.CreateWithParseQuery<Track, Tracks>().GetAsync(token);
+        var allTracksById = new Dictionary<int, Track>(allTracks.Count);
 
         foreach (var track in allTracks)
-        {
             allTracksById.Add(track.Id, track);
-            allTracksByPath[track.Path] = track;
-        }
 
-        lock (_allTracksSync)
-        {
-            _allTracks = allTracks;
-            _allTracksById = allTracksById;
-            _allTracksByPath = allTracksByPath;
-        }
+        tracksScreenshot = new(allTracks, allTracksById);
 
-        return new(allTracks, allTracksById, allTracksByPath);
+        lock (_tracksScreenshotSync)
+            _tracksScreenshot = tracksScreenshot;
+
+        return tracksScreenshot;
     }
 
     public async Task<Dictionary<string, Playlist>> GetAllPlaylists(CancellationToken token = default)
@@ -192,11 +178,8 @@ public sealed class Player
 
     public void ClearAllTracks()
     {
-        lock (_allTracksSync)
-        {
-            _allTracks = null;
-            _allTracksByPath = null;
-        }
+        lock (_tracksScreenshotSync)
+            _tracksScreenshot = null;
     }
 
     public void ClearAllPlaylists()

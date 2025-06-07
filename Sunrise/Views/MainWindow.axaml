@@ -4,6 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 				xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
         xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+        xmlns:sc="clr-namespace:Sunrise.Controls"
         xmlns:svm="clr-namespace:Sunrise.ViewModels"
         xmlns:sv="clr-namespace:Sunrise.Views"
         xmlns:sb="clr-namespace:Sunrise.Behaviors"
@@ -154,59 +155,27 @@
 			</Grid>
 		</ScrollViewer>
 
-		<DataGrid Name="tracksGrid"
-							ItemsSource="{Binding Tracks, Mode=OneWay}"
-							CanUserReorderColumns="True"
-							CanUserResizeColumns="True"
-							GridLinesVisibility="All"
-							HorizontalScrollBarVisibility="Visible"
-							VerticalScrollBarVisibility="Visible"
-							BorderThickness="1" CornerRadius="0" BorderBrush="LightGray"
-							Margin="1"
-							Loaded="DataGrid_Loaded"
-							CellPointerPressed="DataGrid_CellPointerPressed">
-			<DataGrid.Columns>
-				<DataGridTemplateColumn Tag="IsPlaying"
-																Width="20" CanUserResize="False" CanUserSort="False" CanUserReorder="True">
-					<DataGridTemplateColumn.CellTemplate>
-						<DataTemplate DataType="svm:TrackViewModel">
-							<Image Source="{Binding IsPlaying, Mode=OneWay, Converter={x:Static scv:IsPlayingToIconConverter.Instance}}"
-										 HorizontalAlignment="Center" VerticalAlignment="Center"
-										 OpacityMask="Gray" Opacity="0.25"
-										 MaxHeight="12" MaxWidth="12" />
-						</DataTemplate>
-					</DataGridTemplateColumn.CellTemplate>
-				</DataGridTemplateColumn>
-				<DataGridCheckBoxColumn Binding="{Binding Picked}" Tag="Picked"
-																Width="20" CanUserResize="False" CanUserSort="False" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Title}" Width="230"
-														Binding="{Binding Title}" IsReadOnly="False" Tag="Title" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Year}" Width="50"
-														Binding="{Binding Year}" Tag="Year" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Duration}" Width="50"
-														Binding="{Binding Duration, Mode=OneWay, Converter={x:Static scv:DurationConverter.Instance}}"
-														IsReadOnly="True" Tag="Duration" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Rating}" Width="80"
-														Binding="{Binding Rating}" Tag="Rating" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Artist}" Width="200"
-														Binding="{Binding Artist}" Tag="Artist" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Genre}" Width="100"
-														Binding="{Binding Genre}" Tag="Genre" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Reproduced}" Width="100"
-														Binding="{Binding Reproduced, Mode=OneWay}" IsReadOnly="True" Tag="Reproduced" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Album}" Width="200"
-														Binding="{Binding Album}" Tag="Album" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Created}" Width="120"
-														Binding="{Binding Created, Mode=OneWay, StringFormat={}{0:g}}" IsReadOnly="True" Tag="Created" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Added}" Width="100"
-														Binding="{Binding Added, Mode=OneWay, StringFormat={}{0:g}}" IsReadOnly="True" Tag="Added" IsVisible="False" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Bitrate}" Width="100"
-														Binding="{Binding Bitrate, Mode=OneWay}" IsReadOnly="True" Tag="Bitrate" IsVisible="False" />
-				<DataGridTextColumn Header="{x:Static res:Texts.Size}" Width="100"
-														Binding="{Binding Size, Mode=OneWay}" IsReadOnly="True" Tag="Size" IsVisible="False" />
-			</DataGrid.Columns>
+		<ListBox DockPanel.Dock="Left" MinWidth="150"
+						 ItemsSource="{Binding TrackSources, Mode=OneWay}"
+						 SelectedItem="{Binding SelectedTrackSource}"
+						 IsVisible="{Binding IsTrackSourcesVisible}"
+						 SelectionChanged="TrackSource_SelectionChanged"
+						 Tapped="TrackSource_Tapped"
+						 DoubleTapped="TrackSource_DoubleTapped" />
+
+		<DataGrid
+			Name="tracksGrid"
+			ItemsSource="{Binding Tracks, Mode=OneWay}"
+			CanUserReorderColumns="True"
+			CanUserResizeColumns="True"
+			GridLinesVisibility="All"
+			HorizontalScrollBarVisibility="Visible"
+			VerticalScrollBarVisibility="Visible"
+			BorderThickness="1" CornerRadius="0" BorderBrush="LightGray"
+			Margin="1">
 			<Interaction.Behaviors>
 				<BehaviorCollection>
+					<sb:ColumnsDataGridBehavior />
 					<sb:RowDoubleClickDataGridBehavior DoubleClickCommand="{Binding DoubleClickCommand, Mode=OneTime}" />
 				</BehaviorCollection>
 			</Interaction.Behaviors>

@@ -179,7 +179,9 @@ public sealed class TrackPlayViewModel : ObservableObject
         }, DispatcherPriority.Normal);
     }
 
-    public void Play(TrackViewModel trackViewModel) => PlayCore(trackViewModel, toStart: true);
+    public void Play(TrackViewModel trackViewModel) => PlayCore(trackViewModel);
+
+    public void PlayItBegin(TrackViewModel trackViewModel) => PlayCore(trackViewModel, toStart: true);
 
     private void PlayCore(TrackViewModel trackViewModel, bool toStart = false)
     {

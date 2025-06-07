@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
@@ -13,27 +14,6 @@ public partial class MainWindow : Window
 {
     public MainWindow()
         => InitializeComponent();
-
-    private void DataGrid_Loaded(object? sender, RoutedEventArgs e)
-    {
-        if (sender is not DataGrid dataGrid)
-            return;
-
-        var titleColumn = dataGrid.Columns.First(c => c.Tag?.ToString() == nameof(TrackViewModel.Title));
-        titleColumn.IsReadOnly = true;
-
-        var yearColumn = dataGrid.Columns.First(c => c.Tag?.ToString() == nameof(TrackViewModel.Year));
-        yearColumn.IsReadOnly = true;
-
-        var artistColumn = dataGrid.Columns.First(c => c.Tag?.ToString() == nameof(TrackViewModel.Artist));
-        artistColumn.IsReadOnly = true;
-
-        var genreColumn = dataGrid.Columns.First(c => c.Tag?.ToString() == nameof(TrackViewModel.Genre));
-        genreColumn.IsReadOnly = true;
-
-        var albumColumn = dataGrid.Columns.First(c => c.Tag?.ToString() == nameof(TrackViewModel.Album));
-        albumColumn.IsReadOnly = true;
-    }
 
     private static T? GetDataContext<T>(RoutedEventArgs e)
         where T : class
@@ -50,8 +30,7 @@ public partial class MainWindow : Window
         if (rubricViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
 
-        var tracks = await rubricViewModel.GetTracks();
-        mainViewModel.ChangeTracks(rubricViewModel, tracks);
+        await mainViewModel.ChangeTracksAsync(rubricViewModel);
     }
 
     private void Playlist_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -64,27 +43,50 @@ public partial class MainWindow : Window
         mainViewModel.SelectedPlaylist = playlistViewModel;
     }
 
-    private void Playlist_Tapped(object? sender, TappedEventArgs e)
+    private async void Playlist_Tapped(object? sender, TappedEventArgs e)
     {
         var playlistViewModel = GetDataContext<PlaylistViewModel>(e);
 
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
 
-        var playlist = playlistViewModel.Playlist;
-        mainViewModel.ChangeTracks(playlist, playlist.Tracks);
+        await mainViewModel.ChangeTracksAsync(playlistViewModel.Playlist);
     }
 
-    private void DataGrid_CellPointerPressed(object? sender, DataGridCellPointerPressedEventArgs e)
+    private async void TrackSource_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        if (sender is not DataGrid dataGrid)
+        var trackSourceViewModel = GetSelectedItem<TrackSourceViewModel>(e);
+        await TrySetTrackSourceAsync(trackSourceViewModel);
+    }
+
+    private async void TrackSource_Tapped(object? sender, TappedEventArgs e)
+    {
+        var trackSourceViewModel = GetDataContext<TrackSourceViewModel>(e);
+        await TrySetTrackSourceAsync(trackSourceViewModel);
+    }
+
+    private async void TrackSource_DoubleTapped(object? sender, TappedEventArgs e)
+    {
+        var trackSourceViewModel = GetDataContext<TrackSourceViewModel>(e);
+        var mainViewModel = await TrySetTrackSourceAsync(trackSourceViewModel);
+
+        if (mainViewModel is null)
             return;
 
-        if (e.PointerPressedEventArgs.Handled && e.Column is DataGridCheckBoxColumn) // fix
-        {
-            e.PointerPressedEventArgs.Handled = false;
-            dataGrid.CommitEdit();
-        }
+        var trackViewModel = mainViewModel.Tracks.FirstOrDefault();
+
+        if (trackViewModel is not null && trackViewModel.IsPlaying != true)
+            mainViewModel.TrackPlay.Play(trackViewModel);
+    }
+
+    private async Task<MainViewModel?> TrySetTrackSourceAsync(TrackSourceViewModel? trackSourceViewModel)
+    {
+        if (trackSourceViewModel is null || DataContext is not MainViewModel mainViewModel)
+            return null;
+
+        mainViewModel.SelectedTrackSource = trackSourceViewModel;
+        await mainViewModel.ChangeTracksAsync(trackSourceViewModel);
+        return mainViewModel;
     }
 
 }

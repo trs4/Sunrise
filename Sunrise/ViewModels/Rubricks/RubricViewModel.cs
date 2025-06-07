@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 using Sunrise.Model;
 
 namespace Sunrise.ViewModels;
@@ -20,7 +18,9 @@ public abstract class RubricViewModel
 
     public string Name { get; }
 
-    public abstract Task<List<Track>> GetTracks(CancellationToken token = default);
+    public abstract IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot);
+
+    public abstract List<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null);
 
     public override string ToString() => Name;
 }
