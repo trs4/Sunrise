@@ -40,9 +40,10 @@ public partial class MainViewModel : ObservableObject
         _genres = new GenresRubricViewModel(player);
 
         AddFolderCommand = new AsyncRelayCommand(AddFolderAsync);
-        AddCategoryCommand = new RelayCommand(AddCategory);
-        AddPlaylistCommand = new RelayCommand(AddPlaylist);
-        DeletePlaylistCommand = new AsyncRelayCommand(DeletePlaylist);
+        AddCategoryCommand = new AsyncRelayCommand(AddCategoryAsync);
+        DeleteCategoryCommand = new AsyncRelayCommand(DeleteCategoryAsync);
+        AddPlaylistCommand = new AsyncRelayCommand(AddPlaylistAsync);
+        DeletePlaylistCommand = new AsyncRelayCommand(DeletePlaylistAsync);
         DoubleClickCommand = new RelayCommand<TrackViewModel>(OnDoubleClick);
 
         Rubricks = new([_artists, _albums, _songs, _genres]);
@@ -64,15 +65,19 @@ public partial class MainViewModel : ObservableObject
         set => SetProperty(ref _selectedRubrick, value);
     }
 
-    public IRelayCommand AddCategoryCommand { get; }
-
     public ObservableCollection<CategoryViewModel> Categories { get; } = [];
 
-    public IRelayCommand AddPlaylistCommand { get; }
+    public CategoryViewModel? SelectedCategory { get; set; }
+
+    public IRelayCommand AddCategoryCommand { get; }
+
+    public IRelayCommand DeleteCategoryCommand { get; }
 
     public ObservableCollection<PlaylistViewModel> Playlists { get; } = [];
 
     public PlaylistViewModel? SelectedPlaylist { get; set; }
+
+    public IRelayCommand AddPlaylistCommand { get; }
 
     public IRelayCommand DeletePlaylistCommand { get; }
 
@@ -107,19 +112,24 @@ public partial class MainViewModel : ObservableObject
     public async Task ReloadTracksAsync(CancellationToken token = default)
     {
         var rubricViewModel = _songs;
-        var playlists = await TrackPlay.Player.GetAllPlaylists(token);
-        await ChangeTracksAsync(rubricViewModel, token);
+        var playlists = await TrackPlay.Player.GetAllPlaylistsAsync(token);
+        await ChangeTracksCoreAsync(rubricViewModel, token);
         ChangePlaylists(playlists.Values);
     }
 
     public Task SelectSongsAsync(CancellationToken token = default)
         => ChangeTracksAsync(_songs, token);
 
-    public async Task ChangeTracksAsync(object tracksOwner, CancellationToken token = default)
+    public Task ChangeTracksAsync(object tracksOwner, CancellationToken token = default)
     {
         if (Equals(TracksOwner, tracksOwner))
-            return;
+            return Task.CompletedTask;
 
+        return ChangeTracksCoreAsync(tracksOwner, token);
+    }
+
+    private async Task ChangeTracksCoreAsync(object tracksOwner, CancellationToken token)
+    {
         TracksOwner = tracksOwner;
         List<Track> tracks;
 
@@ -134,7 +144,7 @@ public partial class MainViewModel : ObservableObject
         }
         else if (tracksOwner is RubricViewModel rubricViewModel)
         {
-            var screenshot = await TrackPlay.Player.GetAllTracks(token);
+            var screenshot = await TrackPlay.Player.GetAllTracksAsync(token);
             var trackSources = rubricViewModel.GetTrackSources(screenshot);
             IsTrackSourcesVisible = trackSources is not null;
             TrackSources.Clear();
@@ -152,7 +162,7 @@ public partial class MainViewModel : ObservableObject
         }
         else if (tracksOwner is TrackSourceViewModel trackSourceViewModel)
         {
-            var screenshot = await TrackPlay.Player.GetAllTracks(token);
+            var screenshot = await TrackPlay.Player.GetAllTracksAsync(token);
             tracks = trackSourceViewModel.Rubric.GetTracks(screenshot, trackSourceViewModel);
         }
         else
@@ -192,21 +202,36 @@ public partial class MainViewModel : ObservableObject
         await ReloadTracksAsync(token);
     }
 
-    private void AddCategory()
+    private async Task AddCategoryAsync()
     {
-
+        var category = await TrackPlay.Player.AddCategoryAsync();
+        var categoryViewModel = new CategoryViewModel(category);
+        Categories.Add(categoryViewModel);
     }
 
-    private void AddPlaylist()
+    private async Task DeleteCategoryAsync()
     {
+        var selectedCategory = SelectedCategory;
 
+        if (!await TrackPlay.Player.DeleteCategoryAsync(selectedCategory?.Category))
+            return;
+
+        SelectedCategory = null;
+        Categories.Remove(selectedCategory);
     }
 
-    private async Task DeletePlaylist()
+    private async Task AddPlaylistAsync()
+    {
+        var playlist = await TrackPlay.Player.AddPlaylistAsync();
+        var playlistViewModel = new PlaylistViewModel(playlist);
+        Playlists.Add(playlistViewModel);
+    }
+
+    private async Task DeletePlaylistAsync()
     {
         var selectedPlaylist = SelectedPlaylist;
 
-        if (!await TrackPlay.Player.DeletePlaylist(selectedPlaylist?.Playlist))
+        if (!await TrackPlay.Player.DeletePlaylistAsync(selectedPlaylist?.Playlist))
             return;
 
         SelectedPlaylist = null;

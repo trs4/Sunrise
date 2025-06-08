@@ -141,6 +141,9 @@
   <data name="Categories" xml:space="preserve">
     <value>Категории</value>
   </data>
+  <data name="Category" xml:space="preserve">
+    <value>Категория</value>
+  </data>
   <data name="Created" xml:space="preserve">
     <value>Создано</value>
   </data>

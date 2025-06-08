@@ -125,7 +125,32 @@
 									Command="{Binding AddCategoryCommand, Mode=OneWay}" />
 				</Grid>
 
-				<ListBox Grid.Row="3" ItemsSource="{Binding Categories, Mode=OneWay}">
+				<ListBox Grid.Row="3"
+								 ItemsSource="{Binding Categories, Mode=OneWay}"
+								 SelectionChanged="Category_SelectionChanged"
+								 Tapped="Category_Tapped"
+								 DoubleTapped="Category_DoubleTapped">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Grid>
+								<TextBlock Text="{Binding Name}"
+													 IsVisible="{Binding !Editing}" />
+								<TextBox Text="{Binding Name}"
+												 Height="14"
+												 AcceptsReturn="True"
+												 AcceptsTab="True"
+											   IsVisible="{Binding Editing}"
+											   KeyUp="Category_KeyUp"
+												 LostFocus="Category_LostFocus" />
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+					<ListBox.ContextMenu>
+						<ContextMenu>
+							<MenuItem Header="{x:Static res:Texts.Delete}"
+												Command="{Binding DeleteCategoryCommand, Mode=OneWay}" />
+						</ContextMenu>
+					</ListBox.ContextMenu>
 				</ListBox>
 
 				<Grid Grid.Row="4" x:Name="playlistGrid" Classes="HeadGrid">
@@ -143,7 +168,23 @@
 				<ListBox Grid.Row="5"
 								 ItemsSource="{Binding Playlists, Mode=OneWay}"
 								 SelectionChanged="Playlist_SelectionChanged"
-								 Tapped="Playlist_Tapped">
+								 Tapped="Playlist_Tapped"
+								 DoubleTapped="Playlist_DoubleTapped">
+					<ListBox.ItemTemplate>
+						<DataTemplate>
+							<Grid>
+								<TextBlock Text="{Binding Name}"
+													 IsVisible="{Binding !Editing}" />
+								<TextBox Text="{Binding Name}"
+												 Height="14"
+												 AcceptsReturn="True"
+												 AcceptsTab="True"
+												 IsVisible="{Binding Editing}"
+												 KeyUp="Playlist_KeyUp"
+												 LostFocus="Playlist_LostFocus" />
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
 					<ListBox.ContextMenu>
 						<ContextMenu>
 							<MenuItem Header="{x:Static res:Texts.Delete}"

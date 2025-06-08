@@ -423,6 +423,9 @@ public sealed class TrackPlayViewModel : ObservableObject
             return;
 
         await ImportFromITunes.LoadAsync(Player, filePath, token: token);
+        Player.ClearAllTracks();
+        Player.ClearAllPlaylists();
+        await Owner.ReloadTracksAsync(token);
     }
 
     private void OnExit() => Owner.Owner.Close();
