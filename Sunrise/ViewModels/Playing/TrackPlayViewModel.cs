@@ -7,6 +7,8 @@ using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
 using Sunrise.Services;
@@ -48,8 +50,8 @@ public sealed class TrackPlayViewModel : ObservableObject
         RandomPlayCommand = new RelayCommand(OnRandomPlay);
         RepeatPlayCommand = new RelayCommand(OnRepeatPlay);
         PrevCommand = new RelayCommand(GoToPrevTrack);
-        PlayCommand = new RelayCommand(PlayPauseTrack);
-        NextCommand = new RelayCommand(GoToNextTrack);
+        PlayCommand = new AsyncRelayCommand(PlayPauseTrackAsync);
+        NextCommand = new AsyncRelayCommand(GoToNextTrackAsync);
 
         ImportFromITunesCommand = new AsyncRelayCommand(OnImportFromITunesAsync);
         ExitCommand = new RelayCommand(OnExit);
@@ -179,31 +181,38 @@ public sealed class TrackPlayViewModel : ObservableObject
         }, DispatcherPriority.Normal);
     }
 
-    public void Play(TrackViewModel trackViewModel) => PlayCore(trackViewModel);
+    public Task PlayAsync(TrackViewModel trackViewModel) => PlayCoreAsync(trackViewModel);
 
-    public void PlayItBegin(TrackViewModel trackViewModel) => PlayCore(trackViewModel, toStart: true);
+    public Task PlayItBeginAsync(TrackViewModel trackViewModel) => PlayCoreAsync(trackViewModel, toStart: true);
 
-    private void PlayCore(TrackViewModel trackViewModel, bool toStart = false)
+    private async Task PlayCoreAsync(TrackViewModel trackViewModel, bool toStart = false)
     {
-        bool change = toStart || _currentTrack != trackViewModel;
-
-        if (change)
+        try
         {
-            if (_currentTrack is not null)
-                _currentTrack.IsPlaying = null;
+            bool change = toStart || _currentTrack != trackViewModel;
 
-            Position = default;
-            TrackIcon = null;
-            CurrentTrack = trackViewModel;
+            if (change)
+            {
+                if (_currentTrack is not null)
+                    _currentTrack.IsPlaying = null;
+
+                Position = default;
+                TrackIcon = null;
+                CurrentTrack = trackViewModel;
+            }
+
+            PlayIcon = _pauseIconSource;
+            trackViewModel.IsPlaying = true;
+            Player.Media.Play(trackViewModel.Track);
+            _playerTimer.Start();
+
+            if (change)
+                SetPicture(trackViewModel.Track);
         }
-
-        PlayIcon = _pauseIconSource;
-        trackViewModel.IsPlaying = true;
-        Player.Media.Play(trackViewModel.Track);
-        _playerTimer.Start();
-
-        if (change)
-            SetPicture(trackViewModel.Track);
+        catch (Exception e)
+        {
+            await MessageBoxManager.GetMessageBoxStandard("Play", e.Message, ButtonEnum.Ok).ShowAsync();
+        }
     }
 
     private void Change(TrackViewModel trackViewModel)
@@ -287,7 +296,7 @@ public sealed class TrackPlayViewModel : ObservableObject
         }
     }
 
-    private void PlayPauseTrack()
+    private async Task PlayPauseTrackAsync()
     {
         var currentTrack = CurrentTrack ??= Strategy.GetFirst();
 
@@ -297,7 +306,7 @@ public sealed class TrackPlayViewModel : ObservableObject
         if (currentTrack.IsPlaying ?? false)
             Pause(currentTrack);
         else
-            PlayCore(currentTrack);
+            await PlayCoreAsync(currentTrack);
     }
 
     private void GoToPrevTrack()
@@ -330,13 +339,13 @@ public sealed class TrackPlayViewModel : ObservableObject
         }
     }
 
-    private void GoToNextTrack()
+    private async Task GoToNextTrackAsync()
     {
         var track = CurrentTrack;
 
         if (track is null)
         {
-            PlayPauseTrack();
+            await PlayPauseTrackAsync();
             return;
         }
 
@@ -391,7 +400,7 @@ public sealed class TrackPlayViewModel : ObservableObject
         if (_repeatPlay == true)
         {
             ChangePosition(0);
-            PlayCore(currentTrack);
+            await PlayCoreAsync(currentTrack);
             return;
         }
 
@@ -406,13 +415,13 @@ public sealed class TrackPlayViewModel : ObservableObject
                 if (currentTrack is null)
                     return;
 
-                PlayCore(currentTrack);
+                await PlayCoreAsync(currentTrack);
             }
             else
                 Clear();
         }
         else
-            PlayCore(nextTrack);
+            await PlayCoreAsync(nextTrack);
     }
 
     private async Task OnImportFromITunesAsync(CancellationToken token)

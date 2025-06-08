@@ -41,6 +41,9 @@ public class DataGridControlColumn : DataGridTemplateColumn
         CanUserResize = columnViewModel.CanUserResize;
         CanUserSort = columnViewModel.CanUserSort;
 
+        if (columnViewModel.CanUserSort)
+            SortMemberPath = columnViewModel.Name;
+
         if (!double.IsNaN(columnViewModel.Width))
             Width = new DataGridLength(columnViewModel.Width);
 

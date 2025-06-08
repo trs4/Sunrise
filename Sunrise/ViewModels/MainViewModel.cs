@@ -239,10 +239,10 @@ public partial class MainViewModel : ObservableObject
         await SelectSongsAsync();
     }
 
-    private void OnDoubleClick(TrackViewModel? trackViewModel)
+    private async void OnDoubleClick(TrackViewModel? trackViewModel)
     {
         if (trackViewModel is not null)
-            TrackPlay.PlayItBegin(trackViewModel);
+            await TrackPlay.PlayItBeginAsync(trackViewModel);
     }
 
     private void InitTracksColumns()

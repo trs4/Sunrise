@@ -16,6 +16,7 @@
 		<PackageReference Include="Material.Avalonia" />
 		<PackageReference Include="Material.Avalonia.DataGrid" />
 		<PackageReference Include="CommunityToolkit.Mvvm" />
+		<PackageReference Include="MessageBox.Avalonia" />
 		<PackageReference Include="Microsoft.Extensions.DependencyInjection" />
 		<PackageReference Include="Xaml.Behaviors" />
 	</ItemGroup>

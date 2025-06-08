@@ -161,7 +161,7 @@ public partial class MainWindow : Window
         var trackViewModel = mainViewModel.Tracks.FirstOrDefault();
 
         if (trackViewModel is not null && trackViewModel.IsPlaying != true)
-            mainViewModel.TrackPlay.Play(trackViewModel);
+            await mainViewModel.TrackPlay.PlayAsync(trackViewModel);
     }
 
     private async Task<MainViewModel?> TrySetTrackSourceAsync(TrackSourceViewModel? trackSourceViewModel)
