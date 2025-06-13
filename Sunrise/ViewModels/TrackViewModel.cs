@@ -158,6 +158,8 @@ public class TrackViewModel : ObservableObject
 
         if (e.PropertyName == nameof(Picked))
             await Player.ChangePickedAsync(Track, _picked);
+        else if (e.PropertyName == nameof(Rating))
+            await Player.ChangeRatingAsync(Track, _rating);
     }
 
     public override string ToString() => $"{_artist} - {_title}";

@@ -891,6 +891,21 @@ public sealed class Player
             .RunAsync(token);
     }
 
+    public async Task ChangeRatingAsync(Track track, byte value, CancellationToken token = default)
+    {
+        ArgumentNullException.ThrowIfNull(track);
+
+        if (track.Rating == value)
+            return;
+
+        track.Rating = value;
+
+        await _connection.Update.CreateQuery<Tracks>()
+            .WithTerm(Tracks.Id, track.Id)
+            .AddColumn(Tracks.Rating, value)
+            .RunAsync(token);
+    }
+
     public async Task<TrackPicture?> LoadPictureAsync(Track track, CancellationToken token = default)
         => track.Picture = await _connection.Select.CreateWithParseQuery<TrackPicture, TrackPictures>().GetOneAsync(TrackPictures.Id, track.Id, token);
 }
