@@ -14,7 +14,6 @@ namespace Sunrise.Controls;
 [TemplatePart("PART_StarsPresenter", typeof(ItemsControl))]
 public class RatingControl : TemplatedControl
 {
-    private ItemsControl? _starsPresenter;
     private int _value;
     private IEnumerable<int> _stars = Enumerable.Range(1, 5);
 
@@ -62,19 +61,6 @@ public class RatingControl : TemplatedControl
             UpdateStars();
     }
 
-    protected override void OnApplyTemplate(TemplateAppliedEventArgs e)
-    {
-        base.OnApplyTemplate(e);
-
-        if (_starsPresenter is not null)
-            _starsPresenter.PointerReleased -= OnPointerReleased;
-
-        _starsPresenter = e.NameScope.Find("PART_StarsPresenter") as ItemsControl;
-
-        if (_starsPresenter is not null)
-            _starsPresenter.PointerReleased += OnPointerReleased;
-    }
-
     protected override void UpdateDataValidation(AvaloniaProperty property, BindingValueType state, Exception? error)
     {
         base.UpdateDataValidation(property, state, error);
@@ -83,10 +69,12 @@ public class RatingControl : TemplatedControl
             DataValidationErrors.SetError(this, error);
     }
 
-    private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    protected override void OnPointerReleased(PointerReleasedEventArgs e)
     {
-        if (e.Source is Path star)
-            Value = star.DataContext as int? ?? 0;
+        base.OnPointerReleased(e);
+
+        if (e.Source is Path star && star.DataContext is int value)
+            Value = value == 1 && e.GetPosition(this).X < 5 ? 0 : value;
     }
 
 }

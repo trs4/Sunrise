@@ -19,8 +19,8 @@ public class RatingColumnViewModel : ColumnViewModel
     {
         Caption = Texts.Rating;
         Width = 80;
+        CanUserResize = false;
         CellTemplate = _dataTemplate;
-        EditTemplate = _dataTemplate;
     }
 
     public override Type PropertyType => typeof(byte);
@@ -30,8 +30,8 @@ public class RatingColumnViewModel : ColumnViewModel
 
     public override void SetValue(object? component, object? value)
     {
-        //if (_setter is not null && component is TViewModel source && value is bool boolValue)
-        //    _setter(source, boolValue);
+        if (component is TrackViewModel trackViewModel && value is int rating)
+            trackViewModel.Rating = (byte)rating;
     }
 
 }

@@ -11,7 +11,7 @@ namespace Sunrise.ViewModels.Columns;
 
 public class IsPlayingColumnViewModel : ColumnViewModel
 {
-    private readonly IDataTemplate _iconDataTemplate = new FuncDataTemplate<object>((_, _) => new Image
+    private readonly IDataTemplate _dataTemplate = new FuncDataTemplate<object>((_, _) => new Image
     {
         HorizontalAlignment = HorizontalAlignment.Center,
         VerticalAlignment = VerticalAlignment.Center,
@@ -27,7 +27,7 @@ public class IsPlayingColumnViewModel : ColumnViewModel
     {
         Width = 20;
         CanUserResize = CanUserSort = CanUserReorder = false;
-        CellTemplate = _iconDataTemplate;
+        CellTemplate = _dataTemplate;
     }
 
     public override Type PropertyType => typeof(bool?);
