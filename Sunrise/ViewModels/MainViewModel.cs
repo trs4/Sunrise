@@ -65,13 +65,9 @@ public partial class MainViewModel : ObservableObject
         set => SetProperty(ref _selectedRubrick, value);
     }
 
-    public ObservableCollection<CategoryViewModel> Categories { get; } = [];
+    #region Playlists
 
-    public CategoryViewModel? SelectedCategory { get; set; }
-
-    public IRelayCommand AddCategoryCommand { get; }
-
-    public IRelayCommand DeleteCategoryCommand { get; }
+    private bool _isPlaylistsVisible = true;
 
     public ObservableCollection<PlaylistViewModel> Playlists { get; } = [];
 
@@ -82,6 +78,33 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand DeletePlaylistCommand { get; }
 
     public IRelayCommand DoubleClickCommand { get; }
+
+    public bool IsPlaylistsVisible
+    {
+        get => _isPlaylistsVisible;
+        set => SetProperty(ref _isPlaylistsVisible, value);
+    }
+
+    #endregion
+    #region Categories
+
+    private bool _isCategoriesVisible = true;
+
+    public ObservableCollection<CategoryViewModel> Categories { get; } = [];
+
+    public CategoryViewModel? SelectedCategory { get; set; }
+
+    public IRelayCommand AddCategoryCommand { get; }
+
+    public IRelayCommand DeleteCategoryCommand { get; }
+
+    public bool IsCategoriesVisible
+    {
+        get => _isCategoriesVisible;
+        set => SetProperty(ref _isCategoriesVisible, value);
+    }
+
+    #endregion
 
     public object TracksOwner { get; set; }
 
@@ -268,11 +291,7 @@ public partial class MainViewModel : ObservableObject
             Width = 50,
         });
 
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, byte>(nameof(TrackViewModel.Rating), t => t.Rating)
-        {
-            Caption = Texts.Rating,
-            Width = 80,
-        });
+        TracksColumns.Add(new RatingColumnViewModel());
 
         TracksColumns.Add(new TextColumnViewModel<TrackViewModel, string>(nameof(TrackViewModel.Artist), t => t.Artist ?? string.Empty)
         {

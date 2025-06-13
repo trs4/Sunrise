@@ -34,56 +34,14 @@ public partial class MainWindow : Window
         await mainViewModel.ChangeTracksAsync(rubricViewModel);
     }
 
-    private void Category_SelectionChanged(object? sender, SelectionChangedEventArgs e)
-    {
-        var categoryViewModel = GetSelectedItem<CategoryViewModel>(e);
+    #region Playlists
 
-        if (categoryViewModel is null || DataContext is not MainViewModel mainViewModel)
+    private void Playlists_Tapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is not MainViewModel mainViewModel)
             return;
 
-        mainViewModel.SelectedCategory = categoryViewModel;
-    }
-
-    private void Category_Tapped(object? sender, TappedEventArgs e)
-    {
-        var categoryViewModel = GetDataContext<CategoryViewModel>(e);
-
-        if (categoryViewModel is null || DataContext is not MainViewModel mainViewModel)
-            return;
-
-        //await mainViewModel.ChangeTracksAsync(playlistViewModel.Playlist);
-    }
-
-    private void Category_DoubleTapped(object? sender, TappedEventArgs e)
-    {
-        var categoryViewModel = GetDataContext<CategoryViewModel>(e);
-
-        if (categoryViewModel is null)
-            return;
-
-        categoryViewModel.Editing = true;
-    }
-
-    private async void Category_KeyUp(object? sender, KeyEventArgs e)
-    {
-        if (e.Key is Key.Enter or Key.Tab)
-            await OnCategoryNameChanged(e);
-    }
-
-    private async void Category_LostFocus(object? sender, RoutedEventArgs e)
-        => await OnCategoryNameChanged(e);
-
-    private async Task OnCategoryNameChanged(RoutedEventArgs e)
-    {
-        var categoryViewModel = GetDataContext<CategoryViewModel>(e);
-
-        if (categoryViewModel is null || DataContext is not MainViewModel mainViewModel)
-            return;
-
-        if (!await mainViewModel.TrackPlay.Player.ChangeCategoryNameAsync(categoryViewModel.Category, categoryViewModel.Name))
-            categoryViewModel.Name = categoryViewModel.Category.Name;
-
-        categoryViewModel.Editing = false;
+        mainViewModel.IsPlaylistsVisible = !mainViewModel.IsPlaylistsVisible;
     }
 
     private void Playlist_SelectionChanged(object? sender, SelectionChangedEventArgs e)
@@ -138,6 +96,71 @@ public partial class MainWindow : Window
         playlistViewModel.Editing = false;
     }
 
+    #endregion
+    #region Categories
+
+    private void Categories_Tapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is not MainViewModel mainViewModel)
+            return;
+
+        mainViewModel.IsCategoriesVisible = !mainViewModel.IsCategoriesVisible;
+    }
+
+    private void Category_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    {
+        var categoryViewModel = GetSelectedItem<CategoryViewModel>(e);
+
+        if (categoryViewModel is null || DataContext is not MainViewModel mainViewModel)
+            return;
+
+        mainViewModel.SelectedCategory = categoryViewModel;
+    }
+
+    private void Category_Tapped(object? sender, TappedEventArgs e)
+    {
+        var categoryViewModel = GetDataContext<CategoryViewModel>(e);
+
+        if (categoryViewModel is null || DataContext is not MainViewModel mainViewModel)
+            return;
+
+        //await mainViewModel.ChangeTracksAsync(playlistViewModel.Playlist);
+    }
+
+    private void Category_DoubleTapped(object? sender, TappedEventArgs e)
+    {
+        var categoryViewModel = GetDataContext<CategoryViewModel>(e);
+
+        if (categoryViewModel is null)
+            return;
+
+        categoryViewModel.Editing = true;
+    }
+
+    private async void Category_KeyUp(object? sender, KeyEventArgs e)
+    {
+        if (e.Key is Key.Enter or Key.Tab)
+            await OnCategoryNameChanged(e);
+    }
+
+    private async void Category_LostFocus(object? sender, RoutedEventArgs e)
+        => await OnCategoryNameChanged(e);
+
+    private async Task OnCategoryNameChanged(RoutedEventArgs e)
+    {
+        var categoryViewModel = GetDataContext<CategoryViewModel>(e);
+
+        if (categoryViewModel is null || DataContext is not MainViewModel mainViewModel)
+            return;
+
+        if (!await mainViewModel.TrackPlay.Player.ChangeCategoryNameAsync(categoryViewModel.Category, categoryViewModel.Name))
+            categoryViewModel.Name = categoryViewModel.Category.Name;
+
+        categoryViewModel.Editing = false;
+    }
+
+    #endregion
+    
     private async void TrackSource_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         var trackSourceViewModel = GetSelectedItem<TrackSourceViewModel>(e);

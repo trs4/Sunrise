@@ -295,6 +295,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Треки.
+        /// </summary>
+        public static string Tracks {
+            get {
+                return ResourceManager.GetString("Tracks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Год.
         /// </summary>
         public static string Year {

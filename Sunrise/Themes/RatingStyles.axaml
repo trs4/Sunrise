@@ -1,0 +1,130 @@
+﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
+										xmlns:sc="clr-namespace:Sunrise.Controls"
+										xmlns:scv="clr-namespace:Sunrise.Converters"
+										xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+	<!-- Design time preview -->
+	<Design.PreviewWith>
+		<StackPanel Width="400" Spacing="10">
+			<!-- Force using default Theme Variant -->
+			<ThemeVariantScope RequestedThemeVariant="Default">
+				<StackPanel Spacing="10" Background="{DynamicResource SystemRegionBrush}">
+					<sc:RatingControl Value="0" NumberOfStars="5" />
+					<sc:RatingControl Value="2" NumberOfStars="5" />
+					<sc:RatingControl Value="6" NumberOfStars="5" />
+				</StackPanel>
+			</ThemeVariantScope>
+			<!-- Force using Light Theme Variant -->
+			<ThemeVariantScope RequestedThemeVariant="Light">
+				<StackPanel Spacing="10" Background="{DynamicResource SystemRegionBrush}">
+					<sc:RatingControl Value="0" NumberOfStars="5" />
+					<sc:RatingControl Value="2" NumberOfStars="5" />
+					<sc:RatingControl Value="6" NumberOfStars="5" />
+				</StackPanel>
+			</ThemeVariantScope>
+			<!-- Force using Dark Theme Variant -->
+			<ThemeVariantScope RequestedThemeVariant="Dark">
+				<StackPanel Spacing="10" Background="{DynamicResource SystemRegionBrush}">
+					<sc:RatingControl Value="0" NumberOfStars="5" />
+					<sc:RatingControl Value="2" NumberOfStars="5" />
+					<sc:RatingControl Value="6" NumberOfStars="5" />
+				</StackPanel>
+			</ThemeVariantScope>
+		</StackPanel>
+	</Design.PreviewWith>
+
+	<!-- Define the Theme Variants -->
+	<ResourceDictionary.ThemeDictionaries>
+		<ResourceDictionary x:Key="Default">
+			<!-- Selected Brushes-->
+			<SolidColorBrush x:Key="RatingControlSelectedBrush" Color="Gold"/>
+			<SolidColorBrush x:Key="RatingControlSelectedStrokenBrush" Color="Goldenrod"/>
+			<!-- Unselected Brushes-->
+			<SolidColorBrush x:Key="RatingControlUnselectedBrush" Color="White"/>
+			<SolidColorBrush x:Key="RatingControlUnselectedStrokenBrush" Color="Gray"/>
+		</ResourceDictionary>
+		<ResourceDictionary x:Key="Light">
+			<!-- Selected Brushes-->
+			<SolidColorBrush x:Key="RatingControlSelectedBrush" Color="DarkGray"/>
+			<SolidColorBrush x:Key="RatingControlSelectedStrokenBrush" Color="Lavender"/>
+			<!-- Unselected Brushes-->
+			<SolidColorBrush x:Key="RatingControlUnselectedBrush" Color="White"/>
+			<SolidColorBrush x:Key="RatingControlUnselectedStrokenBrush" Color="LightGray"/>
+		</ResourceDictionary>
+		<ResourceDictionary x:Key="Dark">
+			<!-- Selected Brushes-->
+			<SolidColorBrush x:Key="RatingControlSelectedBrush" Color="LightGray"/>
+			<SolidColorBrush x:Key="RatingControlSelectedStrokenBrush" Color="White"/>
+			<!-- Unselected Brushes-->
+			<SolidColorBrush x:Key="RatingControlUnselectedBrush" Color="Transparent"/>
+			<SolidColorBrush x:Key="RatingControlUnselectedStrokenBrush" Color="White"/>
+		</ResourceDictionary>
+	</ResourceDictionary.ThemeDictionaries>
+
+
+	<ControlTheme x:Key="{x:Type sc:RatingControl}" TargetType="sc:RatingControl">
+		<ControlTheme.Resources>
+			<scv:IsSmallerOrEqualConverter x:Key="IsSmallerOrEqualConverter" />
+			<scv:IsStarFocusedOnRatingControlConverter x:Key="IsStarFocusedOnRatingControlConverter" />
+		</ControlTheme.Resources>
+		<Setter Property="Template">
+			<ControlTemplate>
+				<DataValidationErrors>
+					<DataValidationErrors.Styles>
+						<Style Selector="Path.star">
+							<Setter Property="Data" Value="M 3.9687501,0 5.1351364,2.3633569 7.7432556,2.7423389 5.8560028,4.5819556 6.3015226,7.1795363 3.96875,5.953125 1.6359772,7.1795361 2.0814972,4.5819556 0.19424448,2.7423387 2.8023636,2.3633569 Z" />
+							<Setter Property="Width" Value="12" />
+							<Setter Property="Height" Value="12" />
+							<Setter Property="Margin" Value="1" />
+							<Setter Property="Fill" Value="{DynamicResource RatingControlUnselectedBrush}" />
+							<Setter Property="Stroke" Value="{DynamicResource RatingControlUnselectedStrokenBrush}" />
+							<Setter Property="StrokeThickness" Value="1" />
+							<Setter Property="Stretch" Value="Uniform" />
+						</Style>
+
+						<Style Selector="Path.selected">
+							<Setter Property="Fill" Value="{DynamicResource RatingControlSelectedBrush}" />
+							<Setter Property="Stroke" Value="{DynamicResource RatingControlSelectedStrokenBrush}" />
+						</Style>
+
+						<Style Selector="Path.pointerover">
+							<Setter Property="Fill" Value="{DynamicResource RatingControlSelectedStrokenBrush}" />
+						</Style>
+					</DataValidationErrors.Styles>
+
+					<ItemsControl x:Name="PART_StarsPresenter"
+												ItemsSource="{TemplateBinding Stars}">
+						<ItemsControl.ItemsPanel>
+							<ItemsPanelTemplate>
+								<StackPanel Orientation="Horizontal"
+														Spacing="1" />
+							</ItemsPanelTemplate>
+						</ItemsControl.ItemsPanel>
+
+						<ItemsControl.ItemTemplate>
+							<DataTemplate>
+								<Path Classes="star">
+									<Classes.selected>
+										<MultiBinding Converter="{StaticResource IsSmallerOrEqualConverter}">
+											<Binding />
+											<Binding RelativeSource="{RelativeSource AncestorType=sc:RatingControl}" Path="Value" />
+										</MultiBinding>
+									</Classes.selected>
+									<Classes.pointerover>
+										<MultiBinding Converter="{StaticResource IsStarFocusedOnRatingControlConverter}">
+											<Binding />
+											<Binding RelativeSource="{RelativeSource AncestorType=sc:RatingControl}" />
+											<Binding RelativeSource="{RelativeSource AncestorType=sc:RatingControl}" Path="IsPointerOver" />
+										</MultiBinding>
+									</Classes.pointerover>
+								</Path>
+							</DataTemplate>
+						</ItemsControl.ItemTemplate>
+					</ItemsControl>
+
+				</DataValidationErrors>
+			</ControlTemplate>
+		</Setter>
+	</ControlTheme>
+
+</ResourceDictionary>
