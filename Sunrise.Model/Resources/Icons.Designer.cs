@@ -93,6 +93,16 @@ namespace Sunrise.Model.Resources {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] Categories {
+            get {
+                object obj = ResourceManager.GetObject("Categories", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] Genre {
             get {
                 object obj = ResourceManager.GetObject("Genre", resourceCulture);
@@ -206,6 +216,16 @@ namespace Sunrise.Model.Resources {
         public static byte[] RepeatPlay {
             get {
                 object obj = ResourceManager.GetObject("RepeatPlay", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
+        public static byte[] Search {
+            get {
+                object obj = ResourceManager.GetObject("Search", resourceCulture);
                 return ((byte[])(obj));
             }
         }

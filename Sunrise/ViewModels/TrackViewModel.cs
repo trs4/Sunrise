@@ -10,6 +10,7 @@ public class TrackViewModel : ObservableObject
 {
     private bool? _isPlaying;
     private bool _picked;
+    private object? _trackIcon;
     private string? _title;
     private int? _year;
     private TimeSpan _duration;
@@ -59,6 +60,19 @@ public class TrackViewModel : ObservableObject
     {
         get => _picked;
         set => SetProperty(ref _picked, value);
+    }
+
+    /// <summary>Иконка</summary>
+    public object? TrackIcon
+    {
+        get
+        {
+            if (_trackIcon is null && Track.HasPicture)
+                TrackIconHelper.SetPicture(Player, Track, icon => TrackIcon = icon);
+
+            return _trackIcon;
+        }
+        set => SetProperty(ref _trackIcon, value);
     }
 
     /// <summary>Название</summary>

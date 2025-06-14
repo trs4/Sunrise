@@ -16,7 +16,7 @@ using Sunrise.ViewModels.Playlists;
 
 namespace Sunrise.ViewModels;
 
-public partial class MainViewModel : ObservableObject
+public class MainViewModel : ObservableObject
 {
     private readonly RubricViewModel _artists;
     private readonly RubricViewModel _albums;

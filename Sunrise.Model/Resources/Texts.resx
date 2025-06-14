@@ -186,6 +186,9 @@
   <data name="Reproduced" xml:space="preserve">
     <value>Воспроизведено</value>
   </data>
+  <data name="Search" xml:space="preserve">
+    <value>Поиск</value>
+  </data>
   <data name="Size" xml:space="preserve">
     <value>Размер</value>
   </data>

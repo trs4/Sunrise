@@ -1,9 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -146,40 +144,7 @@ public sealed class TrackPlayViewModel : ObservableObject
     }
 
     private void SetPicture(Track track)
-    {
-        if (!track.HasPicture)
-            return;
-
-        var icon = track.PictureIcon;
-
-        if (icon is not null)
-        {
-            TrackIcon = icon;
-            return;
-        }
-
-        Dispatcher.UIThread.InvokeAsync(async () =>
-        {
-            var picture = await Player.LoadPictureAsync(track);
-
-            if (picture is null)
-                track.HasPicture = false;
-            else
-            {
-                try
-                {
-                    using var bitmapStream = new MemoryStream(picture.Data);
-                    bitmapStream.Seek(0, SeekOrigin.Begin);
-                    var bitmap = new Bitmap(bitmapStream);
-                    TrackIcon = track.PictureIcon = bitmap; // %%TODO Convert to 48 x 48
-                }
-                catch
-                {
-                    track.HasPicture = false;
-                }
-            }
-        }, DispatcherPriority.Normal);
-    }
+        => TrackIconHelper.SetPicture(Player, track, icon => TrackIcon = icon);
 
     public Task PlayAsync(TrackViewModel trackViewModel) => PlayCoreAsync(trackViewModel);
 
@@ -437,5 +402,5 @@ public sealed class TrackPlayViewModel : ObservableObject
         await Owner.ReloadTracksAsync(token);
     }
 
-    private void OnExit() => Owner.Owner.Close();
+    private void OnExit() => Owner.Owner?.Close();
 }

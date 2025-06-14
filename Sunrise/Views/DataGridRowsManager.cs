@@ -34,12 +34,7 @@ internal static class DataGridRowsManager
             return null;
 
         var list = GetDataSource(window);
-
-        if (list is null)
-            return null;
-
-        int index = list.IndexOf(row) - 1;
-        return index >= 0 && index < list.Count ? list[index] as T : null;
+        return GetPrev(list, row);
     }
 
     public static T? GetNextRow<T>(Window window, T? row)
@@ -49,7 +44,22 @@ internal static class DataGridRowsManager
             return null;
 
         var list = GetDataSource(window);
+        return GetNext(list, row);
+    }
 
+    public static T? GetPrev<T>(IList? list, T? row)
+        where T : class
+    {
+        if (list is null)
+            return null;
+
+        int index = list.IndexOf(row) - 1;
+        return index >= 0 && index < list.Count ? list[index] as T : null;
+    }
+
+    public static T? GetNext<T>(IList? list, T? row)
+        where T : class
+    {
         if (list is null)
             return null;
 

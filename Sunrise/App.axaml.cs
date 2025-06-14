@@ -13,7 +13,7 @@ public partial class App : Application
 {
     public override void Initialize()
         => AvaloniaXamlLoader.Load(this);
-    
+
     public override async void OnFrameworkInitializationCompleted()
     {
         BindingPlugins.DataValidators.RemoveAt(0);
@@ -23,10 +23,11 @@ public partial class App : Application
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) // Windows
         {
             desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
-            desktop.MainWindow = viewModel.Owner = new MainWindow { DataContext = viewModel };
+            //desktop.MainWindow = viewModel.Owner = new MainWindow { DataContext = viewModel };
+            desktop.MainWindow = new MainDeviceWindow { DataContext = viewModel };
         }
-        //else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform) // Android
-        //    singleViewPlatform.MainView = new MainView { DataContext = viewModel };
+        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform) // Android
+            singleViewPlatform.MainView = new MainDeviceView { DataContext = viewModel };
 
         await viewModel.ReloadTracksAsync();
         base.OnFrameworkInitializationCompleted();

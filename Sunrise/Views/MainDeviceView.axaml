@@ -1,0 +1,103 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+						 xmlns:sv="clr-namespace:Sunrise.Views"
+						 xmlns:svm="clr-namespace:Sunrise.ViewModels"
+             xmlns:su="clr-namespace:Sunrise.Utils"
+						 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
+             mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="450"
+             x:Class="Sunrise.Views.MainDeviceView"
+             x:DataType="svm:MainViewModel">
+	<Design.DataContext>
+		<svm:MainViewModel />
+	</Design.DataContext>
+
+	<UserControl.Styles>
+		<Style Selector="Image.TabImage">
+			<Setter Property="Margin" Value="0 5 0 0" />
+			<Setter Property="Height" Value="24" />
+			<Setter Property="Width" Value="24" />
+			<Setter Property="OpacityMask" Value="Gray" />
+			<Setter Property="Opacity" Value="0.4" />
+		</Style>
+	</UserControl.Styles>
+
+	<TabControl TabStripPlacement="Bottom">
+		<TabControl.Styles>
+			<Style Selector="TabControl">
+				<Setter Property="Template">
+					<ControlTemplate>
+						<Border BorderBrush="{TemplateBinding BorderBrush}"
+										BorderThickness="{TemplateBinding BorderThickness}"
+										CornerRadius="{TemplateBinding CornerRadius}"
+										Background="{TemplateBinding Background}"
+										HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+										VerticalAlignment="{TemplateBinding VerticalAlignment}">
+							<DockPanel>
+								<ItemsPresenter Name="PART_ItemsPresenter"
+																ItemsPanel="{TemplateBinding ItemsPanel}"
+																DockPanel.Dock="{TemplateBinding TabStripPlacement}" />
+								<sv:TrackPlayShortDeviceView DockPanel.Dock="{TemplateBinding TabStripPlacement}"
+																						 DataContext="{Binding TrackPlay}" />
+								<ContentPresenter Name="PART_SelectedContentHost"
+																	Margin="{TemplateBinding Padding}"
+																	HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+																	VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+																	Content="{TemplateBinding SelectedContent}"
+																	ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+							</DockPanel>
+						</Border>
+					</ControlTemplate>
+				</Setter>
+			</Style>
+		</TabControl.Styles>
+		<TabControl.Items>
+
+			<TabItem>
+				<TabItem.Header>
+					<StackPanel>
+						<Image Classes="TabImage" Source="{su:FromIcon Track}" />
+						<TextBlock Text="{x:Static res:Texts.Tracks}" />
+					</StackPanel>
+				</TabItem.Header>
+
+				<sv:TracksTabView DataContext="{Binding}" />
+			</TabItem>
+
+			<TabItem>
+				<TabItem.Header>
+					<StackPanel>
+						<Image Classes="TabImage" Source="{su:FromIcon Playlist}" />
+						<TextBlock Text="{x:Static res:Texts.Playlists}" />
+					</StackPanel>
+				</TabItem.Header>
+
+				<sv:PlaylistsTabView DataContext="{Binding}" />
+			</TabItem>
+
+			<TabItem>
+				<TabItem.Header>
+					<StackPanel>
+						<Image Classes="TabImage" Source="{su:FromIcon Categories}" />
+						<TextBlock Text="{x:Static res:Texts.Categories}" />
+					</StackPanel>
+				</TabItem.Header>
+
+				<sv:CategoriesTabView DataContext="{Binding}" />
+			</TabItem>
+
+			<TabItem>
+				<TabItem.Header>
+					<StackPanel>
+						<Image Classes="TabImage" Source="{su:FromIcon Search}" />
+						<TextBlock Text="{x:Static res:Texts.Search}" />
+					</StackPanel>
+				</TabItem.Header>
+
+				<sv:SearchTabView DataContext="{Binding}" />
+			</TabItem>
+
+		</TabControl.Items>
+	</TabControl>
+</UserControl>

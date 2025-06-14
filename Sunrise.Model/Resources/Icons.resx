@@ -127,6 +127,9 @@
   <data name="CalcPlaylist" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Svg\CalcPlaylist.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="Categories" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Svg\Categories.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Genre" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Svg\Genre.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
@@ -162,6 +165,9 @@
   </data>
   <data name="RepeatPlay" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Svg\RepeatPlay.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
+  <data name="Search" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Svg\Search.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
   <data name="Song" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Svg\Song.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>

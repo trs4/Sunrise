@@ -268,6 +268,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Поиск.
+        /// </summary>
+        public static string Search {
+            get {
+                return ResourceManager.GetString("Search", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Размер.
         /// </summary>
         public static string Size {
