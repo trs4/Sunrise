@@ -8,7 +8,13 @@ public abstract class TrackPlayStrategy
         => Owner = owner ?? throw new ArgumentNullException(nameof(owner));
 
     public static TrackPlayStrategy Create(MainViewModel owner, bool randomPlay = false)
-        => randomPlay ? new RandomTrackPlayStrategy(owner) : new ListTrackPlayStrategy(owner);
+    {
+        if (randomPlay)
+            return new RandomTrackPlayStrategy(owner);
+
+        return owner is MainDesktopViewModel desktopOwner
+            ? new ListDesktopTrackPlayStrategy(desktopOwner) : new ListTrackPlayStrategy(owner);
+    }
 
     public MainViewModel Owner { get; }
 

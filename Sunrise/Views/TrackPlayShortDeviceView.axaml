@@ -15,6 +15,22 @@
 	<Design.DataContext>
 		<svm:TrackPlayViewModel />
 	</Design.DataContext>
+	<UserControl.Styles>
+		<Style Selector="Button.TrackBtn">
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="HorizontalAlignment" Value="Center" />
+			<Setter Property="Height" Value="32" />
+			<Setter Property="Width" Value="32" />
+			<Setter Property="Theme" Value="{StaticResource MaterialFlatButton}" />
+		</Style>
+
+		<Style Selector="Image.ImageBtn">
+			<Setter Property="Height" Value="28" />
+			<Setter Property="Width" Value="28" />
+			<Setter Property="OpacityMask" Value="Gray" />
+			<Setter Property="Opacity" Value="0.7" />
+		</Style>
+	</UserControl.Styles>
 
 	<Border Background="Gainsboro"
 					CornerRadius="10"
@@ -22,31 +38,22 @@
 					Height="48">
 		<Grid>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="0.4*" />
-				<ColumnDefinition Width="1.5*" />
-				<ColumnDefinition Width="0.2*" />
+				<ColumnDefinition Width="0.15*" />
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition Width="0.15*" />
 			</Grid.ColumnDefinitions>
 
 			<!--  Play  -->
 			<Button Grid.Column="0"
-							Theme="{StaticResource MaterialFlatButton}"
-							HorizontalAlignment="Center" VerticalAlignment="Center"
-							Height="32" Width="32"
-							Margin="7 0"
+							Classes="TrackBtn"
 							Command="{Binding PlayCommand, Mode=OneWay}">
-				<Image Source="{Binding PlayIcon, Mode=OneWay}"
-							 Height="28" Width="28"
-							 OpacityMask="Gray" Opacity="0.7" />
+				<Image Classes="ImageBtn"
+							 Source="{Binding PlayIcon, Mode=OneWay}" />
 			</Button>
 
 			<!--  Track  -->
-			<Grid Grid.Column="1" Grid.RowSpan="9" Background="Transparent"
+			<Grid Grid.Column="1" Background="Transparent"
 						Tapped="Track_Tapped">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition MinWidth="36" />
-					<ColumnDefinition />
-					<ColumnDefinition MinWidth="36" />
-				</Grid.ColumnDefinitions>
 				<Grid.RowDefinitions>
 					<RowDefinition />
 					<RowDefinition Height="Auto" />
@@ -54,14 +61,14 @@
 				</Grid.RowDefinitions>
 
 				<!--  Название  -->
-				<TextBlock Grid.Row="0" Grid.Column="1"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
+				<TextBlock Grid.Row="0"
+									 VerticalAlignment="Center"
 									 FontSize="14"
 									 Text="{Binding CurrentTrack.Title, Mode=OneWay}" />
 
 				<!--  Артист  -->
-				<TextBlock Grid.Row="1" Grid.Column="1"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
+				<TextBlock Grid.Row="1"
+									 VerticalAlignment="Center"
 									 FontSize="12">
 					<TextBlock.Text>
 						<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
@@ -72,7 +79,7 @@
 				</TextBlock>
 
 				<!--  Прогресс  -->
-				<ProgressBar Grid.Row="2" Grid.ColumnSpan="9"
+				<ProgressBar Grid.Row="2"
 										 Name="progressBar"
 										 Classes="light"
 										 VerticalAlignment="Stretch">
@@ -88,14 +95,10 @@
 
 			<!--  Menu  -->
 			<Button Grid.Column="2"
-							Theme="{StaticResource MaterialFlatButton}"
-							HorizontalAlignment="Center" VerticalAlignment="Center"
-							Height="32" Width="32"
-							Margin="7 0">
+							Classes="TrackBtn">
 				<!--Command="{Binding PlayCommand, Mode=OneWay}"-->
-				<Image Source="{su:FromIcon Options}"
-							 Height="28" Width="28"
-							 OpacityMask="Gray" Opacity="0.7" />
+				<Image Classes="ImageBtn"
+							 Source="{su:FromIcon Options}" />
 			</Button>
 
 		</Grid>

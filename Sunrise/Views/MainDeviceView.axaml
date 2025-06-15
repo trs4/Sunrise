@@ -8,11 +8,10 @@
 						 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
              mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="450"
              x:Class="Sunrise.Views.MainDeviceView"
-             x:DataType="svm:MainViewModel">
+             x:DataType="svm:MainDeviceViewModel">
 	<Design.DataContext>
-		<svm:MainViewModel />
+		<svm:MainDeviceViewModel />
 	</Design.DataContext>
-
 	<UserControl.Styles>
 		<Style Selector="Image.TabImage">
 			<Setter Property="Margin" Value="0 5 0 0" />
@@ -39,7 +38,8 @@
 																ItemsPanel="{TemplateBinding ItemsPanel}"
 																DockPanel.Dock="{TemplateBinding TabStripPlacement}" />
 								<sv:TrackPlayShortDeviceView DockPanel.Dock="{TemplateBinding TabStripPlacement}"
-																						 DataContext="{Binding TrackPlay}" />
+																						 DataContext="{Binding TrackPlay}"
+																						 IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsTrackVisible}" />
 								<ContentPresenter Name="PART_SelectedContentHost"
 																	Margin="{TemplateBinding Padding}"
 																	HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"

@@ -402,5 +402,5 @@ public sealed class TrackPlayViewModel : ObservableObject
         await Owner.ReloadTracksAsync(token);
     }
 
-    private void OnExit() => Owner.Owner?.Close();
+    private void OnExit() => Owner.OnExit();
 }

@@ -18,18 +18,26 @@ public partial class App : Application
     {
         BindingPlugins.DataValidators.RemoveAt(0);
         var player = await Player.InitAsync();
-        var viewModel = new MainViewModel(player);
+        MainViewModel viewModel = null;
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) // Windows
         {
             desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            //viewModel = new MainDesktopViewModel(player);
             //desktop.MainWindow = viewModel.Owner = new MainWindow { DataContext = viewModel };
+
+            viewModel = new MainDeviceViewModel(player);
             desktop.MainWindow = new MainDeviceWindow { DataContext = viewModel };
         }
         else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform) // Android
+        {
+            viewModel = new MainDeviceViewModel(player);
             singleViewPlatform.MainView = new MainDeviceView { DataContext = viewModel };
+        }
 
-        await viewModel.ReloadTracksAsync();
+        if (viewModel is not null)
+            await viewModel.ReloadTracksAsync();
+
         base.OnFrameworkInitializationCompleted();
     }
 

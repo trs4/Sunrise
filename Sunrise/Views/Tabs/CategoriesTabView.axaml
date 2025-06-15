@@ -5,9 +5,9 @@
 						 xmlns:svm="clr-namespace:Sunrise.ViewModels"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Sunrise.Views.CategoriesTabView"
-             x:DataType="svm:MainViewModel">
+             x:DataType="svm:MainDeviceViewModel">
 	<Design.DataContext>
-		<svm:MainViewModel />
+		<svm:MainDeviceViewModel />
 	</Design.DataContext>
 
 

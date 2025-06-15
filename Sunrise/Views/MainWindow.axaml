@@ -13,17 +13,16 @@
 				xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Sunrise.Views.MainWindow"
-		    x:DataType="svm:MainViewModel"
+		    x:DataType="svm:MainDesktopViewModel"
 		    x:CompileBindings="False"
 		    Height="600" MinHeight="300"
 		    Width="1400" MinWidth="800"
         Icon="/Assets/avalonia-logo.ico"
         Title="Sunrise">
 	<Design.DataContext>
-		<svm:MainViewModel />
+		<svm:MainDesktopViewModel />
 	</Design.DataContext>
 	<Window.Styles>
-
 		<Style Selector="TextBox">
 			<Setter Property="FontSize" Value="14" />
 		</Style>

@@ -33,7 +33,7 @@ internal sealed class ColumnsDataGridBehavior : Behavior<DataGrid>
 
     private void OnDataContextChanged(object? sender, EventArgs e)
     {
-        if (sender is not DataGrid dataGrid || dataGrid.DataContext is not MainViewModel mainViewModel) // %%TODO В интерфейс IDataGridColums
+        if (sender is not DataGrid dataGrid || dataGrid.DataContext is not MainDesktopViewModel mainViewModel) // %%TODO В интерфейс IDataGridColums
             return;
 
         var columns = _columns = mainViewModel.TracksColumns;

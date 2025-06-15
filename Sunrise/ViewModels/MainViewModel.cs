@@ -3,20 +3,16 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Sunrise.Converters;
 using Sunrise.Model;
-using Sunrise.Model.Resources;
 using Sunrise.Utils;
 using Sunrise.ViewModels.Categories;
-using Sunrise.ViewModels.Columns;
 using Sunrise.ViewModels.Playlists;
 
 namespace Sunrise.ViewModels;
 
-public class MainViewModel : ObservableObject
+public abstract class MainViewModel : ObservableObject
 {
     private readonly RubricViewModel _artists;
     private readonly RubricViewModel _albums;
@@ -28,9 +24,9 @@ public class MainViewModel : ObservableObject
     private TrackSourceViewModel? _selectedTrackSource;
     private bool _isReadOnlyTracks = true;
 
-    public MainViewModel() { } // For designer
+    protected MainViewModel() { } // For designer
 
-    public MainViewModel(Player player)
+    protected MainViewModel(Player player)
     {
         TrackPlay = new TrackPlayViewModel(this, player);
 
@@ -39,23 +35,16 @@ public class MainViewModel : ObservableObject
         _songs = new SongsRubricViewModel(player);
         _genres = new GenresRubricViewModel(player);
 
-        AddFolderCommand = new AsyncRelayCommand(AddFolderAsync);
         AddCategoryCommand = new AsyncRelayCommand(AddCategoryAsync);
         DeleteCategoryCommand = new AsyncRelayCommand(DeleteCategoryAsync);
         AddPlaylistCommand = new AsyncRelayCommand(AddPlaylistAsync);
         DeletePlaylistCommand = new AsyncRelayCommand(DeletePlaylistAsync);
-        DoubleClickCommand = new RelayCommand<TrackViewModel>(OnDoubleClick);
 
         Rubricks = new([_artists, _albums, _songs, _genres]);
         _selectedRubrick = _songs;
-        InitTracksColumns();
     }
 
-    public Window Owner { get; internal set; }
-
     public TrackPlayViewModel TrackPlay { get; }
-
-    public IRelayCommand AddFolderCommand { get; }
 
     public ObservableCollection<RubricViewModel> Rubricks { get; }
 
@@ -76,8 +65,6 @@ public class MainViewModel : ObservableObject
     public IRelayCommand AddPlaylistCommand { get; }
 
     public IRelayCommand DeletePlaylistCommand { get; }
-
-    public IRelayCommand DoubleClickCommand { get; }
 
     public bool IsPlaylistsVisible
     {
@@ -130,8 +117,6 @@ public class MainViewModel : ObservableObject
         set => SetProperty(ref _isReadOnlyTracks, value);
     }
 
-    public ObservableCollection<ColumnViewModel> TracksColumns { get; } = [];
-
     public async Task ReloadTracksAsync(CancellationToken token = default)
     {
         var rubricViewModel = _songs;
@@ -151,13 +136,10 @@ public class MainViewModel : ObservableObject
         return ChangeTracksCoreAsync(tracksOwner, token);
     }
 
-    private async Task ChangeTracksCoreAsync(object tracksOwner, CancellationToken token)
+    protected virtual async Task ChangeTracksCoreAsync(object tracksOwner, CancellationToken token)
     {
         TracksOwner = tracksOwner;
         List<Track> tracks;
-
-        var pickedColumn = TracksColumns.First(c => c.Name == nameof(TrackViewModel.Picked));
-        pickedColumn.IsVisible = tracksOwner is SongsRubricViewModel;
 
         if (tracksOwner is Playlist playlist)
         {
@@ -215,16 +197,6 @@ public class MainViewModel : ObservableObject
         }
     }
 
-    private async Task AddFolderAsync(CancellationToken token)
-    {
-        await MediaFoldersViewModel.ShowAsync(Owner, TrackPlay.Player, token);
-
-        if (TrackPlay.Player.IsAllTracksLoaded())
-            return;
-
-        await ReloadTracksAsync(token);
-    }
-
     private async Task AddCategoryAsync()
     {
         var category = await TrackPlay.Player.AddCategoryAsync();
@@ -262,87 +234,5 @@ public class MainViewModel : ObservableObject
         await SelectSongsAsync();
     }
 
-    private async void OnDoubleClick(TrackViewModel? trackViewModel)
-    {
-        if (trackViewModel is not null)
-            await TrackPlay.PlayItBeginAsync(trackViewModel);
-    }
-
-    private void InitTracksColumns()
-    {
-        TracksColumns.Add(new IsPlayingColumnViewModel());
-        TracksColumns.Add(new CheckedColumnViewModel<TrackViewModel>(nameof(TrackViewModel.Picked), t => t.Picked, (t, v) => t.Picked = v));
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, string>(nameof(TrackViewModel.Title), t => t.Title ?? string.Empty)
-        {
-            Caption = Texts.Title,
-            Width = 230,
-        });
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, int?>(nameof(TrackViewModel.Year), t => t.Year)
-        {
-            Caption = Texts.Year,
-            Width = 50,
-        });
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, string>(nameof(TrackViewModel.Duration), t => DurationConverter.Convert(t.Duration))
-        {
-            Caption = Texts.Duration,
-            Width = 50,
-        });
-
-        TracksColumns.Add(new RatingColumnViewModel());
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, string>(nameof(TrackViewModel.Artist), t => t.Artist ?? string.Empty)
-        {
-            Caption = Texts.Artist,
-            Width = 200,
-        });
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, string>(nameof(TrackViewModel.Genre), t => t.Genre ?? string.Empty)
-        {
-            Caption = Texts.Genre,
-            Width = 100,
-        });
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, int>(nameof(TrackViewModel.Reproduced), t => t.Reproduced)
-        {
-            Caption = Texts.Reproduced,
-            Width = 100,
-        });
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, string>(nameof(TrackViewModel.Album), t => t.Album ?? string.Empty)
-        {
-            Caption = Texts.Album,
-            Width = 200,
-        });
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, string>(nameof(TrackViewModel.Created), t => t.Created.ToString("g"))
-        {
-            Caption = Texts.Created,
-            Width = 120,
-        });
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, string>(nameof(TrackViewModel.Added), t => t.Added.ToString("g"))
-        {
-            Caption = Texts.Added,
-            Width = 100,
-            IsVisible = false,
-        });
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, int>(nameof(TrackViewModel.Bitrate), t => (int)t.Bitrate)
-        {
-            Caption = Texts.Bitrate,
-            Width = 100,
-            IsVisible = false,
-        });
-
-        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, long>(nameof(TrackViewModel.Size), t => t.Size)
-        {
-            Caption = Texts.Size,
-            Width = 100,
-            IsVisible = false,
-        });
-    }
-
+    public virtual void OnExit() { }
 }
