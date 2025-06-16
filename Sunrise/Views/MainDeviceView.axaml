@@ -39,7 +39,7 @@
 																DockPanel.Dock="{TemplateBinding TabStripPlacement}" />
 								<sv:TrackPlayShortDeviceView DockPanel.Dock="{TemplateBinding TabStripPlacement}"
 																						 DataContext="{Binding TrackPlay}"
-																						 IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsTrackVisible}" />
+																						 IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsShortTrackVisible}" />
 								<ContentPresenter Name="PART_SelectedContentHost"
 																	Margin="{TemplateBinding Padding}"
 																	HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"

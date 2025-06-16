@@ -16,7 +16,7 @@ public partial class TracksTabView : UserControl
         if (trackViewModel is null || trackViewModel.IsPlaying == true || DataContext is not MainDeviceViewModel mainViewModel)
             return;
 
-        mainViewModel.IsTrackVisible = true;
+        mainViewModel.IsShortTrackVisible = true;
         await mainViewModel.TrackPlay.PlayAsync(trackViewModel);
     }
 
