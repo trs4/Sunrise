@@ -234,5 +234,5 @@ public abstract class MainViewModel : ObservableObject
         await SelectSongsAsync();
     }
 
-    public virtual void OnExit() { }
+    public abstract void OnExit();
 }

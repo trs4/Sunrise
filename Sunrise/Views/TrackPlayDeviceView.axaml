@@ -17,119 +17,100 @@
 
 	<Grid>
 		<Grid.RowDefinitions>
-			<RowDefinition Height="48" />
 			<RowDefinition />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="48" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="48" />
 			<RowDefinition Height="48" />
 			<RowDefinition Height="48" />
 		</Grid.RowDefinitions>
 
-		<Border Grid.Row="1" BorderThickness="0 0 1 0" BorderBrush="LightGray">
-			<Grid Height="48" Width="48">
-				<Image Source="{su:FromIcon Track}"
-							 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
-							 OpacityMask="Gray" Opacity="0.15"
-							 Height="24" Width="24" />
-				<Image Source="{Binding TrackIcon, Mode=OneWay}"
-							 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}" />
-			</Grid>
-		</Border>
+		<!--  Back  -->
+		<Button Grid.Column="0"
+						Theme="{StaticResource MaterialFlatButton}"
+						HorizontalAlignment="Left" VerticalAlignment="Top"
+						Height="32" Width="32"
+						Margin="10 10 0 0"
+						Command="{Binding ExitCommand, Mode=OneWay}">
+			<Image Source="{su:FromIcon DownCircle}"
+						 Height="28" Width="28"
+						 OpacityMask="Gray" Opacity="0.2" />
+		</Button>
+
+		<Image Grid.Row="1" Source="{su:FromIcon Track}"
+					 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
+					 Margin="70"
+					 OpacityMask="Gray" Opacity="0.15" />
+		<Image Grid.Row="1" Source="{Binding TrackIcon, Mode=OneWay}"
+					 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}" />
 
 		<!--  Track  -->
-		<Border Grid.Row="2" BorderThickness="1 0" BorderBrush="LightGray" Background="White">
-			<Grid IsVisible="{Binding CurrentTrack, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-						Background="White"
-					  Tapped="Track_Tapped">
-				<Grid.ColumnDefinitions>
-					<ColumnDefinition MinWidth="36" />
-					<ColumnDefinition />
-					<ColumnDefinition MinWidth="36" />
-				</Grid.ColumnDefinitions>
-				<Grid.RowDefinitions>
-					<RowDefinition />
-					<RowDefinition Height="Auto" />
-					<RowDefinition Height="6" />
-				</Grid.RowDefinitions>
+		<Grid Grid.Row="2" Background="Transparent"
+					Tapped="Track_Tapped">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition MinWidth="36" />
+				<ColumnDefinition />
+				<ColumnDefinition MinWidth="36" />
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="6" />
+				<RowDefinition />
+			</Grid.RowDefinitions>
 
-				<Button Grid.Row="0" Grid.Column="0"
-								Margin="8 4 0 0" Padding="0"
-								MinWidth="0"
-								HorizontalAlignment="Left" VerticalAlignment="Top"
-								Theme="{StaticResource MaterialFlatButton}"
-								Command="{Binding RandomPlayCommand, Mode=OneWay}">
-					<Image Source="{su:FromIcon RandomPlay}"
-								 OpacityMask="Gray" Opacity="{Binding RandomPlay, Mode=OneWay, Converter={x:Static scv:RandomPlayOpacityConverter.Instance}}"
-								 Height="24" />
-				</Button>
+			<!--  Прогресс  -->
+			<ProgressBar Grid.Row="0" Grid.ColumnSpan="9"
+									 Name="progressBar"
+									 Classes="light"
+									 VerticalAlignment="Stretch">
+				<ProgressBar.Value>
+					<MultiBinding Converter="{x:Static scv:ProgressConverter.Instance}" Mode="OneWay">
+						<Binding Path="Position" Mode="OneWay" />
+						<Binding Path="CurrentTrack.Duration" Mode="OneWay" />
+					</MultiBinding>
+				</ProgressBar.Value>
+			</ProgressBar>
 
-				<!--  Прошло  -->
-				<TextBlock Grid.Row="1" Grid.Column="0"
-									 Margin="8 0 0 0"
-									 HorizontalAlignment="Left" VerticalAlignment="Bottom"
-									 FontSize="11"
-									 Text="{Binding Position, Mode=OneWay, Converter={x:Static scv:DurationConverter.Instance}}" />
+			<!--  Прошло  -->
+			<TextBlock Grid.Row="1" Grid.Column="0"
+								 Margin="8 0 0 0"
+								 HorizontalAlignment="Left" VerticalAlignment="Center"
+								 Text="{Binding Position, Mode=OneWay, Converter={x:Static scv:DurationConverter.Instance}}" />
 
+			<!--  Осталось  -->
+			<TextBlock Grid.Row="1" Grid.Column="2"
+								 Margin="0 0 8 0"
+								 HorizontalAlignment="Right" VerticalAlignment="Center">
+				<TextBlock.Text>
+					<MultiBinding Converter="{x:Static scv:InverseDurationConverter.Instance}" Mode="OneWay">
+						<Binding Path="Position" Mode="OneWay" />
+						<Binding Path="CurrentTrack.Duration" Mode="OneWay" />
+					</MultiBinding>
+				</TextBlock.Text>
+			</TextBlock>
+		</Grid>
 
-				<!--  Название  -->
-				<TextBlock Grid.Row="0" Grid.Column="1"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
-									 FontSize="14"
-									 Text="{Binding CurrentTrack.Title, Mode=OneWay}" />
+		<!--  Название  -->
+		<TextBlock Grid.Row="3"
+							 HorizontalAlignment="Center" VerticalAlignment="Center"
+							 FontSize="18"
+							 FontWeight="Bold"
+							 Text="{Binding CurrentTrack.Title, Mode=OneWay}" />
 
-				<!--  Артист  -->
-				<TextBlock Grid.Row="1" Grid.Column="1"
-									 HorizontalAlignment="Center" VerticalAlignment="Center"
-									 FontSize="12">
-					<TextBlock.Text>
-						<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
-							<Binding Path="CurrentTrack.Artist" Mode="OneWay" />
-							<Binding Path="CurrentTrack.Album" Mode="OneWay" />
-						</MultiBinding>
-					</TextBlock.Text>
-				</TextBlock>
+		<!--  Артист  -->
+		<TextBlock Grid.Row="4"
+							 Margin="0 5 0 20"
+							 HorizontalAlignment="Center" VerticalAlignment="Center">
+			<TextBlock.Text>
+				<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
+					<Binding Path="CurrentTrack.Artist" Mode="OneWay" />
+					<Binding Path="CurrentTrack.Album" Mode="OneWay" />
+				</MultiBinding>
+			</TextBlock.Text>
+		</TextBlock>
 
-
-				<Button Grid.Row="0" Grid.Column="2"
-								Margin="0 4 8 0" Padding="0"
-								MinWidth="0"
-								HorizontalAlignment="Right" VerticalAlignment="Top"
-								Theme="{StaticResource MaterialFlatButton}"
-								Command="{Binding RepeatPlayCommand, Mode=OneWay}">
-					<Image Source="{Binding RepeatPlayIcon, Mode=OneWay}"
-								 OpacityMask="Gray" Opacity="{Binding RepeatPlay, Mode=OneWay, Converter={x:Static scv:RepeatPlayOpacityConverter.Instance}}"
-								 Height="24" />
-				</Button>
-
-				<!--  Осталось  -->
-				<TextBlock Grid.Row="1" Grid.Column="2"
-									 Margin="0 0 8 0"
-									 HorizontalAlignment="Right" VerticalAlignment="Bottom"
-									 FontSize="11">
-					<TextBlock.Text>
-						<MultiBinding Converter="{x:Static scv:InverseDurationConverter.Instance}" Mode="OneWay">
-							<Binding Path="Position" Mode="OneWay" />
-							<Binding Path="CurrentTrack.Duration" Mode="OneWay" />
-						</MultiBinding>
-					</TextBlock.Text>
-				</TextBlock>
-
-
-				<!--  Прогресс  -->
-				<ProgressBar Grid.Row="2" Grid.ColumnSpan="9"
-										 Name="progressBar"
-										 Classes="light"
-										 VerticalAlignment="Stretch">
-					<ProgressBar.Value>
-						<MultiBinding Converter="{x:Static scv:ProgressConverter.Instance}" Mode="OneWay">
-							<Binding Path="Position" Mode="OneWay" />
-							<Binding Path="CurrentTrack.Duration" Mode="OneWay" />
-						</MultiBinding>
-					</ProgressBar.Value>
-				</ProgressBar>
-
-			</Grid>
-		</Border>
-
-		<Grid Grid.Row="3">
+		<Grid Grid.Row="5">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition />
 				<ColumnDefinition Width="Auto" />
@@ -154,7 +135,7 @@
 							Theme="{StaticResource MaterialFlatButton}"
 							HorizontalAlignment="Center" VerticalAlignment="Center"
 							Height="32" Width="32"
-							Margin="7 0"
+							Margin="35 0"
 							Command="{Binding PlayCommand, Mode=OneWay}">
 				<Image Source="{Binding PlayIcon, Mode=OneWay}"
 							 Height="28" Width="28"
@@ -172,6 +153,42 @@
 							 OpacityMask="Gray" Opacity="0.7" />
 			</Button>
 
+		</Grid>
+
+		<!--  Volume  -->
+		<Grid Grid.Row="6" Background="Transparent"
+					Margin="45 0"
+					Tapped="Volume_Tapped">
+			<Slider Name="volumeSlider"
+							Classes="Modern"
+							VerticalAlignment="Center"
+							Value="{Binding Volume}" />
+		</Grid>
+
+		<Grid Grid.Row="7">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="2*" />
+				<ColumnDefinition MinWidth="36" />
+				<ColumnDefinition Width="*" />
+				<ColumnDefinition MinWidth="36" />
+				<ColumnDefinition Width="2*" />
+			</Grid.ColumnDefinitions>
+
+			<Button Grid.Column="1"
+							Theme="{StaticResource MaterialFlatButton}"
+							Command="{Binding RandomPlayCommand, Mode=OneWay}">
+				<Image Source="{su:FromIcon RandomPlay}"
+							 OpacityMask="Gray" Opacity="{Binding RandomPlay, Mode=OneWay, Converter={x:Static scv:RandomPlayOpacityConverter.Instance}}"
+							 Height="24" />
+			</Button>
+
+			<Button Grid.Column="3"
+							Theme="{StaticResource MaterialFlatButton}"
+							Command="{Binding RepeatPlayCommand, Mode=OneWay}">
+				<Image Source="{Binding RepeatPlayIcon, Mode=OneWay}"
+							 OpacityMask="Gray" Opacity="{Binding RepeatPlay, Mode=OneWay, Converter={x:Static scv:RepeatPlayOpacityConverter.Instance}}"
+							 Height="24" />
+			</Button>
 		</Grid>
 
 	</Grid>

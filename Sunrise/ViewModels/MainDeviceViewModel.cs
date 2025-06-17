@@ -23,4 +23,10 @@ public sealed class MainDeviceViewModel : MainViewModel
         set => SetProperty(ref _isTrackVisible, value);
     }
 
+    public override void OnExit()
+    {
+        IsTrackVisible = false;
+        IsShortTrackVisible = true;
+    }
+
 }

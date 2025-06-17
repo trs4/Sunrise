@@ -22,82 +22,88 @@
 		</Style>
 	</UserControl.Styles>
 
-	<TabControl TabStripPlacement="Bottom">
-		<TabControl.Styles>
-			<Style Selector="TabControl">
-				<Setter Property="Template">
-					<ControlTemplate>
-						<Border BorderBrush="{TemplateBinding BorderBrush}"
-										BorderThickness="{TemplateBinding BorderThickness}"
-										CornerRadius="{TemplateBinding CornerRadius}"
-										Background="{TemplateBinding Background}"
-										HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-										VerticalAlignment="{TemplateBinding VerticalAlignment}">
-							<DockPanel>
-								<ItemsPresenter Name="PART_ItemsPresenter"
-																ItemsPanel="{TemplateBinding ItemsPanel}"
-																DockPanel.Dock="{TemplateBinding TabStripPlacement}" />
-								<sv:TrackPlayShortDeviceView DockPanel.Dock="{TemplateBinding TabStripPlacement}"
-																						 DataContext="{Binding TrackPlay}"
-																						 IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsShortTrackVisible}" />
-								<ContentPresenter Name="PART_SelectedContentHost"
-																	Margin="{TemplateBinding Padding}"
-																	HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-																	VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-																	Content="{TemplateBinding SelectedContent}"
-																	ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
-							</DockPanel>
-						</Border>
-					</ControlTemplate>
-				</Setter>
-			</Style>
-		</TabControl.Styles>
-		<TabControl.Items>
+	<Grid>
+		<TabControl TabStripPlacement="Bottom"
+								IsVisible="{Binding !IsTrackVisible}">
+			<TabControl.Styles>
+				<Style Selector="TabControl">
+					<Setter Property="Template">
+						<ControlTemplate>
+							<Border BorderBrush="{TemplateBinding BorderBrush}"
+											BorderThickness="{TemplateBinding BorderThickness}"
+											CornerRadius="{TemplateBinding CornerRadius}"
+											Background="{TemplateBinding Background}"
+											HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+											VerticalAlignment="{TemplateBinding VerticalAlignment}">
+								<DockPanel>
+									<ItemsPresenter Name="PART_ItemsPresenter"
+																	ItemsPanel="{TemplateBinding ItemsPanel}"
+																	DockPanel.Dock="{TemplateBinding TabStripPlacement}" />
+									<sv:TrackPlayShortDeviceView DockPanel.Dock="{TemplateBinding TabStripPlacement}"
+																							 DataContext="{Binding TrackPlay}"
+																							 IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsShortTrackVisible}" />
+									<ContentPresenter Name="PART_SelectedContentHost"
+																		Margin="{TemplateBinding Padding}"
+																		HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+																		VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+																		Content="{TemplateBinding SelectedContent}"
+																		ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+								</DockPanel>
+							</Border>
+						</ControlTemplate>
+					</Setter>
+				</Style>
+			</TabControl.Styles>
+			<TabControl.Items>
 
-			<TabItem>
-				<TabItem.Header>
-					<StackPanel>
-						<Image Classes="TabImage" Source="{su:FromIcon Track}" />
-						<TextBlock Text="{x:Static res:Texts.Tracks}" />
-					</StackPanel>
-				</TabItem.Header>
+				<TabItem>
+					<TabItem.Header>
+						<StackPanel>
+							<Image Classes="TabImage" Source="{su:FromIcon Track}" />
+							<TextBlock Text="{x:Static res:Texts.Tracks}" />
+						</StackPanel>
+					</TabItem.Header>
 
-				<sv:TracksTabView DataContext="{Binding}" />
-			</TabItem>
+					<sv:TracksTabView DataContext="{Binding}" />
+				</TabItem>
 
-			<TabItem>
-				<TabItem.Header>
-					<StackPanel>
-						<Image Classes="TabImage" Source="{su:FromIcon Playlist}" />
-						<TextBlock Text="{x:Static res:Texts.Playlists}" />
-					</StackPanel>
-				</TabItem.Header>
+				<TabItem>
+					<TabItem.Header>
+						<StackPanel>
+							<Image Classes="TabImage" Source="{su:FromIcon Playlist}" />
+							<TextBlock Text="{x:Static res:Texts.Playlists}" />
+						</StackPanel>
+					</TabItem.Header>
 
-				<sv:PlaylistsTabView DataContext="{Binding}" />
-			</TabItem>
+					<sv:PlaylistsTabView DataContext="{Binding}" />
+				</TabItem>
 
-			<TabItem>
-				<TabItem.Header>
-					<StackPanel>
-						<Image Classes="TabImage" Source="{su:FromIcon Categories}" />
-						<TextBlock Text="{x:Static res:Texts.Categories}" />
-					</StackPanel>
-				</TabItem.Header>
+				<TabItem>
+					<TabItem.Header>
+						<StackPanel>
+							<Image Classes="TabImage" Source="{su:FromIcon Categories}" />
+							<TextBlock Text="{x:Static res:Texts.Categories}" />
+						</StackPanel>
+					</TabItem.Header>
 
-				<sv:CategoriesTabView DataContext="{Binding}" />
-			</TabItem>
+					<sv:CategoriesTabView DataContext="{Binding}" />
+				</TabItem>
 
-			<TabItem>
-				<TabItem.Header>
-					<StackPanel>
-						<Image Classes="TabImage" Source="{su:FromIcon Search}" />
-						<TextBlock Text="{x:Static res:Texts.Search}" />
-					</StackPanel>
-				</TabItem.Header>
+				<TabItem>
+					<TabItem.Header>
+						<StackPanel>
+							<Image Classes="TabImage" Source="{su:FromIcon Search}" />
+							<TextBlock Text="{x:Static res:Texts.Search}" />
+						</StackPanel>
+					</TabItem.Header>
 
-				<sv:SearchTabView DataContext="{Binding}" />
-			</TabItem>
+					<sv:SearchTabView DataContext="{Binding}" />
+				</TabItem>
 
-		</TabControl.Items>
-	</TabControl>
+			</TabControl.Items>
+		</TabControl>
+
+		<sv:TrackPlayDeviceView DataContext="{Binding TrackPlay}"
+														IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsTrackVisible}" />
+	</Grid>
 </UserControl>
