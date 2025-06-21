@@ -135,6 +135,9 @@
   <data name="Artists" xml:space="preserve">
     <value>Артисты</value>
   </data>
+  <data name="Back" xml:space="preserve">
+    <value>Назад</value>
+  </data>
   <data name="Bitrate" xml:space="preserve">
     <value>Битрейт</value>
   </data>
@@ -174,6 +177,9 @@
   <data name="MediaLibrary" xml:space="preserve">
     <value>Медиатека</value>
   </data>
+  <data name="MixAll" xml:space="preserve">
+    <value>Перемешать всё</value>
+  </data>
   <data name="Playlist" xml:space="preserve">
     <value>Плейлист</value>
   </data>
@@ -182,6 +188,12 @@
   </data>
   <data name="Rating" xml:space="preserve">
     <value>Рейтинг</value>
+  </data>
+  <data name="RecentlyAdded" xml:space="preserve">
+    <value>Недавно добавленные</value>
+  </data>
+  <data name="RecentlyAddedButton" xml:space="preserve">
+    <value>НЕДАВНО ДОБАВЛЕННЫЕ &gt;</value>
   </data>
   <data name="Reproduced" xml:space="preserve">
     <value>Воспроизведено</value>

@@ -139,7 +139,7 @@ public abstract class MainViewModel : ObservableObject
     protected virtual async Task ChangeTracksCoreAsync(object tracksOwner, CancellationToken token)
     {
         TracksOwner = tracksOwner;
-        List<Track> tracks;
+        IEnumerable<Track> tracks;
 
         if (tracksOwner is Playlist playlist)
         {

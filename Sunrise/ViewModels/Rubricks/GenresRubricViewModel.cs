@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
@@ -29,6 +30,6 @@ public sealed class GenresRubricViewModel : RubricViewModel
         return trackSources;
     }
 
-    public override List<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => (trackSource as GenreViewModel)?.Tracks ?? [];
+    public override IEnumerable<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
+        => ((trackSource as GenreViewModel)?.Tracks ?? []).OrderBy(t => t.Title);
 }

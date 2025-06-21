@@ -2,16 +2,17 @@
 using System.Linq;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
-using Sunrise.Utils;
 
 namespace Sunrise.ViewModels;
 
-public sealed class SongsRubricViewModel : RubricViewModel
+public sealed class RecentlyAddedRubricViewModel : RubricViewModel
 {
-    public SongsRubricViewModel(Player player) : base(player, IconSource.From(nameof(Icons.Song)), Texts.Songs) { }
+    private const int _maxCount = 50;
+
+    public RecentlyAddedRubricViewModel(Player player) : base(player, null, Texts.RecentlyAdded) { }
 
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 
     public override IEnumerable<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => screenshot.AllTracks.OrderBy(t => t.Title);
+        => screenshot.AllTracks.OrderByDescending(t => t.Added).Take(_maxCount);
 }

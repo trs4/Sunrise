@@ -36,6 +36,6 @@ public sealed class AlbumsRubricViewModel : RubricViewModel
         return trackSources;
     }
 
-    public override List<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => (trackSource as AlbumViewModel)?.Tracks ?? [];
+    public override IEnumerable<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
+        => ((trackSource as AlbumViewModel)?.Tracks ?? []).OrderBy(t => t.Title);
 }

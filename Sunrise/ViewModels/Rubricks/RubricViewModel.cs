@@ -5,7 +5,7 @@ namespace Sunrise.ViewModels;
 
 public abstract class RubricViewModel
 {
-    protected RubricViewModel(Player player, object icon, string name)
+    protected RubricViewModel(Player player, object? icon, string name)
     {
         Player = player;
         Icon = icon;
@@ -14,13 +14,13 @@ public abstract class RubricViewModel
 
     public Player Player { get; }
 
-    public object Icon { get; }
+    public object? Icon { get; }
 
     public string Name { get; }
 
     public abstract IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot);
 
-    public abstract List<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null);
+    public abstract IEnumerable<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null);
 
     public override string ToString() => Name;
 }

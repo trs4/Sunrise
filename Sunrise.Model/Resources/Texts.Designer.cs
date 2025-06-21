@@ -115,6 +115,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Назад.
+        /// </summary>
+        public static string Back {
+            get {
+                return ResourceManager.GetString("Back", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Битрейт.
         /// </summary>
         public static string Bitrate {
@@ -232,6 +241,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Перемешать всё.
+        /// </summary>
+        public static string MixAll {
+            get {
+                return ResourceManager.GetString("MixAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Плейлист.
         /// </summary>
         public static string Playlist {
@@ -255,6 +273,24 @@ namespace Sunrise.Model.Resources {
         public static string Rating {
             get {
                 return ResourceManager.GetString("Rating", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Недавно добавленные.
+        /// </summary>
+        public static string RecentlyAdded {
+            get {
+                return ResourceManager.GetString("RecentlyAdded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to НЕДАВНО ДОБАВЛЕННЫЕ &gt;.
+        /// </summary>
+        public static string RecentlyAddedButton {
+            get {
+                return ResourceManager.GetString("RecentlyAddedButton", resourceCulture);
             }
         }
         

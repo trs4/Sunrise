@@ -22,9 +22,9 @@ public partial class App : Application
 
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) // Windows
         {
-            desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+            //desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
             //viewModel = new MainDesktopViewModel(player);
-            //desktop.MainWindow = viewModel.Owner = new MainWindow { DataContext = viewModel };
+            //desktop.MainWindow = ((MainDesktopViewModel)viewModel).Owner = new MainWindow { DataContext = viewModel };
 
             viewModel = new MainDeviceViewModel(player);
             desktop.MainWindow = new MainDeviceWindow { DataContext = viewModel };
