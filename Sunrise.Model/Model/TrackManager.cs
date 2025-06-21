@@ -46,6 +46,9 @@ internal sealed class TrackManager
             LastWrite = file.LastWriteTime,
         };
 
+        if (string.IsNullOrWhiteSpace(track.Title))
+            track.Title = GetTitle(file);
+
         if (properties is not null)
         {
             track.Duration = properties.Duration;
@@ -66,6 +69,30 @@ internal sealed class TrackManager
         }
 
         return track;
+    }
+
+    private static string GetTitle(FileInfo file)
+    {
+        string title = Path.GetFileNameWithoutExtension(file.Name);
+
+        // Обрезаем цифры и точки, если есть после пробел
+        // 00 test
+        int index = 0;
+
+        for (; index < title.Length; index++)
+        {
+            char s = title[index];
+
+            if (char.IsDigit(s) || s == ' ' || char.IsPunctuation(s))
+                continue;
+
+            break;
+        }
+
+        if (index > 2)
+            title = title.Substring(index);
+
+        return title;
     }
 
 }
