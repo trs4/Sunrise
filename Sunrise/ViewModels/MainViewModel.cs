@@ -1,6 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -23,6 +25,7 @@ public abstract class MainViewModel : ObservableObject
     private bool _isTrackSourcesVisible;
     private TrackSourceViewModel? _selectedTrackSource;
     private bool _isReadOnlyTracks = true;
+    private readonly Dictionary<int, TrackViewModel> _trackMap = [];
 
     protected MainViewModel() { } // For designer
 
@@ -181,7 +184,12 @@ public abstract class MainViewModel : ObservableObject
 
         foreach (var track in tracks)
         {
-            var trackViewModel = new TrackViewModel(track, TrackPlay.Player);
+            if (!_trackMap.TryGetValue(track.Id, out var trackViewModel))
+            {
+                trackViewModel = new TrackViewModel(track, TrackPlay.Player);
+                _trackMap.Add(track.Id, trackViewModel);
+            }
+
             Tracks.Add(trackViewModel);
         }
     }
@@ -232,6 +240,30 @@ public abstract class MainViewModel : ObservableObject
         SelectedPlaylist = null;
         Playlists.Remove(selectedPlaylist);
         await SelectSongsAsync();
+    }
+
+    public Track[] CreateRandomizeTracks()
+    {
+        int count = Tracks.Count;
+        var randomizeTracks = new Track[count];
+
+        for (int i = 0; i < count; i++)
+            randomizeTracks[i] = Tracks[i].Track;
+
+        RandomNumberGenerator.Shuffle(randomizeTracks.AsSpan());
+        return randomizeTracks;
+    }
+
+    public TrackViewModel[] CreateRandomizeTrackViewModels()
+    {
+        int count = Tracks.Count;
+        var randomizeTracks = new TrackViewModel[count];
+
+        for (int i = 0; i < count; i++)
+            randomizeTracks[i] = Tracks[i];
+
+        RandomNumberGenerator.Shuffle(randomizeTracks.AsSpan());
+        return randomizeTracks;
     }
 
     public abstract void OnExit();

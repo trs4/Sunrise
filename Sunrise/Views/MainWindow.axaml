@@ -8,7 +8,6 @@
         xmlns:svm="clr-namespace:Sunrise.ViewModels"
         xmlns:sv="clr-namespace:Sunrise.Views"
         xmlns:sb="clr-namespace:Sunrise.Behaviors"
-        xmlns:scv="clr-namespace:Sunrise.Converters"
         xmlns:su="clr-namespace:Sunrise.Utils"
 				xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"

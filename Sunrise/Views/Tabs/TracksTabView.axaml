@@ -165,7 +165,7 @@
 							 ItemsSource="{Binding Tracks, Mode=OneWay}"
 							 Tapped="Track_Tapped">
 				<ListBox.ItemTemplate>
-					<DataTemplate>
+					<DataTemplate DataType="svm:TrackViewModel">
 						<Grid>
 							<Grid.ColumnDefinitions>
 								<ColumnDefinition Width="30" />
@@ -179,15 +179,36 @@
 
 							<Image Grid.RowSpan="2"
 										 Source="{su:FromIcon Track}"
-										 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
 										 OpacityMask="Gray" Opacity="0.15"
 										 VerticalAlignment="Center" HorizontalAlignment="Center"
-										 Height="24" Width="24" />
+										 Height="24" Width="24">
+								<Image.IsVisible>
+									<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+										<Binding Path="TrackIcon" Mode="OneWay" Converter="{x:Static ObjectConverters.IsNull}" />
+										<Binding Path="IsPlaying" Mode="OneWay" Converter="{x:Static ObjectConverters.IsNull}" />
+									</MultiBinding>
+								</Image.IsVisible>
+							</Image>
 							<Image Grid.RowSpan="2"
 										 Source="{Binding TrackIcon, Mode=OneWay}"
 										 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
 										 VerticalAlignment="Center" HorizontalAlignment="Center"
 										 Height="24" Width="24" />
+							<Border Grid.RowSpan="2"
+										  IsVisible="{Binding IsPlaying, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+											VerticalAlignment="Center" HorizontalAlignment="Center"
+											Background="White"
+											Opacity="0.8"
+											Height="20" Width="20"
+											CornerRadius="10"
+											BorderThickness="1"
+										  BorderBrush="LightGray"
+											Tapped="TrackIcon_Tapped">
+								<Image Source="{Binding IsPlaying, Mode=OneWay, Converter={x:Static scv:IsPlayingToIconTrackConverter.Instance}}"
+											 VerticalAlignment="Center" HorizontalAlignment="Center"
+											 OpacityMask="Gray" Opacity="0.8"
+											 Height="10" Width="10" />
+							</Border>
 
 							<!--  Название  -->
 							<TextBlock Grid.Column="2" Grid.Row="0"

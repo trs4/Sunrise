@@ -14,8 +14,7 @@ public partial class TrackPlayShortDeviceView : UserControl
         if (DataContext is not TrackPlayViewModel viewModel || viewModel.Owner is not MainDeviceViewModel mainViewModel)
             return;
 
-        mainViewModel.IsShortTrackVisible = false;
-        mainViewModel.IsTrackVisible = true;
+        mainViewModel.ShowTrackPage();
     }
 
 }

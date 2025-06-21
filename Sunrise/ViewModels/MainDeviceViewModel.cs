@@ -23,7 +23,7 @@ public sealed class MainDeviceViewModel : MainViewModel
         : base(player)
     {
         BackCommand = new AsyncRelayCommand(OnBackAsync);
-        RandomPlayRunCommand = new RelayCommand(OnRandomPlayRun);
+        RandomPlayRunCommand = new AsyncRelayCommand(OnRandomPlayRunAsync);
         RecentlyAddedCommand = new AsyncRelayCommand(OnRecentlyAddedAsync);
     }
 
@@ -75,6 +75,12 @@ public sealed class MainDeviceViewModel : MainViewModel
         }
     }
 
+    public void ShowTrackPage()
+    {
+        IsShortTrackVisible = false;
+        IsTrackVisible = true;
+    }
+
     private Task OnBackAsync()
     {
         if (TrackSourceHistory.Count == 0)
@@ -86,14 +92,28 @@ public sealed class MainDeviceViewModel : MainViewModel
         return ChangeTracksAsync(tracksOwner);
     }
 
-    private void OnRandomPlayRun()
+    private async Task OnRandomPlayRunAsync()
     {
+        var rubricViewModel = new RandomizeRubricViewModel(this);
+        await ChangeToDependentRubricAsync(rubricViewModel);
 
+        var trackViewModel = Tracks.FirstOrDefault();
+
+        if (trackViewModel is null)
+            return;
+
+        await TrackPlay.PlayAsync(trackViewModel);
+        ShowTrackPage();
     }
 
     private Task OnRecentlyAddedAsync()
     {
         var rubricViewModel = new RecentlyAddedRubricViewModel(TrackPlay.Player);
+        return ChangeToDependentRubricAsync(rubricViewModel);
+    }
+
+    private Task ChangeToDependentRubricAsync(RubricViewModel rubricViewModel)
+    {
         IsTrackListVisible = true;
         BackCaption = rubricViewModel.Name;
         return ChangeTracksAsync(rubricViewModel);

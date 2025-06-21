@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using System.Security.Cryptography;
 
 namespace Sunrise.ViewModels;
 
@@ -10,7 +9,7 @@ public sealed class RandomTrackPlayStrategy : TrackPlayStrategy
 
     public RandomTrackPlayStrategy(MainViewModel owner) : base(owner) { }
 
-    private TrackViewModel[] Tracks => _tracks ??= CreateRandomizeTracks();
+    private TrackViewModel[] Tracks => _tracks ??= Owner.CreateRandomizeTrackViewModels();
 
     public override TrackViewModel? GetFirst() => Tracks.FirstOrDefault();
 
@@ -32,19 +31,6 @@ public sealed class RandomTrackPlayStrategy : TrackPlayStrategy
         var tracks = Tracks;
         int index = Array.IndexOf(tracks, currentTrack) + 1;
         return index >= 0 && index < tracks.Length ? tracks[index] : null;
-    }
-
-    private TrackViewModel[] CreateRandomizeTracks()
-    {
-        var tracks = Owner.Tracks;
-        int count = tracks.Count;
-        var randomizeTracks = new TrackViewModel[count];
-
-        for (int i = 0; i < count; i++)
-            randomizeTracks[i] = tracks[i];
-
-        RandomNumberGenerator.Shuffle(randomizeTracks.AsSpan());
-        return randomizeTracks;
     }
 
 }

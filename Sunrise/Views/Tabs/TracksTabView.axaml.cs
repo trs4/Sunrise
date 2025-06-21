@@ -20,4 +20,13 @@ public partial class TracksTabView : UserControl
         await mainViewModel.TrackPlay.PlayAsync(trackViewModel);
     }
 
+    private void TrackIcon_Tapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is not MainDeviceViewModel mainViewModel)
+            return;
+
+        mainViewModel.TrackPlay.PlayCommand.Execute(null);
+        e.Handled = true;
+    }
+
 }

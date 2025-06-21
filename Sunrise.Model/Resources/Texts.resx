@@ -186,6 +186,9 @@
   <data name="Playlists" xml:space="preserve">
     <value>Плейлисты</value>
   </data>
+  <data name="Randomize" xml:space="preserve">
+    <value>В случайном порядке</value>
+  </data>
   <data name="Rating" xml:space="preserve">
     <value>Рейтинг</value>
   </data>

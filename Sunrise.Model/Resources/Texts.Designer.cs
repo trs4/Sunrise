@@ -268,6 +268,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to В случайном порядке.
+        /// </summary>
+        public static string Randomize {
+            get {
+                return ResourceManager.GetString("Randomize", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Рейтинг.
         /// </summary>
         public static string Rating {
