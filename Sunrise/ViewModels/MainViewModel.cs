@@ -16,11 +16,6 @@ namespace Sunrise.ViewModels;
 
 public abstract class MainViewModel : ObservableObject
 {
-    private readonly RubricViewModel _artists;
-    private readonly RubricViewModel _albums;
-    private readonly RubricViewModel _songs;
-    private readonly RubricViewModel _genres;
-
     private RubricViewModel _selectedRubrick;
     private bool _isTrackSourcesVisible;
     private TrackSourceViewModel? _selectedTrackSource;
@@ -31,23 +26,31 @@ public abstract class MainViewModel : ObservableObject
 
     protected MainViewModel(Player player)
     {
-        TrackPlay = new TrackPlayViewModel(this, player);
+        Artists = new ArtistsRubricViewModel(player);
+        Albums = new AlbumsRubricViewModel(player);
+        Songs = new SongsRubricViewModel(player);
+        Genres = new GenresRubricViewModel(player);
 
-        _artists = new ArtistsRubricViewModel(player);
-        _albums = new AlbumsRubricViewModel(player);
-        _songs = new SongsRubricViewModel(player);
-        _genres = new GenresRubricViewModel(player);
+        TrackPlay = new TrackPlayViewModel(this, player);
 
         AddCategoryCommand = new AsyncRelayCommand(AddCategoryAsync);
         DeleteCategoryCommand = new AsyncRelayCommand(DeleteCategoryAsync);
         AddPlaylistCommand = new AsyncRelayCommand(AddPlaylistAsync);
         DeletePlaylistCommand = new AsyncRelayCommand(DeletePlaylistAsync);
 
-        Rubricks = new([_artists, _albums, _songs, _genres]);
-        _selectedRubrick = _songs;
+        Rubricks = new([Artists, Albums, Songs, Genres]);
+        _selectedRubrick = Songs;
     }
 
     public TrackPlayViewModel TrackPlay { get; }
+
+    public RubricViewModel Artists { get; }
+
+    public RubricViewModel Albums { get; }
+
+    public RubricViewModel Songs { get; }
+
+    public RubricViewModel Genres { get; }
 
     public ObservableCollection<RubricViewModel> Rubricks { get; }
 
@@ -122,14 +125,15 @@ public abstract class MainViewModel : ObservableObject
 
     public async Task ReloadTracksAsync(CancellationToken token = default)
     {
-        var rubricViewModel = _songs;
+        _trackMap.Clear();
+        var rubricViewModel = Songs;
         var playlists = await TrackPlay.Player.GetAllPlaylistsAsync(token);
         await ChangeTracksCoreAsync(rubricViewModel, token);
         ChangePlaylists(playlists.Values);
     }
 
     public Task SelectSongsAsync(CancellationToken token = default)
-        => ChangeTracksAsync(_songs, token);
+        => ChangeTracksAsync(Songs, token);
 
     public Task ChangeTracksAsync(object tracksOwner, CancellationToken token = default)
     {
@@ -183,16 +187,21 @@ public abstract class MainViewModel : ObservableObject
         Tracks.Clear();
 
         foreach (var track in tracks)
-        {
-            if (!_trackMap.TryGetValue(track.Id, out var trackViewModel))
-            {
-                trackViewModel = new TrackViewModel(track, TrackPlay.Player);
-                _trackMap.Add(track.Id, trackViewModel);
-            }
-
-            Tracks.Add(trackViewModel);
-        }
+            Tracks.Add(GetTrackViewModel(track));
     }
+
+    protected TrackViewModel GetTrackViewModel(Track track)
+    {
+        if (_trackMap.TryGetValue(track.Id, out var trackViewModel))
+            return trackViewModel;
+
+        trackViewModel = new TrackViewModel(track, TrackPlay.Player);
+        _trackMap.Add(track.Id, trackViewModel);
+        return trackViewModel;
+    }
+
+    public TrackViewModel? GetTrackViewModelWithCheck(Track? track)
+        => track is null ? null : GetTrackViewModel(track);
 
     public void ChangePlaylists(IEnumerable<Playlist> playlists)
     {
@@ -249,18 +258,6 @@ public abstract class MainViewModel : ObservableObject
 
         for (int i = 0; i < count; i++)
             randomizeTracks[i] = Tracks[i].Track;
-
-        RandomNumberGenerator.Shuffle(randomizeTracks.AsSpan());
-        return randomizeTracks;
-    }
-
-    public TrackViewModel[] CreateRandomizeTrackViewModels()
-    {
-        int count = Tracks.Count;
-        var randomizeTracks = new TrackViewModel[count];
-
-        for (int i = 0; i < count; i++)
-            randomizeTracks[i] = Tracks[i];
 
         RandomNumberGenerator.Shuffle(randomizeTracks.AsSpan());
         return randomizeTracks;

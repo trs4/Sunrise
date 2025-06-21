@@ -33,6 +33,8 @@ public sealed class TrackPlayViewModel : ObservableObject
     private bool? _repeatPlay;
     private object? _trackIcon;
     private object _repeatPlayIcon = _repeatPlayIconSource;
+    private RubricViewModel? _ownerRubric;
+    private TrackSourceViewModel? _ownerTrackSource;
 
     public TrackPlayViewModel() { } // For designer
 
@@ -40,14 +42,14 @@ public sealed class TrackPlayViewModel : ObservableObject
     {
         Owner = owner ?? throw new ArgumentNullException(nameof(owner));
         Player = player ?? throw new ArgumentNullException(nameof(player));
-        Strategy = TrackPlayStrategy.Create(owner);
+        Strategy = TrackPlayStrategy.Create(owner, ownerRubric: owner.Songs);
         Player.Media.Volume = _volume;
         player.Media.OnStopped = OnStopped;
         _playerTimer.Tick += OnTick;
 
         RandomPlayCommand = new RelayCommand(OnRandomPlay);
         RepeatPlayCommand = new RelayCommand(OnRepeatPlay);
-        PrevCommand = new RelayCommand(GoToPrevTrack);
+        PrevCommand = new AsyncRelayCommand(GoToPrevTrackAsync);
         PlayCommand = new AsyncRelayCommand(PlayPauseTrackAsync);
         NextCommand = new AsyncRelayCommand(GoToNextTrackAsync);
 
@@ -123,14 +125,31 @@ public sealed class TrackPlayViewModel : ObservableObject
 
     public IRelayCommand ExitCommand { get; }
 
+    public RubricViewModel? OwnerRubric
+    {
+        get => _ownerRubric;
+        set => SetProperty(ref _ownerRubric, value);
+    }
+
+    public TrackSourceViewModel? OwnerTrackSource
+    {
+        get => _ownerTrackSource;
+        set => SetProperty(ref _ownerTrackSource, value);
+    }
+
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
 
         if (e.PropertyName == nameof(Volume))
             Player.Media.Volume = _volume;
-        else if (e.PropertyName == nameof(RandomPlay))
-            Strategy = TrackPlayStrategy.Create(Owner, _randomPlay);
+        else if (e.PropertyName is nameof(RandomPlay) or nameof(OwnerRubric) or nameof(OwnerTrackSource))
+        {
+            if (Strategy is not null && Strategy.Equals(_randomPlay, _ownerRubric, _ownerTrackSource))
+                return;
+
+            Strategy = TrackPlayStrategy.Create(Owner, _randomPlay, _ownerRubric, _ownerTrackSource);
+        }
     }
 
     private void OnTick(object? sender, EventArgs e)
@@ -263,7 +282,7 @@ public sealed class TrackPlayViewModel : ObservableObject
 
     private async Task PlayPauseTrackAsync()
     {
-        var currentTrack = CurrentTrack ??= Strategy.GetFirst();
+        var currentTrack = CurrentTrack ??= await Strategy.GetFirstAsync();
 
         if (currentTrack is null)
             return;
@@ -274,7 +293,7 @@ public sealed class TrackPlayViewModel : ObservableObject
             await PlayCoreAsync(currentTrack);
     }
 
-    private void GoToPrevTrack()
+    private async Task GoToPrevTrackAsync()
     {
         var track = CurrentTrack;
 
@@ -289,7 +308,7 @@ public sealed class TrackPlayViewModel : ObservableObject
 
         while (true)
         {
-            track = Strategy.GetPrev(track);
+            track = await Strategy.GetPrevAsync(track);
 
             if (track is null)
             {
@@ -322,13 +341,13 @@ public sealed class TrackPlayViewModel : ObservableObject
 
         while (true)
         {
-            var nextTrack = Strategy.GetNext(track);
+            var nextTrack = await Strategy.GetNextAsync(track);
 
             if (nextTrack is null)
             {
                 if (_repeatPlay == false)
                 {
-                    track = Strategy.GetFirst();
+                    track = await Strategy.GetFirstAsync();
 
                     if (track is not null)
                         Change(track);
@@ -369,13 +388,13 @@ public sealed class TrackPlayViewModel : ObservableObject
             return;
         }
 
-        var nextTrack = Strategy.GetNext(currentTrack);
+        var nextTrack = await Strategy.GetNextAsync(currentTrack);
 
         if (nextTrack is null)
         {
             if (_repeatPlay == false)
             {
-                currentTrack = Strategy.GetFirst();
+                currentTrack = await Strategy.GetFirstAsync();
 
                 if (currentTrack is null)
                     return;

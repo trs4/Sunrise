@@ -22,6 +22,7 @@
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
 				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
 				<RowDefinition />
 			</Grid.RowDefinitions>
 
@@ -80,7 +81,7 @@
 			<ListBox Grid.Row="3"
 							 ItemsSource="{Binding RecentlyAddedTracks, Mode=OneWay}"
 							 IsVisible="{Binding !IsTrackListVisible}"
-							 Tapped="Track_Tapped"
+							 Tapped="RecentlyAddedTrack_Tapped"
 							 Height="125"
 							 ScrollViewer.HorizontalScrollBarVisibility="Auto">
 				<ListBox.ItemsPanel>

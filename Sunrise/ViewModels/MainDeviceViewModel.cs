@@ -57,6 +57,8 @@ public sealed class MainDeviceViewModel : MainViewModel
 
     public IRelayCommand RecentlyAddedCommand { get; }
 
+    public RecentlyAddedRubricViewModel RecentlyAddedRubric { get; private set; }
+
     public ObservableCollection<TrackViewModel> RecentlyAddedTracks { get; } = [];
 
     public List<object> TrackSourceHistory { get; } = [];
@@ -66,12 +68,14 @@ public sealed class MainDeviceViewModel : MainViewModel
         TrackSourceHistory.Add(tracksOwner);
         await base.ChangeTracksCoreAsync(tracksOwner, token);
 
-        if (tracksOwner is SongsRubricViewModel)
+        if (tracksOwner is SongsRubricViewModel && RecentlyAddedRubric is null)
         {
+            var screenshot = await TrackPlay.Player.GetAllTracksAsync(token);
+            RecentlyAddedRubric = new RecentlyAddedRubricViewModel(TrackPlay.Player);
             RecentlyAddedTracks.Clear();
 
-            foreach (var trackViewModel in Tracks.OrderByDescending(t => t.Added).Take(_recentlyAddedCount))
-                RecentlyAddedTracks.Add(trackViewModel);
+            foreach (var track in RecentlyAddedRubric.GetTracks(screenshot).Take(_recentlyAddedCount))
+                RecentlyAddedTracks.Add(GetTrackViewModel(track));
         }
     }
 
@@ -102,13 +106,15 @@ public sealed class MainDeviceViewModel : MainViewModel
         if (trackViewModel is null)
             return;
 
+        TrackPlay.OwnerRubric = rubricViewModel;
         await TrackPlay.PlayAsync(trackViewModel);
         ShowTrackPage();
     }
 
     private Task OnRecentlyAddedAsync()
     {
-        var rubricViewModel = new RecentlyAddedRubricViewModel(TrackPlay.Player);
+        var rubricViewModel = RecentlyAddedRubric;
+        TrackPlay.OwnerRubric = rubricViewModel;
         return ChangeToDependentRubricAsync(rubricViewModel);
     }
 

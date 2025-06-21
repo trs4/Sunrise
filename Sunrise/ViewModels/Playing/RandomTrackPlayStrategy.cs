@@ -1,36 +1,95 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
+using System.Security.Cryptography;
+using System.Threading.Tasks;
+using Sunrise.Model;
 
 namespace Sunrise.ViewModels;
 
 public sealed class RandomTrackPlayStrategy : TrackPlayStrategy
 {
-    private TrackViewModel[]? _tracks;
+    private readonly RubricViewModel? _ownerRubric;
+    private readonly TrackSourceViewModel? _ownerTrackSource;
+    private IReadOnlyList<Track>? _tracks;
 
-    public RandomTrackPlayStrategy(MainViewModel owner) : base(owner) { }
-
-    private TrackViewModel[] Tracks => _tracks ??= Owner.CreateRandomizeTrackViewModels();
-
-    public override TrackViewModel? GetFirst() => Tracks.FirstOrDefault();
-
-    public override TrackViewModel? GetPrev(TrackViewModel? currentTrack)
+    public RandomTrackPlayStrategy(MainViewModel owner,
+        RubricViewModel? ownerRubric = null, TrackSourceViewModel? ownerTrackSource = null)
+        : base(owner)
     {
-        if (currentTrack is null)
-            return null;
-
-        var tracks = Tracks;
-        int index = Array.IndexOf(tracks, currentTrack) - 1;
-        return index >= 0 && index < tracks.Length ? tracks[index] : null;
+        _ownerRubric = ownerRubric;
+        _ownerTrackSource = ownerTrackSource;
     }
 
-    public override TrackViewModel? GetNext(TrackViewModel? currentTrack)
+    public override async ValueTask<TrackViewModel?> GetFirstAsync()
+    {
+        var tracks = await GetTracksAsync();
+        var track = tracks.Count > 0 ? tracks[0] : null;
+        return Owner.GetTrackViewModelWithCheck(track);
+    }
+
+    public override async ValueTask<TrackViewModel?> GetPrevAsync(TrackViewModel? currentTrack)
     {
         if (currentTrack is null)
             return null;
 
-        var tracks = Tracks;
-        int index = Array.IndexOf(tracks, currentTrack) + 1;
-        return index >= 0 && index < tracks.Length ? tracks[index] : null;
+        var tracks = await GetTracksAsync();
+        int index = GetCurrentIndex(tracks, currentTrack) - 1;
+        return index >= 0 && index < tracks.Count ? Owner.GetTrackViewModelWithCheck(tracks[index]) : null;
+    }
+
+    public override async ValueTask<TrackViewModel?> GetNextAsync(TrackViewModel? currentTrack)
+    {
+        if (currentTrack is null)
+            return null;
+
+        var tracks = await GetTracksAsync();
+        int index = GetCurrentIndex(tracks, currentTrack) + 1;
+        return index >= 0 && index < tracks.Count ? Owner.GetTrackViewModelWithCheck(tracks[index]) : null;
+    }
+
+    private async ValueTask<IReadOnlyList<Track>> GetTracksAsync() => _tracks ??= await InitTracksAsync();
+
+    private async ValueTask<IReadOnlyList<Track>> InitTracksAsync()
+    {
+        if (_ownerRubric is not null)
+        {
+            var screenshot = await Owner.TrackPlay.Player.GetAllTracksAsync();
+            var tracks = _ownerRubric.GetTracks(screenshot, _ownerTrackSource);
+            return CreateRandomizeTracks(tracks);
+        }
+
+        return Owner.CreateRandomizeTracks();
+    }
+
+    private static Track[] CreateRandomizeTracks(IReadOnlyList<Track> tracks)
+    {
+        int count = tracks.Count;
+        var randomizeTracks = new Track[count];
+
+        for (int i = 0; i < count; i++)
+            randomizeTracks[i] = tracks[i];
+
+        RandomNumberGenerator.Shuffle(randomizeTracks.AsSpan());
+        return randomizeTracks;
+    }
+
+    private static int GetCurrentIndex(IReadOnlyList<Track> tracks, TrackViewModel? currentTrack)
+    {
+        if (tracks is Track[] array)
+            return Array.IndexOf(array, currentTrack?.Track) + 1;
+
+        if (tracks is not List<Track> list)
+            list = [.. tracks];
+
+        return list.IndexOf(currentTrack?.Track);
+    }
+
+    public override bool Equals(bool randomPlay, RubricViewModel? ownerRubric, TrackSourceViewModel? ownerTrackSource)
+    {
+        if (!randomPlay)
+            return false;
+
+        return _ownerRubric == ownerRubric && _ownerTrackSource == ownerTrackSource;
     }
 
 }

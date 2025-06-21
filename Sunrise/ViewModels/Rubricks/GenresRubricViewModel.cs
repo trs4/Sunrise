@@ -22,7 +22,10 @@ public sealed class GenresRubricViewModel : RubricViewModel
         var trackSources = new List<GenreViewModel>(screenshot.AllTracksByGenre.Count);
 
         foreach (var pair in screenshot.AllTracksByGenre)
-            trackSources.Add(new GenreViewModel(pair.Key, pair.Value, this));
+        {
+            var tracks = pair.Value.OrderBy(t => t.Title).ToList();
+            trackSources.Add(new GenreViewModel(pair.Key, tracks, this));
+        }
 
         trackSources.Sort((a, b) => string.Compare(a.Name, b.Name, true));
         _trackSources = trackSources;
@@ -30,6 +33,6 @@ public sealed class GenresRubricViewModel : RubricViewModel
         return trackSources;
     }
 
-    public override IEnumerable<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => ((trackSource as GenreViewModel)?.Tracks ?? []).OrderBy(t => t.Title);
+    public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
+        => (trackSource as GenreViewModel)?.Tracks ?? [];
 }

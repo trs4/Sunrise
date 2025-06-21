@@ -25,8 +25,11 @@ public sealed class AlbumsRubricViewModel : RubricViewModel
         {
             foreach (var pairByAlbum in pairByArtist.Value)
             {
-                if (pairByAlbum.Key.Length > 0)
-                    trackSources.Add(new AlbumViewModel(pairByAlbum.Key, pairByArtist.Key, pairByAlbum.Value, this));
+                if (pairByAlbum.Key.Length == 0)
+                    continue;
+
+                var tracks = pairByAlbum.Value.OrderBy(t => t.Title).ToList();
+                trackSources.Add(new AlbumViewModel(pairByAlbum.Key, pairByArtist.Key, tracks, this));
             }
         }
 
@@ -36,6 +39,6 @@ public sealed class AlbumsRubricViewModel : RubricViewModel
         return trackSources;
     }
 
-    public override IEnumerable<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => ((trackSource as AlbumViewModel)?.Tracks ?? []).OrderBy(t => t.Title);
+    public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
+        => (trackSource as AlbumViewModel)?.Tracks ?? [];
 }
