@@ -12,6 +12,8 @@ public sealed class RandomizeRubricViewModel : RubricViewModel
         : base(mainViewModel.TrackPlay.Player, null, Texts.Randomize)
         => _tracks = mainViewModel.CreateRandomizeTracks();
 
+    public override bool IsDependent => true;
+
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 
     public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)

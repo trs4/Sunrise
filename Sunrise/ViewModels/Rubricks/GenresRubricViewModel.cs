@@ -24,7 +24,7 @@ public sealed class GenresRubricViewModel : RubricViewModel
         foreach (var pair in screenshot.AllTracksByGenre)
         {
             var tracks = pair.Value.OrderBy(t => t.Title).ToList();
-            trackSources.Add(new GenreViewModel(pair.Key, tracks, this));
+            trackSources.Add(new GenreViewModel(this, pair.Key, tracks));
         }
 
         trackSources.Sort((a, b) => string.Compare(a.Name, b.Name, true));

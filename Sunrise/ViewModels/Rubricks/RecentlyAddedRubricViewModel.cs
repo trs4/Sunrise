@@ -13,6 +13,8 @@ public sealed class RecentlyAddedRubricViewModel : RubricViewModel
 
     public RecentlyAddedRubricViewModel(Player player) : base(player, null, Texts.RecentlyAdded) { }
 
+    public override bool IsDependent => true;
+
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 
     public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)

@@ -132,6 +132,12 @@
   <data name="Artist" xml:space="preserve">
     <value>Артист</value>
   </data>
+  <data name="ArtistDescriptionFormat" xml:space="preserve">
+    <value>Альбомов: {0} Песен: {1}</value>
+  </data>
+  <data name="GenreDescriptionFormat" xml:space="preserve">
+    <value>Песен: {0}</value>
+  </data>
   <data name="Artists" xml:space="preserve">
     <value>Артисты</value>
   </data>

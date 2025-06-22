@@ -137,13 +137,26 @@ public sealed class TrackPlayViewModel : ObservableObject
         set => SetProperty(ref _ownerTrackSource, value);
     }
 
+    public void ChangeOwnerRubric(RubricViewModel? ownerRubric, TrackSourceViewModel? ownerTrackSource = null)
+    {
+        OwnerRubric = ownerRubric;
+        OwnerTrackSource = ownerTrackSource;
+        OnPropertyChanged(nameof(TrackPlayStrategy));
+    }
+
+    public void ChangeOwnerRubric(TrackSourceViewModel? ownerTrackSource)
+    {
+        OwnerTrackSource = ownerTrackSource;
+        OnPropertyChanged(nameof(TrackPlayStrategy));
+    }
+
     protected override void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
 
         if (e.PropertyName == nameof(Volume))
             Player.Media.Volume = _volume;
-        else if (e.PropertyName is nameof(RandomPlay) or nameof(OwnerRubric) or nameof(OwnerTrackSource))
+        else if (e.PropertyName is nameof(RandomPlay) or nameof(TrackPlayStrategy))
         {
             if (Strategy is not null && Strategy.Equals(_randomPlay, _ownerRubric, _ownerTrackSource))
                 return;

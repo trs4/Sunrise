@@ -1,25 +1,25 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Sunrise.Model;
+using Sunrise.Model.Resources;
 
 namespace Sunrise.ViewModels.Artists;
 
 public sealed class ArtistViewModel : TrackSourceViewModel
 {
     private readonly Dictionary<string, List<Track>> _tracksByAlbums;
+    private readonly int _tracksCount;
 
-    public ArtistViewModel(string name, Dictionary<string, List<Track>> tracksByAlbums, ArtistsRubricViewModel rubric)
-        : base(rubric)
+    public ArtistViewModel(ArtistsRubricViewModel rubric, string name, Dictionary<string, List<Track>> tracksByAlbums, int tracksCount)
+        : base(rubric, name, string.Format(Texts.ArtistDescriptionFormat, tracksByAlbums.Count, tracksCount))
     {
-        Name = name;
         _tracksByAlbums = tracksByAlbums;
+        _tracksCount = tracksCount;
     }
-
-    public string Name { get; }
 
     public List<Track> GetTracks()
     {
-        var tracks = new List<Track>(_tracksByAlbums.Sum(p => p.Value.Count));
+        var tracks = new List<Track>(_tracksCount);
 
         foreach (var albumTracks in _tracksByAlbums.Values)
             tracks.AddRange(albumTracks);
@@ -27,6 +27,9 @@ public sealed class ArtistViewModel : TrackSourceViewModel
         tracks.Sort((a, b) => string.Compare(a.Title, b.Title, true));
         return tracks;
     }
+
+    protected override Track? GetTrackWithPicture()
+        => _tracksByAlbums.Values.SelectMany(s => s).FirstOrDefault(t => t.HasPicture);
 
     public override string ToString() => Name;
 }

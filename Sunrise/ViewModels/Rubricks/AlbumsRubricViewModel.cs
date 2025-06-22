@@ -29,7 +29,7 @@ public sealed class AlbumsRubricViewModel : RubricViewModel
                     continue;
 
                 var tracks = pairByAlbum.Value.OrderBy(t => t.Title).ToList();
-                trackSources.Add(new AlbumViewModel(pairByAlbum.Key, pairByArtist.Key, tracks, this));
+                trackSources.Add(new AlbumViewModel(this, pairByAlbum.Key, pairByArtist.Key, tracks));
             }
         }
 

@@ -1,20 +1,19 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Sunrise.Model;
+using Sunrise.Model.Resources;
 
 namespace Sunrise.ViewModels.Genres;
 
 public sealed class GenreViewModel : TrackSourceViewModel
 {
-    public GenreViewModel(string name, List<Track> tracks, GenresRubricViewModel rubric)
-        : base(rubric)
-    {
-        Name = name;
-        Tracks = tracks;
-    }
-
-    public string Name { get; }
+    public GenreViewModel(GenresRubricViewModel rubric, string name, List<Track> tracks)
+        : base(rubric, name, string.Format(Texts.GenreDescriptionFormat, tracks.Count))
+        => Tracks = tracks;
 
     public List<Track> Tracks { get; }
+
+    protected override Track? GetTrackWithPicture() => Tracks.FirstOrDefault(t => t.HasPicture);
 
     public override string ToString() => Name;
 }

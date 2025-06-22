@@ -1,23 +1,23 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Sunrise.Model;
 
 namespace Sunrise.ViewModels.Albums;
 
 public sealed class AlbumViewModel : TrackSourceViewModel
 {
-    public AlbumViewModel(string name, string artist, List<Track> tracks, AlbumsRubricViewModel rubric)
-        : base(rubric)
+    public AlbumViewModel(AlbumsRubricViewModel rubric, string name, string artist, List<Track> tracks)
+        : base(rubric, name, artist)
     {
-        Name = name;
         Artist = artist;
         Tracks = tracks;
     }
 
-    public string Name { get; }
-
     public string Artist { get; }
 
     public List<Track> Tracks { get; }
+
+    protected override Track? GetTrackWithPicture() => Tracks.FirstOrDefault(t => t.HasPicture);
 
     public override string ToString() => $"{Name} - {Artist}";
 }

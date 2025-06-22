@@ -19,6 +19,18 @@ public partial class TracksTabView : UserControl
         => await PlayTrack(e, mainViewModel => mainViewModel.TrackSourceHistory.LastOrDefault() as RubricViewModel
             ?? mainViewModel.SelectedRubrick);
 
+    private async void TrackSource_Tapped(object? sender, TappedEventArgs e)
+    {
+        var trackSourceViewModel = e.GetDataContext<TrackSourceViewModel>();
+
+        if (trackSourceViewModel is null || DataContext is not MainViewModel mainViewModel)
+            return;
+
+        mainViewModel.SelectedTrackSource = trackSourceViewModel;
+        mainViewModel.TrackPlay.ChangeOwnerRubric(trackSourceViewModel);
+        await mainViewModel.ChangeTracksAsync(trackSourceViewModel);
+    }
+
     private async Task PlayTrack(TappedEventArgs e, Func<MainDeviceViewModel, RubricViewModel> getRubric)
     {
         var trackViewModel = e.GetDataContext<TrackViewModel>();
@@ -28,7 +40,7 @@ public partial class TracksTabView : UserControl
 
         mainViewModel.IsShortTrackVisible = true;
         var trackPlay = mainViewModel.TrackPlay;
-        trackPlay.OwnerRubric = getRubric(mainViewModel);
+        trackPlay.ChangeOwnerRubric(getRubric(mainViewModel));
 
         if (trackViewModel.IsPlaying == true)
             return;

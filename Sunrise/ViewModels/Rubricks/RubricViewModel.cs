@@ -18,6 +18,8 @@ public abstract class RubricViewModel
 
     public string Name { get; }
 
+    public virtual bool IsDependent => false;
+
     public abstract IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot);
 
     public abstract IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null);
