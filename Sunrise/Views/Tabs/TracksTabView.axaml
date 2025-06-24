@@ -15,280 +15,287 @@
 		<svm:MainDeviceViewModel />
 	</Design.DataContext>
 
-	<ScrollViewer>
-		<Grid>
-			<Grid.RowDefinitions>
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition Height="Auto" />
-				<RowDefinition />
-			</Grid.RowDefinitions>
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition />
+		</Grid.RowDefinitions>
 
-			<Button Grid.Row="0"
-							Theme="{StaticResource MaterialFlatButton}"
-						  Command="{Binding BackCommand, Mode=OneWay}"
-							IsVisible="{Binding IsTrackListVisible}"
-							Height="48"
-						  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
-				<StackPanel Orientation="Horizontal">
-					<Image Source="{su:FromIcon LeftCircle}"
-								 Height="20" Width="20"
-								 Margin="0 0 10 0"
-								 OpacityMask="Gray" Opacity="0.2"
-								 HorizontalAlignment="Left" VerticalAlignment="Center" />
+		<Button Grid.Row="0"
+						Theme="{StaticResource MaterialFlatButton}"
+						Command="{Binding BackCommand, Mode=OneWay}"
+						IsVisible="{Binding IsTrackListVisible}"
+						Height="48"
+						HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
+			<StackPanel Orientation="Horizontal">
+				<Image Source="{su:FromIcon LeftCircle}"
+							 Height="20" Width="20"
+							 Margin="0 0 10 0"
+							 OpacityMask="Gray" Opacity="0.2"
+							 HorizontalAlignment="Left" VerticalAlignment="Center" />
 
-					<TextBlock Text="{Binding BackCaption, Mode=OneWay}"
-										 HorizontalAlignment="Left" VerticalAlignment="Center" />
-				</StackPanel>
-			</Button>
+				<TextBlock Text="{Binding BackCaption, Mode=OneWay}"
+									 HorizontalAlignment="Left" VerticalAlignment="Center" />
+			</StackPanel>
+		</Button>
 
-			<TextBlock Grid.Row="1"
-								 Text="{Binding TrackSourceCaption, Mode=OneWay}"
-							   IsVisible="{Binding TrackSourceCaption, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-								 FontSize="18"
-								 FontWeight="DemiBold"
-								 Margin="15 20 0 10"
-								 HorizontalAlignment="Left" VerticalAlignment="Center" />
+		<ScrollViewer Grid.Row="1">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition />
+				</Grid.RowDefinitions>
 
-			<Button Grid.Row="2"
-							Theme="{StaticResource MaterialFlatButton}"
-						  Command="{Binding RandomPlayRunCommand, Mode=OneWay}"
-							IsVisible="{Binding !IsTrackListVisible}"
-							Height="32"
-						  HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
-				<Grid>
-					<Grid.ColumnDefinitions>
-						<ColumnDefinition />
-						<ColumnDefinition MinWidth="36" />
-					</Grid.ColumnDefinitions>
+				<TextBlock Grid.Row="0"
+									 Text="{Binding TrackSourceCaption, Mode=OneWay}"
+									 IsVisible="{Binding TrackSourceCaption, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+									 FontSize="18"
+									 FontWeight="DemiBold"
+									 Margin="15 20 0 10"
+									 HorizontalAlignment="Left" VerticalAlignment="Center" />
 
-					<TextBlock Grid.Column="0"
-										 Text="{x:Static res:Texts.MixAll}"
-										 HorizontalAlignment="Left" VerticalAlignment="Center" />
+				<Button Grid.Row="1"
+								Theme="{StaticResource MaterialFlatButton}"
+								Command="{Binding RandomPlayRunCommand, Mode=OneWay}"
+								IsVisible="{Binding !IsTrackListVisible}"
+								Height="32"
+								HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition MinWidth="36" />
+						</Grid.ColumnDefinitions>
 
-					<Image Grid.Column="1"
-								 Source="{su:FromIcon RandomPlay}"
-							   OpacityMask="Gray"
-								 HorizontalAlignment="Right" VerticalAlignment="Center"
-								 Height="20" />
-				</Grid>
-			</Button>
+						<TextBlock Grid.Column="0"
+											 Text="{x:Static res:Texts.MixAll}"
+											 HorizontalAlignment="Left" VerticalAlignment="Center" />
 
-			<Button Grid.Row="3"
-							Theme="{StaticResource MaterialFlatButton}"
-						  Command="{Binding RecentlyAddedCommand, Mode=OneWay}"
-						  IsVisible="{Binding !IsTrackListVisible}"
-							Height="32"
-							HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
-				<TextBlock Text="{x:Static res:Texts.RecentlyAddedButton}"
-									 FontSize="11" />
-			</Button>
+						<Image Grid.Column="1"
+									 Source="{su:FromIcon RandomPlay}"
+									 OpacityMask="Gray"
+									 HorizontalAlignment="Right" VerticalAlignment="Center"
+									 Height="20" />
+					</Grid>
+				</Button>
 
-			<ListBox Grid.Row="4"
-							 ItemsSource="{Binding RecentlyAddedTracks, Mode=OneWay}"
-							 IsVisible="{Binding !IsTrackListVisible}"
-							 Tapped="RecentlyAddedTrack_Tapped"
-							 Height="125"
-							 ScrollViewer.HorizontalScrollBarVisibility="Auto">
-				<ListBox.ItemsPanel>
-					<ItemsPanelTemplate>
-						<StackPanel Orientation="Horizontal" />
-					</ItemsPanelTemplate>
-				</ListBox.ItemsPanel>
-				<ListBox.ItemTemplate>
-					<DataTemplate>
-						<Grid Width="100">
-							<Grid.RowDefinitions>
-								<RowDefinition Height="70" />
-								<RowDefinition Height="15" />
-								<RowDefinition Height="15" />
-							</Grid.RowDefinitions>
+				<Button Grid.Row="2"
+								Theme="{StaticResource MaterialFlatButton}"
+								Command="{Binding RecentlyAddedCommand, Mode=OneWay}"
+								IsVisible="{Binding !IsTrackListVisible}"
+								Height="32"
+								HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
+					<TextBlock Text="{x:Static res:Texts.RecentlyAddedButton}"
+										 FontSize="11" />
+				</Button>
 
-							<Image Grid.Row="0"
-										 Source="{su:FromIcon Track}"
-										 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
-										 OpacityMask="Gray" Opacity="0.15"
-										 VerticalAlignment="Center" HorizontalAlignment="Center"
-										 Height="64" Width="64" />
-							<Image Grid.Row="0"
-										 Source="{Binding TrackIcon, Mode=OneWay}"
-										 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-										 VerticalAlignment="Center" HorizontalAlignment="Center"
-										 Height="64" Width="64" />
+				<ListBox Grid.Row="3"
+								 ItemsSource="{Binding RecentlyAddedTracks, Mode=OneWay}"
+								 IsVisible="{Binding !IsTrackListVisible}"
+								 Tapped="RecentlyAddedTrack_Tapped"
+								 Height="125"
+								 ScrollViewer.HorizontalScrollBarVisibility="Auto">
+					<ListBox.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Orientation="Horizontal" />
+						</ItemsPanelTemplate>
+					</ListBox.ItemsPanel>
+					<ListBox.ItemTemplate>
+						<DataTemplate DataType="svm:TrackViewModel">
+							<Grid Width="100">
+								<Grid.RowDefinitions>
+									<RowDefinition Height="70" />
+									<RowDefinition Height="15" />
+									<RowDefinition Height="15" />
+								</Grid.RowDefinitions>
 
-							<!--  Название  -->
-							<TextBlock Grid.Row="1"
-												 Text="{Binding Title, Mode=OneWay}"
-											   VerticalAlignment="Center" HorizontalAlignment="Left"
-											   FontSize="12"
-											   TextTrimming="{x:Static TextTrimming.CharacterEllipsis}" />
-
-							<!--  Артист  -->
-							<TextBlock Grid.Row="2"
-										  	 VerticalAlignment="Center" HorizontalAlignment="Left"
-												 FontSize="10"
-												 TextTrimming="{x:Static TextTrimming.CharacterEllipsis}"
-												 Foreground="Gray">
-								<TextBlock.Text>
-									<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
-										<Binding Path="Artist" Mode="OneWay" />
-										<Binding Path="Album" Mode="OneWay" />
-									</MultiBinding>
-								</TextBlock.Text>
-							</TextBlock>
-
-						</Grid>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
-
-			<ComboBox Grid.Row="5"
-								ItemsSource="{Binding Rubricks, Mode=OneWay}"
-						  	SelectedValue="{Binding SelectedRubrick}"
-				    		IsVisible="{Binding !IsTrackListVisible}"
-								HorizontalAlignment="Center">
-				<ComboBox.ItemTemplate>
-					<DataTemplate>
-						<Grid>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="Auto" MinWidth="25" />
-								<ColumnDefinition Width="Auto" />
-							</Grid.ColumnDefinitions>
-
-							<Image Grid.Column="0"
-										 Source="{Binding Icon, Mode=OneWay}"
-										 MaxHeight="16" MaxWidth="16" />
-
-							<TextBlock Grid.Column="1"
-												 Text="{Binding Name, Mode=OneWay}"
-												 VerticalAlignment="Center" />
-						</Grid>
-					</DataTemplate>
-				</ComboBox.ItemTemplate>
-			</ComboBox>
-
-			<ListBox Grid.Row="6"
-							 ItemsSource="{Binding Tracks, Mode=OneWay}"
-							 IsVisible="{Binding !IsTrackSourcesVisible}"
-							 Tapped="Track_Tapped">
-				<ListBox.ItemTemplate>
-					<DataTemplate DataType="svm:TrackViewModel">
-						<Grid>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="30" />
-								<ColumnDefinition Width="5" />
-								<ColumnDefinition />
-							</Grid.ColumnDefinitions>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="15" />
-								<RowDefinition Height="15" />
-							</Grid.RowDefinitions>
-
-							<Image Grid.RowSpan="2"
-										 Source="{su:FromIcon Track}"
-										 OpacityMask="Gray" Opacity="0.15"
-										 VerticalAlignment="Center" HorizontalAlignment="Center"
-										 Height="24" Width="24">
-								<Image.IsVisible>
-									<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
-										<Binding Path="TrackIcon" Mode="OneWay" Converter="{x:Static ObjectConverters.IsNull}" />
-										<Binding Path="IsPlaying" Mode="OneWay" Converter="{x:Static ObjectConverters.IsNull}" />
-									</MultiBinding>
-								</Image.IsVisible>
-							</Image>
-							<Image Grid.RowSpan="2"
-										 Source="{Binding TrackIcon, Mode=OneWay}"
-										 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-										 VerticalAlignment="Center" HorizontalAlignment="Center"
-										 Height="24" Width="24" />
-							<Border Grid.RowSpan="2"
-										  IsVisible="{Binding IsPlaying, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-											VerticalAlignment="Center" HorizontalAlignment="Center"
-											Background="White"
-											Opacity="0.8"
-											Height="20" Width="20"
-											CornerRadius="10"
-											BorderThickness="1"
-										  BorderBrush="LightGray"
-											Tapped="TrackIcon_Tapped">
-								<Image Source="{Binding IsPlaying, Mode=OneWay, Converter={x:Static scv:IsPlayingToIconTrackConverter.Instance}}"
+								<Image Grid.Row="0"
+											 Source="{su:FromIcon Track}"
+											 IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
+											 OpacityMask="Gray" Opacity="0.15"
 											 VerticalAlignment="Center" HorizontalAlignment="Center"
-											 OpacityMask="Gray" Opacity="0.8"
-											 Height="10" Width="10" />
-							</Border>
+											 Height="64" Width="64" />
+								<Image Grid.Row="0"
+											 Source="{Binding Icon, Mode=OneWay}"
+											 IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+											 VerticalAlignment="Center" HorizontalAlignment="Center"
+											 Height="64" Width="64" />
 
-							<!--  Название  -->
-							<TextBlock Grid.Column="2" Grid.Row="0"
-												 Text="{Binding Title, Mode=OneWay}"
-												 VerticalAlignment="Center" />
+								<!--  Название  -->
+								<TextBlock Grid.Row="1"
+													 Text="{Binding Title, Mode=OneWay}"
+													 VerticalAlignment="Center" HorizontalAlignment="Left"
+													 FontSize="12"
+													 TextTrimming="{x:Static TextTrimming.CharacterEllipsis}" />
 
-							<!--  Артист  -->
-							<TextBlock Grid.Column="2" Grid.Row="1"
-												 VerticalAlignment="Center"
-												 FontSize="12"
-												 Foreground="Gray">
-								<TextBlock.Text>
-									<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
-										<Binding Path="Artist" Mode="OneWay" />
-										<Binding Path="Album" Mode="OneWay" />
-									</MultiBinding>
-								</TextBlock.Text>
-							</TextBlock>
+								<!--  Артист  -->
+								<TextBlock Grid.Row="2"
+													 VerticalAlignment="Center" HorizontalAlignment="Left"
+													 FontSize="10"
+													 TextTrimming="{x:Static TextTrimming.CharacterEllipsis}"
+													 Foreground="Gray">
+									<TextBlock.Text>
+										<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
+											<Binding Path="Artist" Mode="OneWay" />
+											<Binding Path="Album" Mode="OneWay" />
+										</MultiBinding>
+									</TextBlock.Text>
+								</TextBlock>
 
-						</Grid>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
 
-			<ListBox Grid.Row="7"
-							 ItemsSource="{Binding TrackSources, Mode=OneWay}"
-							 SelectedItem="{Binding SelectedTrackSource}"
-							 IsVisible="{Binding IsTrackSourcesVisible}"
-							 Tapped="TrackSource_Tapped">
-				<ListBox.ItemTemplate>
-					<DataTemplate DataType="svm:TrackSourceViewModel">
-						<Grid>
-							<Grid.ColumnDefinitions>
-								<ColumnDefinition Width="30" />
-								<ColumnDefinition Width="5" />
-								<ColumnDefinition />
-							</Grid.ColumnDefinitions>
-							<Grid.RowDefinitions>
-								<RowDefinition Height="15" />
-								<RowDefinition Height="15" />
-							</Grid.RowDefinitions>
+				<ComboBox Grid.Row="4"
+									ItemsSource="{Binding Rubricks, Mode=OneWay}"
+									SelectedValue="{Binding SelectedRubrick}"
+									IsVisible="{Binding !IsTrackListVisible}"
+									HorizontalAlignment="Center">
+					<ComboBox.ItemTemplate>
+						<DataTemplate DataType="svm:RubricViewModel">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="Auto" MinWidth="25" />
+									<ColumnDefinition Width="Auto" />
+								</Grid.ColumnDefinitions>
 
-							<Image Grid.RowSpan="2"
-										 Source="{su:FromIcon Track}"
-										 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
-										 OpacityMask="Gray" Opacity="0.15"
-										 VerticalAlignment="Center" HorizontalAlignment="Center"
-										 Height="24" Width="24" />
-							<Image Grid.RowSpan="2"
-										 Source="{Binding TrackIcon, Mode=OneWay}"
-										 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-										 VerticalAlignment="Center" HorizontalAlignment="Center"
-										 Height="24" Width="24" />
+								<Image Grid.Column="0"
+											 Source="{Binding Icon, Mode=OneWay}"
+											 MaxHeight="16" MaxWidth="16" />
 
-							<!--  Название  -->
-							<TextBlock Grid.Column="2" Grid.Row="0"
-												 Text="{Binding Name, Mode=OneWay}"
-												 VerticalAlignment="Center" />
+								<TextBlock Grid.Column="1"
+													 Text="{Binding Name, Mode=OneWay}"
+													 VerticalAlignment="Center" />
+							</Grid>
+						</DataTemplate>
+					</ComboBox.ItemTemplate>
+				</ComboBox>
 
-							<!--  Описание  -->
-							<TextBlock Grid.Column="2" Grid.Row="1"
-												 Text="{Binding Description, Mode=OneWay}"
-												 VerticalAlignment="Center"
-												 FontSize="12"
-												 Foreground="Gray" />
-						</Grid>
-					</DataTemplate>
-				</ListBox.ItemTemplate>
-			</ListBox>
+				<ListBox Grid.Row="5"
+								 ItemsSource="{Binding Tracks, Mode=OneWay}"
+								 IsVisible="{Binding !IsTrackSourcesVisible}"
+								 Tapped="Track_Tapped">
+					<ListBox.ItemTemplate>
+						<DataTemplate DataType="svm:TrackViewModel">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="30" />
+									<ColumnDefinition Width="5" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="15" />
+									<RowDefinition Height="15" />
+								</Grid.RowDefinitions>
 
-		</Grid>
-	</ScrollViewer>
+								<Image Grid.RowSpan="2"
+											 Source="{su:FromIcon Track}"
+											 OpacityMask="Gray" Opacity="0.15"
+											 VerticalAlignment="Center" HorizontalAlignment="Center"
+											 Height="24" Width="24">
+									<Image.IsVisible>
+										<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+											<Binding Path="Icon" Mode="OneWay" Converter="{x:Static ObjectConverters.IsNull}" />
+											<Binding Path="IsPlaying" Mode="OneWay" Converter="{x:Static ObjectConverters.IsNull}" />
+										</MultiBinding>
+									</Image.IsVisible>
+								</Image>
+								<Image Grid.RowSpan="2"
+											 Source="{Binding Icon, Mode=OneWay}"
+											 IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+											 VerticalAlignment="Center" HorizontalAlignment="Center"
+											 Height="24" Width="24" />
+								<Border Grid.RowSpan="2"
+												IsVisible="{Binding IsPlaying, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+												VerticalAlignment="Center" HorizontalAlignment="Center"
+												Background="White"
+												Opacity="0.8"
+												Height="20" Width="20"
+												CornerRadius="10"
+												BorderThickness="1"
+												BorderBrush="LightGray"
+												Tapped="TrackIcon_Tapped">
+									<Image Source="{Binding IsPlaying, Mode=OneWay, Converter={x:Static scv:IsPlayingToIconTrackConverter.Instance}}"
+												 VerticalAlignment="Center" HorizontalAlignment="Center"
+												 OpacityMask="Gray" Opacity="0.8"
+												 Height="10" Width="10" />
+								</Border>
+
+								<!--  Название  -->
+								<TextBlock Grid.Column="2" Grid.Row="0"
+													 Text="{Binding Title, Mode=OneWay}"
+													 VerticalAlignment="Center" />
+
+								<!--  Описание  -->
+								<TextBlock Grid.Column="2" Grid.Row="1"
+													 VerticalAlignment="Center"
+													 FontSize="12"
+													 Foreground="Gray">
+									<TextBlock.Text>
+										<MultiBinding Converter="{x:Static scv:TrackDescriptionConverter.Instance}" Mode="OneWay">
+											<Binding Path="DataContext" Mode="OneWay" RelativeSource="{RelativeSource AncestorType=UserControl}" />
+											<Binding Mode="OneWay" />
+										</MultiBinding>
+									</TextBlock.Text>
+								</TextBlock>
+
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+
+				<ListBox Grid.Row="5"
+								 ItemsSource="{Binding TrackSources, Mode=OneWay}"
+								 SelectedItem="{Binding SelectedTrackSource}"
+								 IsVisible="{Binding IsTrackSourcesVisible}"
+								 Tapped="TrackSource_Tapped">
+					<ListBox.ItemTemplate>
+						<DataTemplate DataType="svm:TrackSourceViewModel">
+							<Grid>
+								<Grid.ColumnDefinitions>
+									<ColumnDefinition Width="30" />
+									<ColumnDefinition Width="5" />
+									<ColumnDefinition />
+								</Grid.ColumnDefinitions>
+								<Grid.RowDefinitions>
+									<RowDefinition Height="15" />
+									<RowDefinition Height="15" />
+								</Grid.RowDefinitions>
+
+								<Image Grid.Column="0" Grid.RowSpan="2"
+											 Source="{su:FromIcon Track}"
+											 IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
+											 OpacityMask="Gray" Opacity="0.15"
+											 VerticalAlignment="Center" HorizontalAlignment="Center"
+											 Height="24" Width="24" />
+								<Image Grid.Column="0" Grid.RowSpan="2"
+											 Source="{Binding Icon, Mode=OneWay}"
+											 IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+											 VerticalAlignment="Center" HorizontalAlignment="Center"
+											 Height="24" Width="24" />
+
+								<!--  Название  -->
+								<TextBlock Grid.Column="2" Grid.Row="0"
+													 Text="{Binding Name, Mode=OneWay}"
+													 VerticalAlignment="Center" />
+
+								<!--  Описание  -->
+								<TextBlock Grid.Column="2" Grid.Row="1"
+													 Text="{Binding Description, Mode=OneWay}"
+													 VerticalAlignment="Center"
+													 FontSize="12"
+													 Foreground="Gray" />
+							</Grid>
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+
+			</Grid>
+		</ScrollViewer>
+
+	</Grid>
 </UserControl>

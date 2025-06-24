@@ -6,16 +6,24 @@ namespace Sunrise.ViewModels;
 
 public sealed class RandomizeRubricViewModel : RubricViewModel
 {
-    private readonly Track[] _tracks;
+    private TracksScreenshot? _screenshot;
+    private Track[] _tracks = [];
 
-    public RandomizeRubricViewModel(MainViewModel mainViewModel)
-        : base(mainViewModel.TrackPlay.Player, null, Texts.Randomize)
-        => _tracks = mainViewModel.CreateRandomizeTracks();
+    public RandomizeRubricViewModel(Player player) : base(player, null, Texts.Randomize) { }
 
     public override bool IsDependent => true;
 
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 
     public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => _tracks;
+    {
+        if (!ReferenceEquals(_screenshot, screenshot))
+        {
+            _screenshot = screenshot;
+            return _tracks = RandomHelper.CreateRandomizeTracks(screenshot.AllTracks);
+        }
+
+        return _tracks;
+    }
+
 }

@@ -19,5 +19,5 @@ public sealed class AlbumViewModel : TrackSourceViewModel
 
     protected override Track? GetTrackWithPicture() => Tracks.FirstOrDefault(t => t.HasPicture);
 
-    public override string ToString() => $"{Name} - {Artist}";
+    public override string ToString() => $"{Artist} - {Name}";
 }

@@ -12,7 +12,8 @@ namespace Sunrise.ViewModels;
 
 public sealed class MainDeviceViewModel : MainViewModel
 {
-    private const int _recentlyAddedCount = 10;
+    private const int _recentlyAddedTracksCount = 10;
+    private const int _recentlyAddedPlaylistsCount = 10;
     private bool _isShortTrackVisible;
     private bool _isTrackVisible;
     private bool _isTrackListVisible;
@@ -27,6 +28,7 @@ public sealed class MainDeviceViewModel : MainViewModel
         BackCommand = new AsyncRelayCommand(OnBackAsync);
         RandomPlayRunCommand = new AsyncRelayCommand(OnRandomPlayRunAsync);
         RecentlyAddedCommand = new AsyncRelayCommand(OnRecentlyAddedAsync);
+        RecentlyAddedPlaylistsCommand = new AsyncRelayCommand(OnRecentlyAddedPlaylistsAsync);
     }
 
     public bool IsShortTrackVisible
@@ -65,9 +67,13 @@ public sealed class MainDeviceViewModel : MainViewModel
 
     public IRelayCommand RecentlyAddedCommand { get; }
 
+    public IRelayCommand RecentlyAddedPlaylistsCommand { get; }
+
     public RecentlyAddedRubricViewModel RecentlyAddedRubric { get; private set; }
 
     public ObservableCollection<TrackViewModel> RecentlyAddedTracks { get; } = [];
+
+    public ObservableCollection<PlaylistViewModel> RecentlyAddedPlaylists { get; } = [];
 
     public List<object> TrackSourceHistory { get; } = [];
 
@@ -87,7 +93,7 @@ public sealed class MainDeviceViewModel : MainViewModel
             IsTrackSourcesVisible = false;
             IsTrackListVisible = true;
             BackCaption = trackSourceViewModel.Rubric.Name;
-            trackSourceCaption = trackSourceViewModel.Name;
+            trackSourceCaption = trackSourceViewModel.ToString();
         }
         else if (tracksOwner is RubricViewModel rubricViewModel && rubricViewModel.IsDependent)
         {
@@ -97,6 +103,9 @@ public sealed class MainDeviceViewModel : MainViewModel
 
         TrackSourceCaption = trackSourceCaption;
     }
+
+    protected override bool CanAddRubricTracks(RubricViewModel rubricViewModel)
+        => rubricViewModel is SongsRubricViewModel || rubricViewModel.IsDependent;
 
     private void AddTrackSourceHistory(object tracksOwner)
     {
@@ -108,12 +117,23 @@ public sealed class MainDeviceViewModel : MainViewModel
 
     private async Task FillRecentlyAddedTracks(CancellationToken token)
     {
-        var screenshot = await TrackPlay.Player.GetAllTracksAsync(token);
-        RecentlyAddedRubric = new RecentlyAddedRubricViewModel(TrackPlay.Player);
+        var player = TrackPlay.Player;
+        var screenshot = await player.GetAllTracksAsync(token);
+        RecentlyAddedRubric = new RecentlyAddedRubricViewModel(player);
         RecentlyAddedTracks.Clear();
 
-        foreach (var track in RecentlyAddedRubric.GetTracks(screenshot).Take(_recentlyAddedCount))
+        foreach (var track in RecentlyAddedRubric.GetTracks(screenshot).Take(_recentlyAddedTracksCount))
             RecentlyAddedTracks.Add(GetTrackViewModel(track));
+    }
+
+    public override void ChangePlaylists(IEnumerable<Playlist> playlists)
+    {
+        base.ChangePlaylists(playlists);
+
+        RecentlyAddedPlaylists.Clear();
+
+        foreach (var playlistViewModel in Playlists.OrderByDescending(p => p.Playlist.Created).Take(_recentlyAddedPlaylistsCount))
+            RecentlyAddedPlaylists.Add(playlistViewModel);
     }
 
     public void ShowTrackPage()
@@ -135,7 +155,7 @@ public sealed class MainDeviceViewModel : MainViewModel
 
     private async Task OnRandomPlayRunAsync()
     {
-        var rubricViewModel = new RandomizeRubricViewModel(this);
+        var rubricViewModel = new RandomizeRubricViewModel(TrackPlay.Player);
         await ChangeTracksAsync(rubricViewModel);
 
         var trackViewModel = Tracks.FirstOrDefault();
@@ -153,6 +173,14 @@ public sealed class MainDeviceViewModel : MainViewModel
         var rubricViewModel = RecentlyAddedRubric;
         TrackPlay.ChangeOwnerRubric(rubricViewModel);
         return ChangeTracksAsync(rubricViewModel);
+    }
+
+    private Task OnRecentlyAddedPlaylistsAsync()
+    {
+        //var rubricViewModel = RecentlyAddedRubric;
+        //TrackPlay.ChangeOwnerRubric(rubricViewModel);
+        //return ChangeTracksAsync(rubricViewModel);
+        return Task.CompletedTask;
     }
 
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)

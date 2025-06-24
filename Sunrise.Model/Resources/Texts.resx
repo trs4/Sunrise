@@ -225,4 +225,10 @@
   <data name="Year" xml:space="preserve">
     <value>Год</value>
   </data>
+  <data name="NewCategory" xml:space="preserve">
+    <value>Новая категория</value>
+  </data>
+  <data name="NewPlaylist" xml:space="preserve">
+    <value>Новый плейлист</value>
+  </data>
 </root>

@@ -5,7 +5,6 @@ using Avalonia.Input;
 using Avalonia.Interactivity;
 using Sunrise.ViewModels;
 using Sunrise.ViewModels.Categories;
-using Sunrise.ViewModels.Playlists;
 
 namespace Sunrise.Views;
 

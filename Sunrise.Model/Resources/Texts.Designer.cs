@@ -268,6 +268,24 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Новая категория.
+        /// </summary>
+        public static string NewCategory {
+            get {
+                return ResourceManager.GetString("NewCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Новый плейлист.
+        /// </summary>
+        public static string NewPlaylist {
+            get {
+                return ResourceManager.GetString("NewPlaylist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Плейлист.
         /// </summary>
         public static string Playlist {

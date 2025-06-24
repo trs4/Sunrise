@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Sunrise.Model;
 
@@ -55,22 +54,10 @@ public sealed class RandomTrackPlayStrategy : TrackPlayStrategy
         {
             var screenshot = await Owner.TrackPlay.Player.GetAllTracksAsync();
             var tracks = _ownerRubric.GetTracks(screenshot, _ownerTrackSource);
-            return CreateRandomizeTracks(tracks);
+            return RandomHelper.CreateRandomizeTracks(tracks);
         }
 
         return Owner.CreateRandomizeTracks();
-    }
-
-    private static Track[] CreateRandomizeTracks(IReadOnlyList<Track> tracks)
-    {
-        int count = tracks.Count;
-        var randomizeTracks = new Track[count];
-
-        for (int i = 0; i < count; i++)
-            randomizeTracks[i] = tracks[i];
-
-        RandomNumberGenerator.Shuffle(randomizeTracks.AsSpan());
-        return randomizeTracks;
     }
 
     private static int GetCurrentIndex(IReadOnlyList<Track> tracks, TrackViewModel? currentTrack)

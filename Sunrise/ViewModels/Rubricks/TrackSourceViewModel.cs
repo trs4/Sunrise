@@ -6,8 +6,8 @@ namespace Sunrise.ViewModels;
 
 public abstract class TrackSourceViewModel : ObservableObject
 {
-    private object? _trackIcon;
-    private bool _trackLoaded;
+    private object? _icon;
+    private bool _iconLoaded;
 
     protected TrackSourceViewModel(RubricViewModel rubric, string name, string description)
     {
@@ -23,23 +23,23 @@ public abstract class TrackSourceViewModel : ObservableObject
     public string Description { get; }
 
     /// <summary>Иконка</summary>
-    public object? TrackIcon
+    public object? Icon
     {
         get
         {
-            if (!_trackLoaded)
+            if (!_iconLoaded)
             {
                 var track = GetTrackWithPicture();
 
                 if (track is not null)
-                    TrackIconHelper.SetPicture(Rubric.Player, track, icon => TrackIcon = icon);
+                    TrackIconHelper.SetPicture(Rubric.Player, track, icon => Icon = icon);
 
-                _trackLoaded = true;
+                _iconLoaded = true;
             }
 
-            return _trackIcon;
+            return _icon;
         }
-        set => SetProperty(ref _trackIcon, value);
+        set => SetProperty(ref _icon, value);
     }
 
     protected abstract Track? GetTrackWithPicture();

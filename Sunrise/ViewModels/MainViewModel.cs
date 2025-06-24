@@ -10,7 +10,6 @@ using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
 using Sunrise.Utils;
 using Sunrise.ViewModels.Categories;
-using Sunrise.ViewModels.Playlists;
 
 namespace Sunrise.ViewModels;
 
@@ -156,21 +155,23 @@ public abstract class MainViewModel : ObservableObject
         }
         else if (tracksOwner is RubricViewModel rubricViewModel)
         {
+            var selectedTrackSource = SelectedTrackSource;
             var screenshot = await TrackPlay.Player.GetAllTracksAsync(token);
             var trackSources = rubricViewModel.GetTrackSources(screenshot);
             IsTrackSourcesVisible = trackSources is not null;
             TrackSources.Clear();
-            TrackSourceViewModel firstTrackSource = null;
 
             if (trackSources is not null)
             {
                 foreach (var trackSource in trackSources)
                     TrackSources.Add(trackSource);
 
-                SelectedTrackSource = firstTrackSource = trackSources.Count > 0 ? trackSources[0] : null;
+                if (selectedTrackSource is null)
+                    SelectedTrackSource = selectedTrackSource = trackSources.Count > 0 ? trackSources[0] : null;
             }
 
-            tracks = rubricViewModel.GetTracks(screenshot, firstTrackSource);
+            SelectedTrackSource = selectedTrackSource;
+            tracks = CanAddRubricTracks(rubricViewModel) ? rubricViewModel.GetTracks(screenshot, selectedTrackSource) : [];
         }
         else if (tracksOwner is TrackSourceViewModel trackSourceViewModel)
         {
@@ -190,6 +191,8 @@ public abstract class MainViewModel : ObservableObject
             Tracks.Add(GetTrackViewModel(track));
     }
 
+    protected virtual bool CanAddRubricTracks(RubricViewModel rubricViewModel) => true;
+
     protected TrackViewModel GetTrackViewModel(Track track)
     {
         if (_trackMap.TryGetValue(track.Id, out var trackViewModel))
@@ -203,13 +206,13 @@ public abstract class MainViewModel : ObservableObject
     public TrackViewModel? GetTrackViewModelWithCheck(Track? track)
         => track is null ? null : GetTrackViewModel(track);
 
-    public void ChangePlaylists(IEnumerable<Playlist> playlists)
+    public virtual void ChangePlaylists(IEnumerable<Playlist> playlists)
     {
         Playlists.Clear();
 
         foreach (var playlist in playlists.OrderBy(p => p.Name, NaturalStringComparer.Instance))
         {
-            var playlistViewModel = new PlaylistViewModel(playlist);
+            var playlistViewModel = new PlaylistViewModel(playlist, TrackPlay.Player);
             Playlists.Add(playlistViewModel);
         }
     }
@@ -235,7 +238,7 @@ public abstract class MainViewModel : ObservableObject
     private async Task AddPlaylistAsync()
     {
         var playlist = await TrackPlay.Player.AddPlaylistAsync();
-        var playlistViewModel = new PlaylistViewModel(playlist);
+        var playlistViewModel = new PlaylistViewModel(playlist, TrackPlay.Player);
         Playlists.Add(playlistViewModel);
     }
 

@@ -2,7 +2,10 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+						 xmlns:sb="clr-namespace:Sunrise.Behaviors"
 						 xmlns:svm="clr-namespace:Sunrise.ViewModels"
+						 xmlns:su="clr-namespace:Sunrise.Utils"
+				     xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Sunrise.Views.CategoriesTabView"
              x:DataType="svm:MainDeviceViewModel">
@@ -10,9 +13,40 @@
 		<svm:MainDeviceViewModel />
 	</Design.DataContext>
 
+	<ScrollViewer>
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition />
+			</Grid.RowDefinitions>
 
+			<Button Grid.Row="0"
+							Theme="{StaticResource MaterialFlatButton}"
+							Command="{Binding AddCategoryCommand, Mode=OneWay}"
+							Height="48"
+							HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
+				<StackPanel Orientation="Horizontal">
+					<Image Source="{su:FromIcon LeftCircle}"
+								 Height="20" Width="20"
+								 Margin="0 0 10 0"
+								 OpacityMask="Gray" Opacity="0.2"
+								 HorizontalAlignment="Left" VerticalAlignment="Center" />
 
+					<TextBlock Text="{x:Static res:Texts.NewCategory}"
+										 HorizontalAlignment="Left" VerticalAlignment="Center" />
+				</StackPanel>
+			</Button>
 
+			<ListBox Grid.Row="1"
+							 ItemsSource="{Binding Categories, Mode=OneWay}"
+							 Tapped="Category_Tapped">
+				<ListBox.ItemTemplate>
+					<DataTemplate>
+						<TextBlock Text="{Binding Name}" />
+					</DataTemplate>
+				</ListBox.ItemTemplate>
+			</ListBox>
 
-	Categories
+		</Grid>
+	</ScrollViewer>
 </UserControl>
