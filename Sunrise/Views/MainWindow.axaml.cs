@@ -181,7 +181,6 @@ public partial class MainWindow : Window
         if (trackSourceViewModel is null || DataContext is not MainViewModel mainViewModel)
             return null;
 
-        mainViewModel.SelectedTrackSource = trackSourceViewModel;
         await mainViewModel.ChangeTracksAsync(trackSourceViewModel);
         return mainViewModel;
     }

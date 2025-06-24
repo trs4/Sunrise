@@ -1,5 +1,7 @@
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
+using Sunrise.ViewModels;
 
 namespace Sunrise.Views;
 
@@ -8,33 +10,48 @@ public partial class PlaylistsTabView : UserControl
     public PlaylistsTabView()
         => InitializeComponent();
 
-    private void RecentlyAddedPlaylist_Tapped(object? sender, TappedEventArgs e)
+    private async void RecentlyAddedPlaylist_Tapped(object? sender, TappedEventArgs e)
     {
+        var playlistViewModel = e.GetDataContext<PlaylistViewModel>();
 
+        if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
+            return;
+
+        mainViewModel.SelectedPlaylist = playlistViewModel;
+        mainViewModel.IsPlaylistsVisible = false;
+        await mainViewModel.ChangeTracksAsync(playlistViewModel.Playlist);
     }
-    // => await PlayTrack(e, mainViewModel => mainViewModel.RecentlyAddedRubric);
 
-    private void Track_Tapped(object? sender, TappedEventArgs e)
+    private async void Track_Tapped(object? sender, TappedEventArgs e)
+        => await PlayTrack(e);
+
+    private async Task PlayTrack(TappedEventArgs e)
     {
+        var trackViewModel = e.GetDataContext<TrackViewModel>();
 
-        //    => await PlayTrack(e, mainViewModel => mainViewModel.TrackSourceHistory.LastOrDefault() as RubricViewModel
-        //        ?? mainViewModel.SelectedRubrick);
+        if (trackViewModel is null || DataContext is not MainDeviceViewModel mainViewModel)
+            return;
+
+        mainViewModel.IsShortTrackVisible = true;
+        var trackPlay = mainViewModel.TrackPlay;
+        var rubricViewModel = new PlaylistRubricViewModel(trackPlay.Player, mainViewModel.SelectedPlaylist?.Playlist);
+        trackPlay.ChangeOwnerRubric(rubricViewModel);
+
+        if (trackViewModel.IsPlaying == true)
+            return;
+
+        await trackPlay.PlayAsync(trackViewModel);
     }
 
-    private void Playlist_Tapped(object? sender, TappedEventArgs e)
+    private async void Playlist_Tapped(object? sender, TappedEventArgs e)
     {
+        var playlistViewModel = e.GetDataContext<PlaylistViewModel>();
 
-        //private void TrackSource_Tapped(object? sender, TappedEventArgs e)
-        //{
-        ////    var trackSourceViewModel = e.GetDataContext<TrackSourceViewModel>();
+        if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
+            return;
 
-        ////    if (trackSourceViewModel is null || DataContext is not MainViewModel mainViewModel)
-        ////        return;
-
-        ////    mainViewModel.SelectedTrackSource = trackSourceViewModel;
-        ////    mainViewModel.TrackPlay.ChangeOwnerRubric(trackSourceViewModel);
-        ////    await mainViewModel.ChangeTracksAsync(trackSourceViewModel);
-        //}
+        mainViewModel.IsPlaylistsVisible = false;
+        await mainViewModel.ChangeTracksAsync(playlistViewModel.Playlist);
     }
 
 

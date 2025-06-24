@@ -152,6 +152,7 @@ public abstract class MainViewModel : ObservableObject
             tracks = playlist.Tracks;
             IsTrackSourcesVisible = false;
             TrackSources.Clear();
+            ChangePlaylist(playlist);
         }
         else if (tracksOwner is RubricViewModel rubricViewModel)
         {
@@ -192,6 +193,8 @@ public abstract class MainViewModel : ObservableObject
     }
 
     protected virtual bool CanAddRubricTracks(RubricViewModel rubricViewModel) => true;
+
+    protected virtual void ChangePlaylist(Playlist playlist) { }
 
     protected TrackViewModel GetTrackViewModel(Track track)
     {

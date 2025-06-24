@@ -24,7 +24,7 @@
 		<Button Grid.Row="0"
 						Theme="{StaticResource MaterialFlatButton}"
 						Command="{Binding BackCommand, Mode=OneWay}"
-						IsVisible="{Binding IsTrackListVisible}"
+						IsVisible="{Binding !IsPlaylistsVisible}"
 						Height="48"
 						HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
 			<StackPanel Orientation="Horizontal">
@@ -34,7 +34,7 @@
 							 OpacityMask="Gray" Opacity="0.2"
 							 HorizontalAlignment="Left" VerticalAlignment="Center" />
 
-				<TextBlock Text="{Binding BackCaption, Mode=OneWay}"
+				<TextBlock Text="{Binding BackPlaylistCaption, Mode=OneWay}"
 									 HorizontalAlignment="Left" VerticalAlignment="Center" />
 			</StackPanel>
 		</Button>
@@ -50,8 +50,8 @@
 				</Grid.RowDefinitions>
 
 				<TextBlock Grid.Row="0"
-									 Text="{Binding TrackSourceCaption, Mode=OneWay}"
-									 IsVisible="{Binding TrackSourceCaption, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+									 Text="{Binding PlaylistCaption, Mode=OneWay}"
+									 IsVisible="{Binding PlaylistCaption, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
 									 FontSize="18"
 									 FontWeight="DemiBold"
 									 Margin="15 20 0 10"
@@ -60,7 +60,7 @@
 				<Button Grid.Row="1"
 								Theme="{StaticResource MaterialFlatButton}"
 								Command="{Binding RecentlyAddedPlaylistsCommand, Mode=OneWay}"
-								IsVisible="{Binding !IsTrackListVisible}"
+								IsVisible="{Binding IsPlaylistsVisible}"
 								Height="32"
 								HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
 					<TextBlock Text="{x:Static res:Texts.RecentlyAddedButton}"
@@ -69,7 +69,7 @@
 
 				<ListBox Grid.Row="2"
 								 ItemsSource="{Binding RecentlyAddedPlaylists, Mode=OneWay}"
-								 IsVisible="{Binding !IsTrackListVisible}"
+								 IsVisible="{Binding IsPlaylistsVisible}"
 								 Tapped="RecentlyAddedPlaylist_Tapped"
 								 Height="125"
 								 ScrollViewer.HorizontalScrollBarVisibility="Auto">
@@ -112,7 +112,8 @@
 
 				<Button Grid.Row="3"
 								Theme="{StaticResource MaterialFlatButton}"
-								Command="{Binding AddPlaylistCommand, Mode=OneWay}"
+							  Command="{Binding AddPlaylistCommand, Mode=OneWay}"
+							  IsVisible="{Binding IsPlaylistsVisible}"
 								Height="48"
 								HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
 					<StackPanel Orientation="Horizontal">
@@ -129,7 +130,7 @@
 
 				<ListBox Grid.Row="4"
 								 ItemsSource="{Binding Tracks, Mode=OneWay}"
-								 IsVisible="{Binding !IsTrackSourcesVisible}"
+								 IsVisible="{Binding !IsPlaylistsVisible}"
 								 Tapped="Track_Tapped">
 					<ListBox.ItemTemplate>
 						<DataTemplate DataType="svm:TrackViewModel">
@@ -178,9 +179,9 @@
 								</Border>-->
 
 								<!--  Название  -->
-								<!--<TextBlock Grid.Column="2" Grid.Row="0"
+								<TextBlock Grid.Column="2" Grid.Row="0"
 													 Text="{Binding Title, Mode=OneWay}"
-													 VerticalAlignment="Center" />-->
+													 VerticalAlignment="Center" />
 
 								<!--  Описание  -->
 								<!--<TextBlock Grid.Column="2" Grid.Row="1"

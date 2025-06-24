@@ -18,7 +18,9 @@ public sealed class MainDeviceViewModel : MainViewModel
     private bool _isTrackVisible;
     private bool _isTrackListVisible;
     private string _backCaption = Texts.Back;
+    private string _backPlaylistCaption = Texts.Back;
     private string? _trackSourceCaption;
+    private string? _playlistCaption;
 
     public MainDeviceViewModel() { } // For designer
 
@@ -55,10 +57,22 @@ public sealed class MainDeviceViewModel : MainViewModel
         set => SetProperty(ref _backCaption, value);
     }
 
+    public string BackPlaylistCaption
+    {
+        get => _backPlaylistCaption;
+        set => SetProperty(ref _backPlaylistCaption, value);
+    }
+
     public string? TrackSourceCaption
     {
         get => _trackSourceCaption;
         set => SetProperty(ref _trackSourceCaption, value);
+    }
+
+    public string? PlaylistCaption
+    {
+        get => _playlistCaption;
+        set => SetProperty(ref _playlistCaption, value);
     }
 
     public IRelayCommand BackCommand { get; }
@@ -101,11 +115,18 @@ public sealed class MainDeviceViewModel : MainViewModel
             BackCaption = rubricViewModel.Name;
         }
 
-        TrackSourceCaption = trackSourceCaption;
+        if (tracksOwner is not Playlist)
+            TrackSourceCaption = trackSourceCaption;
     }
 
     protected override bool CanAddRubricTracks(RubricViewModel rubricViewModel)
         => rubricViewModel is SongsRubricViewModel || rubricViewModel.IsDependent;
+
+    protected override void ChangePlaylist(Playlist playlist)
+    {
+        BackPlaylistCaption = Texts.Playlists;
+        PlaylistCaption = playlist.Name;
+    }
 
     private void AddTrackSourceHistory(object tracksOwner)
     {
@@ -147,10 +168,20 @@ public sealed class MainDeviceViewModel : MainViewModel
         if (TrackSourceHistory.Count == 0)
             return Task.CompletedTask;
 
+        object currentTracksOwner = TrackSourceHistory[^1];
         TrackSourceHistory.RemoveAt(TrackSourceHistory.Count - 1);
         object tracksOwner = TrackSourceHistory.Count > 0 ? TrackSourceHistory[^1] : null;
-        IsTrackListVisible = TrackSourceHistory.Count > 1;
-        return ChangeTracksAsync(tracksOwner);
+
+        if (currentTracksOwner is Playlist)
+        {
+            IsPlaylistsVisible = true;
+            return Task.CompletedTask;
+        }
+        else
+        {
+            IsTrackListVisible = TrackSourceHistory.Count > 1;
+            return ChangeTracksAsync(tracksOwner);
+        }
     }
 
     private async Task OnRandomPlayRunAsync()

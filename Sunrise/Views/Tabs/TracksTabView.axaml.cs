@@ -26,7 +26,6 @@ public partial class TracksTabView : UserControl
         if (trackSourceViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
 
-        mainViewModel.SelectedTrackSource = trackSourceViewModel;
         mainViewModel.TrackPlay.ChangeOwnerRubric(trackSourceViewModel);
         await mainViewModel.ChangeTracksAsync(trackSourceViewModel);
     }
