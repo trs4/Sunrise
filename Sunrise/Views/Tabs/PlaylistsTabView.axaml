@@ -145,7 +145,7 @@
 									<RowDefinition Height="15" />
 								</Grid.RowDefinitions>
 
-								<!--<Image Grid.RowSpan="2"
+								<Image Grid.RowSpan="2"
 											 Source="{su:FromIcon Track}"
 											 OpacityMask="Gray" Opacity="0.15"
 											 VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -176,7 +176,7 @@
 												 VerticalAlignment="Center" HorizontalAlignment="Center"
 												 OpacityMask="Gray" Opacity="0.8"
 												 Height="10" Width="10" />
-								</Border>-->
+								</Border>
 
 								<!--  Название  -->
 								<TextBlock Grid.Column="2" Grid.Row="0"
@@ -184,17 +184,17 @@
 													 VerticalAlignment="Center" />
 
 								<!--  Описание  -->
-								<!--<TextBlock Grid.Column="2" Grid.Row="1"
+								<TextBlock Grid.Column="2" Grid.Row="1"
 													 VerticalAlignment="Center"
 													 FontSize="12"
 													 Foreground="Gray">
 									<TextBlock.Text>
-										<MultiBinding Converter="{x:Static scv:TrackDescriptionConverter.Instance}" Mode="OneWay">
-											<Binding Path="DataContext" Mode="OneWay" RelativeSource="{RelativeSource AncestorType=UserControl}" />
-											<Binding Mode="OneWay" />
+										<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
+											<Binding Path="Artist" Mode="OneWay" />
+											<Binding Path="Album" Mode="OneWay" />
 										</MultiBinding>
 									</TextBlock.Text>
-								</TextBlock>-->
+								</TextBlock>
 
 							</Grid>
 						</DataTemplate>

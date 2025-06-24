@@ -54,31 +54,13 @@ public partial class PlaylistsTabView : UserControl
         await mainViewModel.ChangeTracksAsync(playlistViewModel.Playlist);
     }
 
+    private void TrackIcon_Tapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is not MainDeviceViewModel mainViewModel)
+            return;
 
-    //private async Task PlayTrack(TappedEventArgs e, Func<MainDeviceViewModel, RubricViewModel> getRubric)
-    //{
-    //    var trackViewModel = e.GetDataContext<TrackViewModel>();
-
-    //    if (trackViewModel is null || DataContext is not MainDeviceViewModel mainViewModel)
-    //        return;
-
-    //    mainViewModel.IsShortTrackVisible = true;
-    //    var trackPlay = mainViewModel.TrackPlay;
-    //    trackPlay.ChangeOwnerRubric(getRubric(mainViewModel));
-
-    //    if (trackViewModel.IsPlaying == true)
-    //        return;
-
-    //    await trackPlay.PlayAsync(trackViewModel);
-    //}
-
-    //private void TrackIcon_Tapped(object? sender, TappedEventArgs e)
-    //{
-    //    if (DataContext is not MainDeviceViewModel mainViewModel)
-    //        return;
-
-    //    mainViewModel.TrackPlay.PlayCommand.Execute(null);
-    //    e.Handled = true;
-    //}
+        mainViewModel.TrackPlay.PlayCommand.Execute(null);
+        e.Handled = true;
+    }
 
 }
