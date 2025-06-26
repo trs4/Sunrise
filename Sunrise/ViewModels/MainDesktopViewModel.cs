@@ -31,12 +31,12 @@ public sealed class MainDesktopViewModel : MainViewModel
 
     public ObservableCollection<ColumnViewModel> TracksColumns { get; } = [];
 
-    protected override Task ChangeTracksCoreAsync(object tracksOwner, CancellationToken token)
+    protected override Task SelectTracksAsync(object tracksOwner, CancellationToken token = default)
     {
         var pickedColumn = TracksColumns.First(c => c.Name == nameof(TrackViewModel.Picked));
         pickedColumn.IsVisible = tracksOwner is SongsRubricViewModel;
 
-        return base.ChangeTracksCoreAsync(tracksOwner, token);
+        return base.SelectTracksAsync(tracksOwner, token);
     }
 
     private async Task AddFolderAsync(CancellationToken token)
@@ -131,6 +131,8 @@ public sealed class MainDesktopViewModel : MainViewModel
             IsVisible = false,
         });
     }
+
+    public override Task OnNextListAsync() => Task.CompletedTask;
 
     public override void OnExit() => Owner.Close();
 }

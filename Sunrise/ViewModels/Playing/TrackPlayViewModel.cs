@@ -54,6 +54,7 @@ public sealed class TrackPlayViewModel : ObservableObject
         NextCommand = new AsyncRelayCommand(GoToNextTrackAsync);
 
         ImportFromITunesCommand = new AsyncRelayCommand(OnImportFromITunesAsync);
+        NextListCommand = new AsyncRelayCommand(OnNextListAsync);
         ExitCommand = new RelayCommand(OnExit);
     }
 
@@ -122,6 +123,8 @@ public sealed class TrackPlayViewModel : ObservableObject
     }
 
     public IRelayCommand ImportFromITunesCommand { get; }
+
+    public IRelayCommand NextListCommand { get; }
 
     public IRelayCommand ExitCommand { get; }
 
@@ -433,6 +436,8 @@ public sealed class TrackPlayViewModel : ObservableObject
         Player.ClearAllPlaylists();
         await Owner.ReloadTracksAsync(token);
     }
+
+    private Task OnNextListAsync() => Owner.OnNextListAsync();
 
     private void OnExit() => Owner.OnExit();
 }

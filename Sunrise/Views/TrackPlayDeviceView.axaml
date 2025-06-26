@@ -14,6 +14,22 @@
 	<Design.DataContext>
 		<svm:TrackPlayViewModel />
 	</Design.DataContext>
+	<UserControl.Styles>
+		<Style Selector="Button.TrackBtn">
+			<Setter Property="VerticalAlignment" Value="Center" />
+			<Setter Property="HorizontalAlignment" Value="Center" />
+			<Setter Property="Height" Value="32" />
+			<Setter Property="Width" Value="32" />
+			<Setter Property="Theme" Value="{StaticResource MaterialFlatButton}" />
+		</Style>
+
+		<Style Selector="Image.ImageBtn">
+			<Setter Property="Height" Value="28" />
+			<Setter Property="Width" Value="28" />
+			<Setter Property="OpacityMask" Value="Gray" />
+			<Setter Property="Opacity" Value="0.7" />
+		</Style>
+	</UserControl.Styles>
 
 	<Grid>
 		<Grid.RowDefinitions>
@@ -151,6 +167,16 @@
 				<Image Source="{su:FromIcon Next}"
 							 Height="24" Width="24"
 							 OpacityMask="Gray" Opacity="0.7" />
+			</Button>
+
+			<!--  Menu  -->
+			<Button Grid.Column="4"
+							Classes="TrackBtn"
+							HorizontalAlignment="Right"
+							Margin="0 0 10 0"
+							Command="{Binding NextListCommand, Mode=OneWay}">
+				<Image Classes="ImageBtn"
+							 Source="{su:FromIcon Options}" />
 			</Button>
 
 		</Grid>

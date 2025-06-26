@@ -160,6 +160,9 @@
   <data name="Playlist" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Svg\Playlist.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="PlusSquare" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Svg\PlusSquare.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="Prev" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Svg\Prev.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

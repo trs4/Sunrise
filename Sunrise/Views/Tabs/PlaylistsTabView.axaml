@@ -117,8 +117,8 @@
 								Height="48"
 								HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
 					<StackPanel Orientation="Horizontal">
-						<Image Source="{su:FromIcon LeftCircle}"
-									 Height="20" Width="20"
+						<Image Source="{su:FromIcon PlusSquare}"
+									 Height="24" Width="24"
 									 Margin="0 0 10 0"
 									 OpacityMask="Gray" Opacity="0.2"
 									 HorizontalAlignment="Left" VerticalAlignment="Center" />
@@ -130,6 +130,7 @@
 
 				<ListBox Grid.Row="4"
 								 ItemsSource="{Binding Tracks, Mode=OneWay}"
+								 SelectedItem="{Binding SelectedTrack, Mode=TwoWay}"
 								 IsVisible="{Binding !IsPlaylistsVisible}"
 								 Tapped="Track_Tapped">
 					<ListBox.ItemTemplate>

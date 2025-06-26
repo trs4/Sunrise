@@ -177,6 +177,7 @@
 
 				<ListBox Grid.Row="5"
 								 ItemsSource="{Binding Tracks, Mode=OneWay}"
+								 SelectedItem="{Binding SelectedTrack, Mode=TwoWay}"
 								 IsVisible="{Binding !IsTrackSourcesVisible}"
 								 Tapped="Track_Tapped">
 					<ListBox.ItemTemplate>

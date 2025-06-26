@@ -19,6 +19,7 @@ public abstract class MainViewModel : ObservableObject
     private bool _isTrackSourcesVisible;
     private TrackSourceViewModel? _selectedTrackSource;
     private bool _isReadOnlyTracks = true;
+    private TrackViewModel? _selectedTrack;
     private readonly Dictionary<int, TrackViewModel> _trackMap = [];
 
     protected MainViewModel() { } // For designer
@@ -116,6 +117,12 @@ public abstract class MainViewModel : ObservableObject
 
     public ObservableCollection<TrackViewModel> Tracks { get; } = [];
 
+    public TrackViewModel? SelectedTrack
+    {
+        get => _selectedTrack;
+        set => SetProperty(ref _selectedTrack, value);
+    }
+
     public bool IsReadOnlyTracks
     {
         get => _isReadOnlyTracks;
@@ -127,7 +134,7 @@ public abstract class MainViewModel : ObservableObject
         _trackMap.Clear();
         var rubricViewModel = Songs;
         var playlists = await TrackPlay.Player.GetAllPlaylistsAsync(token);
-        await ChangeTracksCoreAsync(rubricViewModel, token);
+        await SelectTracksAsync(rubricViewModel, token);
         ChangePlaylists(playlists.Values);
     }
 
@@ -139,20 +146,20 @@ public abstract class MainViewModel : ObservableObject
         if (Equals(TracksOwner, tracksOwner))
             return Task.CompletedTask;
 
-        return ChangeTracksCoreAsync(tracksOwner, token);
+        return SelectTracksAsync(tracksOwner, token);
     }
 
-    protected virtual async Task ChangeTracksCoreAsync(object tracksOwner, CancellationToken token)
+    protected virtual async Task SelectTracksAsync(object tracksOwner, CancellationToken token = default)
     {
         TracksOwner = tracksOwner;
         IEnumerable<Track> tracks;
 
-        if (tracksOwner is Playlist playlist)
+        if (tracksOwner is PlaylistViewModel playlistViewModel)
         {
-            tracks = playlist.Tracks;
+            tracks = playlistViewModel.Playlist.Tracks;
             IsTrackSourcesVisible = false;
             TrackSources.Clear();
-            ChangePlaylist(playlist);
+            ChangePlaylist(playlistViewModel.Playlist);
         }
         else if (tracksOwner is RubricViewModel rubricViewModel)
         {
@@ -268,6 +275,8 @@ public abstract class MainViewModel : ObservableObject
         RandomNumberGenerator.Shuffle(randomizeTracks.AsSpan());
         return randomizeTracks;
     }
+
+    public abstract Task OnNextListAsync();
 
     public abstract void OnExit();
 }

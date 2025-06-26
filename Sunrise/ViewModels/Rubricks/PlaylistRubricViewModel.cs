@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using Sunrise.Model;
-using Sunrise.Model.Resources;
 
 namespace Sunrise.ViewModels;
 
@@ -9,7 +8,7 @@ public sealed class PlaylistRubricViewModel : RubricViewModel
     private readonly Playlist _playlist;
 
     public PlaylistRubricViewModel(Player player, Playlist playlist)
-        : base(player, null, Texts.RecentlyAdded)
+        : base(player, null, playlist.Name)
         => _playlist = playlist;
 
     public override bool IsDependent => true;

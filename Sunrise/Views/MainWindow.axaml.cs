@@ -50,7 +50,7 @@ public partial class MainWindow : Window
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
 
-        await mainViewModel.ChangeTracksAsync(playlistViewModel.Playlist);
+        await mainViewModel.ChangeTracksAsync(playlistViewModel);
     }
 
     private void Playlist_DoubleTapped(object? sender, TappedEventArgs e)
@@ -149,7 +149,7 @@ public partial class MainWindow : Window
     }
 
     #endregion
-    
+
     private async void TrackSource_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         var trackSourceViewModel = e.GetSelectedItem<TrackSourceViewModel>();

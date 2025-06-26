@@ -95,8 +95,8 @@
 
 			<!--  Menu  -->
 			<Button Grid.Column="2"
-							Classes="TrackBtn">
-				<!--Command="{Binding PlayCommand, Mode=OneWay}"-->
+							Classes="TrackBtn"
+							Command="{Binding NextListCommand, Mode=OneWay}">
 				<Image Classes="ImageBtn"
 							 Source="{su:FromIcon Options}" />
 			</Button>

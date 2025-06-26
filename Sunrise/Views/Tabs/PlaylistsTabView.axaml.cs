@@ -19,7 +19,7 @@ public partial class PlaylistsTabView : UserControl
 
         mainViewModel.SelectedPlaylist = playlistViewModel;
         mainViewModel.IsPlaylistsVisible = false;
-        await mainViewModel.ChangeTracksAsync(playlistViewModel.Playlist);
+        await mainViewModel.ChangeTracksAsync(playlistViewModel);
     }
 
     private async void Track_Tapped(object? sender, TappedEventArgs e)
@@ -51,7 +51,7 @@ public partial class PlaylistsTabView : UserControl
             return;
 
         mainViewModel.IsPlaylistsVisible = false;
-        await mainViewModel.ChangeTracksAsync(playlistViewModel.Playlist);
+        await mainViewModel.ChangeTracksAsync(playlistViewModel);
     }
 
     private void TrackIcon_Tapped(object? sender, TappedEventArgs e)
