@@ -39,6 +39,7 @@
 
 			<ListBox Grid.Row="1"
 							 ItemsSource="{Binding Categories, Mode=OneWay}"
+							 SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
 							 Tapped="Category_Tapped">
 				<ListBox.ItemTemplate>
 					<DataTemplate>

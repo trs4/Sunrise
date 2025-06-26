@@ -204,7 +204,7 @@
 
 				<ListBox Grid.Row="4"
 								 ItemsSource="{Binding Playlists, Mode=OneWay}"
-								 SelectedItem="{Binding SelectedPlaylist}"
+								 SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}"
 								 IsVisible="{Binding IsPlaylistsVisible}"
 								 Tapped="Playlist_Tapped">
 					<ListBox.ItemTemplate>

@@ -62,11 +62,16 @@ public abstract class MainViewModel : ObservableObject
 
     #region Playlists
 
+    private PlaylistViewModel? _selectedPlaylist;
     private bool _isPlaylistsVisible = true;
 
     public ObservableCollection<PlaylistViewModel> Playlists { get; } = [];
 
-    public PlaylistViewModel? SelectedPlaylist { get; set; }
+    public PlaylistViewModel? SelectedPlaylist
+    {
+        get => _selectedPlaylist;
+        set => SetProperty(ref _selectedPlaylist, value);
+    }
 
     public IRelayCommand AddPlaylistCommand { get; }
 
@@ -81,11 +86,16 @@ public abstract class MainViewModel : ObservableObject
     #endregion
     #region Categories
 
+    private CategoryViewModel? _selectedCategory;
     private bool _isCategoriesVisible = true;
 
     public ObservableCollection<CategoryViewModel> Categories { get; } = [];
 
-    public CategoryViewModel? SelectedCategory { get; set; }
+    public CategoryViewModel? SelectedCategory
+    {
+        get => _selectedCategory;
+        set => SetProperty(ref _selectedCategory, value);
+    }
 
     public IRelayCommand AddCategoryCommand { get; }
 
@@ -231,7 +241,8 @@ public abstract class MainViewModel : ObservableObject
     {
         var category = await TrackPlay.Player.AddCategoryAsync();
         var categoryViewModel = new CategoryViewModel(category);
-        Categories.Add(categoryViewModel);
+        Categories.Insert(0, categoryViewModel);
+        SelectedCategory = categoryViewModel;
     }
 
     private async Task DeleteCategoryAsync()
@@ -249,7 +260,9 @@ public abstract class MainViewModel : ObservableObject
     {
         var playlist = await TrackPlay.Player.AddPlaylistAsync();
         var playlistViewModel = new PlaylistViewModel(playlist, TrackPlay.Player);
-        Playlists.Add(playlistViewModel);
+        Playlists.Insert(0, playlistViewModel);
+        SelectedPlaylist = playlistViewModel;
+        await ChangeTracksAsync(playlistViewModel);
     }
 
     private async Task DeletePlaylistAsync()

@@ -142,6 +142,7 @@ public sealed class MainDeviceViewModel : MainViewModel
     {
         BackPlaylistCaption = Texts.Playlists;
         PlaylistCaption = playlist.Name;
+        IsPlaylistsVisible = false;
     }
 
     private void AddTrackSourceHistory(object tracksOwner)
