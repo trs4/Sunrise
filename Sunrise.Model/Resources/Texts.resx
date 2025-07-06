@@ -135,7 +135,7 @@
   <data name="ArtistDescriptionFormat" xml:space="preserve">
     <value>Альбомов: {0} Песен: {1}</value>
   </data>
-  <data name="GenreDescriptionFormat" xml:space="preserve">
+  <data name="SongsFormat" xml:space="preserve">
     <value>Песен: {0}</value>
   </data>
   <data name="Artists" xml:space="preserve">
@@ -230,5 +230,14 @@
   </data>
   <data name="NewPlaylist" xml:space="preserve">
     <value>Новый плейлист</value>
+  </data>
+  <data name="Change" xml:space="preserve">
+    <value>Изменить</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Отменить</value>
+  </data>
+  <data name="AddInPlaylist" xml:space="preserve">
+    <value>Добавить в плейлист</value>
   </data>
 </root>

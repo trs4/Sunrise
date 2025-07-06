@@ -10,11 +10,17 @@ public sealed class ArtistViewModel : TrackSourceViewModel
     private readonly Dictionary<string, List<Track>> _tracksByAlbums;
     private readonly int _tracksCount;
 
-    public ArtistViewModel(ArtistsRubricViewModel rubric, string name, Dictionary<string, List<Track>> tracksByAlbums, int tracksCount)
+    private ArtistViewModel(ArtistsRubricViewModel rubric, string name, Dictionary<string, List<Track>> tracksByAlbums, int tracksCount)
         : base(rubric, name, string.Format(Texts.ArtistDescriptionFormat, tracksByAlbums.Count, tracksCount))
     {
         _tracksByAlbums = tracksByAlbums;
         _tracksCount = tracksCount;
+    }
+
+    public static ArtistViewModel Create(ArtistsRubricViewModel rubric, string name, Dictionary<string, List<Track>> tracksByAlbums)
+    {
+        int tracksCount = tracksByAlbums.Sum(p => p.Value.Count);
+        return new ArtistViewModel(rubric, name, tracksByAlbums, tracksCount);
     }
 
     public List<Track> GetTracks()

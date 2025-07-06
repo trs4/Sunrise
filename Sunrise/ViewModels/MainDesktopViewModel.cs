@@ -31,12 +31,14 @@ public sealed class MainDesktopViewModel : MainViewModel
 
     public ObservableCollection<ColumnViewModel> TracksColumns { get; } = [];
 
-    protected override Task SelectTracksAsync(object tracksOwner, CancellationToken token = default)
+    protected override TrackPlayViewModel CreateTrackPlay(Player player) => new TrackPlayDesktopViewModel(this, player);
+
+    protected override Task SelectTracksAsync(object tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
         var pickedColumn = TracksColumns.First(c => c.Name == nameof(TrackViewModel.Picked));
         pickedColumn.IsVisible = tracksOwner is SongsRubricViewModel;
 
-        return base.SelectTracksAsync(tracksOwner, token);
+        return base.SelectTracksAsync(tracksOwner, changeTracks, token);
     }
 
     private async Task AddFolderAsync(CancellationToken token)

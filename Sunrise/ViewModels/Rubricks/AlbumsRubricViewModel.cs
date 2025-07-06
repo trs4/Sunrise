@@ -11,6 +11,7 @@ public sealed class AlbumsRubricViewModel : RubricViewModel
 {
     private TracksScreenshot? _screenshot;
     private List<AlbumViewModel>? _trackSources;
+    private IReadOnlyList<Track>? _currentTracks;
 
     public AlbumsRubricViewModel(Player player) : base(player, IconSource.From(nameof(Icons.Album)), Texts.Albums) { }
 
@@ -40,5 +41,7 @@ public sealed class AlbumsRubricViewModel : RubricViewModel
     }
 
     public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => (trackSource as AlbumViewModel)?.Tracks ?? [];
+        => _currentTracks = (trackSource as AlbumViewModel)?.Tracks ?? [];
+
+    public override IReadOnlyList<Track>? GetCurrentTracks() => _currentTracks;
 }

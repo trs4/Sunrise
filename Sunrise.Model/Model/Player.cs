@@ -9,12 +9,12 @@ namespace Sunrise.Model;
 
 public sealed class Player
 {
-    private static readonly HashSet<string> _insertExcludedColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> _insertExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         nameof(Tracks.Picked)
     };
 
-    private static readonly HashSet<string> _updateExcludedColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> _updateExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         nameof(Tracks.Guid), nameof(Tracks.Path), nameof(Tracks.Picked), nameof(Tracks.Rating), nameof(Tracks.Reproduced),
         nameof(Tracks.Added), nameof(Tracks.RootFolder), nameof(Tracks.RelationFolder), nameof(Tracks.OriginalText),
@@ -346,6 +346,47 @@ public sealed class Player
         return true;
     }
 
+    public async Task<bool> DeleteTrackAsync(Track? track, CancellationToken token = default)
+    {
+        if (track is null)
+            return false;
+
+        int trackId = track.Id;
+
+        lock (_tracksScreenshotSync)
+            _tracksScreenshot?.Remove(track);
+
+        lock (_allPlaylistsSync)
+        {
+            var allPlaylistsByName = _allPlaylistsByName;
+
+            if (allPlaylistsByName is not null)
+            {
+                foreach (var playlist in allPlaylistsByName.Values)
+                {
+                    for (int i = playlist.Tracks.Count - 1; i >= 0; i--)
+                    {
+                        if (playlist.Tracks[i].Id == trackId)
+                            playlist.Tracks.RemoveAt(i);
+                    }
+                }
+            }
+        }
+
+        bool result = await _connection.Delete.CreateQuery<Tracks>()
+            .WithTerm(Tracks.Id, trackId)
+            .RunAsync(token) > 0;
+
+        if (!result)
+            return false;
+
+        await _connection.Delete.CreateQuery<PlaylistTracks>()
+            .WithTerm(PlaylistTracks.TrackId, trackId)
+            .RunAsync(token);
+
+        return true;
+    }
+
     public async Task<bool> DeletePlaylistAsync(Playlist? playlist, CancellationToken token = default)
     {
         if (playlist is null)
@@ -372,6 +413,94 @@ public sealed class Player
     {
         lock (_allPlaylistsSync)
             _allPlaylistsByName = null;
+    }
+
+    #endregion
+    #region Search
+
+    public async ValueTask<SearchResults> SearchAsync(string text, int maxCountForRubric = 10, CancellationToken token = default)
+    {
+        var tracks = new List<Track>();
+        var artists = new List<(string Name, Dictionary<string, List<Track>> TracksByAlbums)>();
+        var albums = new List<(string Name, string Artist, List<Track> Tracks)>();
+        var genres = new List<(string Name, List<Track> Tracks)>();
+        text = text?.Trim();
+
+        if (string.IsNullOrEmpty(text))
+            return new(tracks, artists, albums, genres);
+
+        if (maxCountForRubric < 1)
+            maxCountForRubric = 1;
+
+        var screenshot = await GetAllTracksAsync(token);
+        SearchTracks(text, maxCountForRubric, screenshot, tracks);
+        SearchArtists(text, maxCountForRubric, screenshot, artists);
+        SearchAlbums(text, maxCountForRubric, screenshot, albums);
+        SearchGenres(text, maxCountForRubric, screenshot, genres);
+        return new(tracks, artists, albums, genres);
+    }
+
+    private static void SearchTracks(string text, int maxCountForRubric, TracksScreenshot screenshot,
+        List<Track> tracks)
+    {
+        foreach (var track in screenshot.AllTracks)
+        {
+            if (track.Title?.Contains(text, StringComparison.OrdinalIgnoreCase) ?? false)
+            {
+                tracks.Add(track);
+
+                if (tracks.Count == maxCountForRubric)
+                    return;
+            }
+        }
+    }
+
+    private static void SearchArtists(string text, int maxCountForRubric, TracksScreenshot screenshot,
+        List<(string Name, Dictionary<string, List<Track>> TracksByAlbums)> artists)
+    {
+        foreach (var artistPair in screenshot.AllTracksByArtist)
+        {
+            if (artistPair.Key.Contains(text, StringComparison.OrdinalIgnoreCase))
+            {
+                artists.Add((artistPair.Key, artistPair.Value));
+
+                if (artists.Count == maxCountForRubric)
+                    return;
+            }
+        }
+    }
+
+    private static void SearchAlbums(string text, int maxCountForRubric, TracksScreenshot screenshot,
+        List<(string Name, string Artist, List<Track> Tracks)> albums)
+    {
+        foreach (var artistPair in screenshot.AllTracksByArtist)
+        {
+            foreach (var albumPair in artistPair.Value)
+            {
+                if (albumPair.Key.Contains(text, StringComparison.OrdinalIgnoreCase))
+                {
+                    albums.Add((albumPair.Key, artistPair.Key, albumPair.Value));
+
+                    if (albums.Count == maxCountForRubric)
+                        return;
+                }
+            }
+        }
+    }
+
+    private static void SearchGenres(string text, int maxCountForRubric, TracksScreenshot screenshot,
+        List<(string Name, List<Track> Tracks)> genres)
+    {
+        foreach (var genrePair in screenshot.AllTracksByGenre)
+        {
+            if (genrePair.Key.Contains(text, StringComparison.OrdinalIgnoreCase))
+            {
+                genres.Add((genrePair.Key, genrePair.Value));
+
+                if (genres.Count == maxCountForRubric)
+                    return;
+            }
+        }
     }
 
     #endregion

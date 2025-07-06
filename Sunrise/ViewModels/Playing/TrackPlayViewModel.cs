@@ -1,6 +1,5 @@
 ﻿using System;
 using System.ComponentModel;
-using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -9,12 +8,11 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
-using Sunrise.Services;
 using Sunrise.Utils;
 
 namespace Sunrise.ViewModels;
 
-public sealed class TrackPlayViewModel : ObservableObject
+public abstract class TrackPlayViewModel : ObservableObject
 {
     private static readonly TimeSpan _prevStayTime = TimeSpan.FromSeconds(4);
 
@@ -36,9 +34,9 @@ public sealed class TrackPlayViewModel : ObservableObject
     private RubricViewModel? _ownerRubric;
     private TrackSourceViewModel? _ownerTrackSource;
 
-    public TrackPlayViewModel() { } // For designer
+    protected TrackPlayViewModel() { } // For designer
 
-    public TrackPlayViewModel(MainViewModel owner, Player player)
+    protected TrackPlayViewModel(MainViewModel owner, Player player)
     {
         Owner = owner ?? throw new ArgumentNullException(nameof(owner));
         Player = player ?? throw new ArgumentNullException(nameof(player));
@@ -53,7 +51,6 @@ public sealed class TrackPlayViewModel : ObservableObject
         PlayCommand = new AsyncRelayCommand(PlayPauseTrackAsync);
         NextCommand = new AsyncRelayCommand(GoToNextTrackAsync);
 
-        ImportFromITunesCommand = new AsyncRelayCommand(OnImportFromITunesAsync);
         NextListCommand = new AsyncRelayCommand(OnNextListAsync);
         ExitCommand = new RelayCommand(OnExit);
     }
@@ -122,8 +119,6 @@ public sealed class TrackPlayViewModel : ObservableObject
         set => SetProperty(ref _repeatPlayIcon, value);
     }
 
-    public IRelayCommand ImportFromITunesCommand { get; }
-
     public IRelayCommand NextListCommand { get; }
 
     public IRelayCommand ExitCommand { get; }
@@ -170,7 +165,7 @@ public sealed class TrackPlayViewModel : ObservableObject
 
     private void OnTick(object? sender, EventArgs e)
     {
-        var currentTrack = CurrentTrack;
+        var currentTrack = _currentTrack;
 
         if (currentTrack is null)
             return;
@@ -189,12 +184,13 @@ public sealed class TrackPlayViewModel : ObservableObject
     {
         try
         {
-            bool change = toStart || _currentTrack != trackViewModel;
+            var currentTrack = _currentTrack;
+            bool change = toStart || currentTrack != trackViewModel;
 
             if (change)
             {
-                if (_currentTrack is not null)
-                    _currentTrack.IsPlaying = null;
+                if (currentTrack is not null)
+                    currentTrack.IsPlaying = null;
 
                 Position = default;
                 TrackIcon = null;
@@ -218,11 +214,12 @@ public sealed class TrackPlayViewModel : ObservableObject
     private void Change(TrackViewModel trackViewModel)
     {
         bool isPlaying = false;
+        var currentTrack = _currentTrack;
 
-        if (_currentTrack is not null)
+        if (currentTrack is not null)
         {
-            isPlaying = _currentTrack.IsPlaying ?? false;
-            _currentTrack.IsPlaying = null;
+            isPlaying = currentTrack.IsPlaying ?? false;
+            currentTrack.IsPlaying = null;
         }
 
         Position = default;
@@ -247,7 +244,7 @@ public sealed class TrackPlayViewModel : ObservableObject
 
     public void ChangePosition(double position)
     {
-        var currentTrack = CurrentTrack;
+        var currentTrack = _currentTrack;
         Position = currentTrack is null ? default : TimeSpan.FromMilliseconds(currentTrack.Duration.TotalMilliseconds * position);
         Player.Media.Position = position;
     }
@@ -339,7 +336,7 @@ public sealed class TrackPlayViewModel : ObservableObject
         }
     }
 
-    private async Task GoToNextTrackAsync()
+    protected async Task GoToNextTrackAsync()
     {
         var track = CurrentTrack;
 
@@ -422,19 +419,6 @@ public sealed class TrackPlayViewModel : ObservableObject
         }
         else
             await PlayCoreAsync(nextTrack);
-    }
-
-    private async Task OnImportFromITunesAsync(CancellationToken token)
-    {
-        string? filePath = null;
-
-        if (!UIDispatcher.Run(() => AppServices.Get<ISystemDialogsService>().ShowSelectFile(out filePath)))
-            return;
-
-        await ImportFromITunes.LoadAsync(Player, filePath, token: token);
-        Player.ClearAllTracks();
-        Player.ClearAllPlaylists();
-        await Owner.ReloadTracksAsync(token);
     }
 
     private Task OnNextListAsync() => Owner.OnNextListAsync();

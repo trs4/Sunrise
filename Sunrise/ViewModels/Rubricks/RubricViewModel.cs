@@ -24,5 +24,7 @@ public abstract class RubricViewModel
 
     public abstract IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null);
 
+    public abstract IReadOnlyList<Track>? GetCurrentTracks();
+
     public override string ToString() => Name;
 }

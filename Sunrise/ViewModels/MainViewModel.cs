@@ -21,6 +21,7 @@ public abstract class MainViewModel : ObservableObject
     private bool _isReadOnlyTracks = true;
     private TrackViewModel? _selectedTrack;
     private readonly Dictionary<int, TrackViewModel> _trackMap = [];
+    private string? _searchText;
 
     protected MainViewModel() { } // For designer
 
@@ -31,7 +32,7 @@ public abstract class MainViewModel : ObservableObject
         Songs = new SongsRubricViewModel(player);
         Genres = new GenresRubricViewModel(player);
 
-        TrackPlay = new TrackPlayViewModel(this, player);
+        TrackPlay = CreateTrackPlay(player);
 
         AddCategoryCommand = new AsyncRelayCommand(AddCategoryAsync);
         DeleteCategoryCommand = new AsyncRelayCommand(DeleteCategoryAsync);
@@ -44,13 +45,13 @@ public abstract class MainViewModel : ObservableObject
 
     public TrackPlayViewModel TrackPlay { get; }
 
-    public RubricViewModel Artists { get; }
+    public ArtistsRubricViewModel Artists { get; }
 
-    public RubricViewModel Albums { get; }
+    public AlbumsRubricViewModel Albums { get; }
 
-    public RubricViewModel Songs { get; }
+    public SongsRubricViewModel Songs { get; }
 
-    public RubricViewModel Genres { get; }
+    public GenresRubricViewModel Genres { get; }
 
     public ObservableCollection<RubricViewModel> Rubricks { get; }
 
@@ -138,28 +139,35 @@ public abstract class MainViewModel : ObservableObject
         get => _isReadOnlyTracks;
         set => SetProperty(ref _isReadOnlyTracks, value);
     }
+    public string? SearchText
+    {
+        get => _searchText;
+        set => SetProperty(ref _searchText, value);
+    }
+
+    protected abstract TrackPlayViewModel CreateTrackPlay(Player player);
 
     public async Task ReloadTracksAsync(CancellationToken token = default)
     {
         _trackMap.Clear();
         var rubricViewModel = Songs;
         var playlists = await TrackPlay.Player.GetAllPlaylistsAsync(token);
-        await SelectTracksAsync(rubricViewModel, token);
+        await SelectTracksAsync(rubricViewModel, token: token);
         ChangePlaylists(playlists.Values);
     }
 
     public Task SelectSongsAsync(CancellationToken token = default)
-        => ChangeTracksAsync(Songs, token);
+        => ChangeTracksAsync(Songs, token: token);
 
-    public Task ChangeTracksAsync(object tracksOwner, CancellationToken token = default)
+    public Task ChangeTracksAsync(object tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
         if (Equals(TracksOwner, tracksOwner))
             return Task.CompletedTask;
 
-        return SelectTracksAsync(tracksOwner, token);
+        return SelectTracksAsync(tracksOwner, changeTracks, token);
     }
 
-    protected virtual async Task SelectTracksAsync(object tracksOwner, CancellationToken token = default)
+    protected virtual async Task SelectTracksAsync(object tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
         TracksOwner = tracksOwner;
         IEnumerable<Track> tracks;
@@ -203,10 +211,13 @@ public abstract class MainViewModel : ObservableObject
             TrackSources.Clear();
         }
 
-        Tracks.Clear();
+        if (changeTracks)
+        {
+            Tracks.Clear();
 
-        foreach (var track in tracks)
-            Tracks.Add(GetTrackViewModel(track));
+            foreach (var track in tracks)
+                Tracks.Add(GetTrackViewModel(track));
+        }
     }
 
     protected virtual bool CanAddRubricTracks(RubricViewModel rubricViewModel) => true;
@@ -288,6 +299,25 @@ public abstract class MainViewModel : ObservableObject
         RandomNumberGenerator.Shuffle(randomizeTracks.AsSpan());
         return randomizeTracks;
     }
+
+    public async ValueTask RemoveAsync(Track? track, CancellationToken token = default)
+    {
+        if (track is null)
+            return;
+
+        int trackId = track.Id;
+        _trackMap.Remove(trackId);
+
+        for (int i = Tracks.Count - 1; i >= 0; i--)
+        {
+            if (Tracks[i].Track.Id == trackId)
+                Tracks.RemoveAt(i);
+        }
+
+        await OnRemoveAsync(trackId, token);
+    }
+
+    protected virtual ValueTask OnRemoveAsync(int trackId, CancellationToken token) => default;
 
     public abstract Task OnNextListAsync();
 

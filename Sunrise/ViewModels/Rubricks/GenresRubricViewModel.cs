@@ -11,6 +11,7 @@ public sealed class GenresRubricViewModel : RubricViewModel
 {
     private TracksScreenshot? _screenshot;
     private List<GenreViewModel>? _trackSources;
+    private IReadOnlyList<Track>? _currentTracks;
 
     public GenresRubricViewModel(Player player) : base(player, IconSource.From(nameof(Icons.Genre)), Texts.Genres) { }
 
@@ -34,5 +35,7 @@ public sealed class GenresRubricViewModel : RubricViewModel
     }
 
     public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => (trackSource as GenreViewModel)?.Tracks ?? [];
+        => _currentTracks = (trackSource as GenreViewModel)?.Tracks ?? [];
+
+    public override IReadOnlyList<Track>? GetCurrentTracks() => _currentTracks;
 }

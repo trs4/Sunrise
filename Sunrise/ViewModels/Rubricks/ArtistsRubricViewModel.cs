@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
@@ -11,6 +10,7 @@ public sealed class ArtistsRubricViewModel : RubricViewModel
 {
     private TracksScreenshot? _screenshot;
     private List<ArtistViewModel>? _trackSources;
+    private IReadOnlyList<Track>? _currentTracks;
 
     public ArtistsRubricViewModel(Player player) : base(player, IconSource.From(nameof(Icons.Artist)), Texts.Artists) { }
 
@@ -22,10 +22,7 @@ public sealed class ArtistsRubricViewModel : RubricViewModel
         var trackSources = new List<ArtistViewModel>(screenshot.AllTracksByArtist.Count);
 
         foreach (var pair in screenshot.AllTracksByArtist)
-        {
-            int tracksCount = pair.Value.Sum(p => p.Value.Count);
-            trackSources.Add(new ArtistViewModel(this, pair.Key, pair.Value, tracksCount));
-        }
+            trackSources.Add(ArtistViewModel.Create(this, pair.Key, pair.Value));
 
         trackSources.Sort((a, b) => string.Compare(a.Name, b.Name, true));
         _trackSources = trackSources;
@@ -34,5 +31,7 @@ public sealed class ArtistsRubricViewModel : RubricViewModel
     }
 
     public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => (trackSource as ArtistViewModel)?.GetTracks() ?? [];
+        => _currentTracks = (trackSource as ArtistViewModel)?.GetTracks() ?? [];
+
+    public override IReadOnlyList<Track>? GetCurrentTracks() => _currentTracks;
 }

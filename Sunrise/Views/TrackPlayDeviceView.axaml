@@ -7,12 +7,12 @@
              xmlns:scv="clr-namespace:Sunrise.Converters"
              xmlns:su="clr-namespace:Sunrise.Utils"
 						 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
-						 x:DataType="svm:TrackPlayViewModel"
+						 x:DataType="svm:TrackPlayDeviceViewModel"
 						 x:CompileBindings="False"
              mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="450"
              x:Class="Sunrise.Views.TrackPlayDeviceView">
 	<Design.DataContext>
-		<svm:TrackPlayViewModel />
+		<svm:TrackPlayDeviceViewModel />
 	</Design.DataContext>
 	<UserControl.Styles>
 		<Style Selector="Button.TrackBtn">
@@ -44,16 +44,69 @@
 		</Grid.RowDefinitions>
 
 		<!--  Back  -->
-		<Button Grid.Column="0"
-						Theme="{StaticResource MaterialFlatButton}"
-						HorizontalAlignment="Left" VerticalAlignment="Top"
-						Height="32" Width="32"
-						Margin="10 10 0 0"
-						Command="{Binding ExitCommand, Mode=OneWay}">
-			<Image Source="{su:FromIcon DownCircle}"
-						 Height="28" Width="28"
-						 OpacityMask="Gray" Opacity="0.2" />
-		</Button>
+		<Grid Grid.Row="0"
+					Margin="10">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+				<ColumnDefinition Width="Auto" />
+			</Grid.ColumnDefinitions>
+
+			<Button Grid.Column="0"
+							Theme="{StaticResource MaterialFlatButton}"
+							HorizontalAlignment="Left" VerticalAlignment="Top"
+							Height="32" Width="32"
+							Command="{Binding ExitCommand, Mode=OneWay}">
+				<Image Source="{su:FromIcon DownCircle}"
+							 Height="28" Width="28"
+							 OpacityMask="Gray" Opacity="0.2" />
+			</Button>
+
+			<Button Grid.Column="2"
+							Theme="{StaticResource MaterialFlatButton}"
+							HorizontalAlignment="Right" VerticalAlignment="Top"
+							Height="32" Width="32"
+							IsVisible="{Binding IsChanging}"
+							ToolTip.Tip="{x:Static res:Texts.AddInPlaylist}"
+							Command="{Binding AddTrackInPlaylistCommand, Mode=OneWay}">
+				<Image Source="{su:FromIcon PlusSquare}"
+							 Height="28" Width="28"
+							 OpacityMask="Gray" Opacity="0.2" />
+			</Button>
+
+			<ComboBox Grid.Row="3"
+							  IsVisible="{Binding IsSelectPlaylist}"
+								
+								HorizontalAlignment="Center" />
+			<!--ItemsSource="{Binding Rubricks, Mode=OneWay}"
+								SelectedValue="{Binding SelectedRubrick}"
+								IsVisible="{Binding !IsTrackListVisible, Mode=OneWay}"
+								ItemTemplate="{StaticResource RubricTemplate}"-->
+			<Button Grid.Column="4"
+							Theme="{StaticResource MaterialFlatButton}"
+							HorizontalAlignment="Right" VerticalAlignment="Top"
+							Height="32" Width="32"
+						  IsVisible="{Binding IsChanging}"
+						  ToolTip.Tip="{x:Static res:Texts.Delete}"
+							Command="{Binding DeleteTrackCommand, Mode=OneWay}">
+				<Image Source="{su:FromIcon Stop}"
+							 Height="28" Width="28"
+							 OpacityMask="Gray" Opacity="0.2" />
+			</Button>
+
+			<Button Grid.Column="5"
+							Theme="{StaticResource MaterialFlatButton}"
+							Command="{Binding ChangeTrackCommand, Mode=OneWay}"
+				  		Height="32"
+						  HorizontalAlignment="Right" VerticalAlignment="Top">
+				<TextBlock Text="{Binding ChangingText, Mode=OneWay}"
+									 FontSize="11" />
+			</Button>
+
+		</Grid>
 
 		<Image Grid.Row="1" Source="{su:FromIcon Track}"
 					 IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"

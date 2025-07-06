@@ -8,12 +8,12 @@
              xmlns:su="clr-namespace:Sunrise.Utils"
 						 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
 						 Height="48"
-						 x:DataType="svm:TrackPlayViewModel"
+						 x:DataType="svm:TrackPlayDeviceViewModel"
 						 x:CompileBindings="False"
              mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
              x:Class="Sunrise.Views.TrackPlayShortDeviceView">
 	<Design.DataContext>
-		<svm:TrackPlayViewModel />
+		<svm:TrackPlayDeviceViewModel />
 	</Design.DataContext>
 	<UserControl.Styles>
 		<Style Selector="Button.TrackBtn">

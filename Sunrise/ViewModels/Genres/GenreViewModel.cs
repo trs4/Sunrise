@@ -8,7 +8,7 @@ namespace Sunrise.ViewModels.Genres;
 public sealed class GenreViewModel : TrackSourceViewModel
 {
     public GenreViewModel(GenresRubricViewModel rubric, string name, List<Track> tracks)
-        : base(rubric, name, string.Format(Texts.GenreDescriptionFormat, tracks.Count))
+        : base(rubric, name, string.Format(Texts.SongsFormat, tracks.Count))
         => Tracks = tracks;
 
     public List<Track> Tracks { get; }

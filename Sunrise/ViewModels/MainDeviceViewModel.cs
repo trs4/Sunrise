@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
+using Sunrise.ViewModels.Albums;
+using Sunrise.ViewModels.Artists;
+using Sunrise.ViewModels.Genres;
 
 namespace Sunrise.ViewModels;
 
@@ -22,6 +25,8 @@ public sealed class MainDeviceViewModel : MainViewModel
     private string _backPlaylistCaption = Texts.Back;
     private string? _trackSourceCaption;
     private string? _playlistCaption;
+    private string? _playlistDescription;
+    private bool _isPlaylistCaptionVisible;
 
     public MainDeviceViewModel() { } // For designer
 
@@ -32,7 +37,10 @@ public sealed class MainDeviceViewModel : MainViewModel
         RandomPlayRunCommand = new AsyncRelayCommand(OnRandomPlayRunAsync);
         RecentlyAddedCommand = new AsyncRelayCommand(OnRecentlyAddedAsync);
         RecentlyAddedPlaylistsCommand = new AsyncRelayCommand(OnRecentlyAddedPlaylistsAsync);
+        ChangePlaylistCommand = new RelayCommand(OnChangePlaylist);
     }
+
+    public new TrackPlayDeviceViewModel TrackPlay => (TrackPlayDeviceViewModel)base.TrackPlay;
 
     public int SelectedTabIndex
     {
@@ -88,6 +96,18 @@ public sealed class MainDeviceViewModel : MainViewModel
         set => SetProperty(ref _playlistCaption, value);
     }
 
+    public string? PlaylistDescription
+    {
+        get => _playlistDescription;
+        set => SetProperty(ref _playlistDescription, value);
+    }
+
+    public bool IsPlaylistCaptionVisible
+    {
+        get => _isPlaylistCaptionVisible;
+        set => SetProperty(ref _isPlaylistCaptionVisible, value);
+    }
+
     public IRelayCommand BackCommand { get; }
 
     public IRelayCommand RandomPlayRunCommand { get; }
@@ -95,6 +115,8 @@ public sealed class MainDeviceViewModel : MainViewModel
     public IRelayCommand RecentlyAddedCommand { get; }
 
     public IRelayCommand RecentlyAddedPlaylistsCommand { get; }
+
+    public IRelayCommand ChangePlaylistCommand { get; }
 
     public RecentlyAddedRubricViewModel RecentlyAddedRubric { get; private set; }
 
@@ -104,16 +126,62 @@ public sealed class MainDeviceViewModel : MainViewModel
 
     public List<object> TrackSourceHistory { get; } = [];
 
-    protected override async Task SelectTracksAsync(object tracksOwner, CancellationToken token = default)
+    #region Search
+
+    private bool _isSearchTracksVisible;
+    private bool _isSearchArtistsVisible;
+    private bool _isSearchAlbumsVisible;
+    private bool _isSearchGenresVisible;
+
+    public bool IsSearchTracksVisible
+    {
+        get => _isSearchTracksVisible;
+        set => SetProperty(ref _isSearchTracksVisible, value);
+    }
+
+    public ObservableCollection<TrackViewModel> SearchTracks { get; } = [];
+
+    public bool IsSearchArtistsVisible
+    {
+        get => _isSearchArtistsVisible;
+        set => SetProperty(ref _isSearchArtistsVisible, value);
+    }
+
+    public ObservableCollection<ArtistViewModel> SearchArtists { get; } = [];
+
+    public bool IsSearchAlbumsVisible
+    {
+        get => _isSearchAlbumsVisible;
+        set => SetProperty(ref _isSearchAlbumsVisible, value);
+    }
+
+    public ObservableCollection<AlbumViewModel> SearchAlbums { get; } = [];
+
+    public bool IsSearchGenresVisible
+    {
+        get => _isSearchGenresVisible;
+        set => SetProperty(ref _isSearchGenresVisible, value);
+    }
+
+    public ObservableCollection<GenreViewModel> SearchGenres { get; } = [];
+
+    #endregion
+
+    protected override TrackPlayViewModel CreateTrackPlay(Player player) => new TrackPlayDeviceViewModel(this, player);
+
+    protected override async Task SelectTracksAsync(object tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
         string trackSourceCaption = null;
-        AddTrackSourceHistory(tracksOwner);
-        await base.SelectTracksAsync(tracksOwner, token);
+
+        if (changeTracks)
+            AddTrackSourceHistory(tracksOwner);
+
+        await base.SelectTracksAsync(tracksOwner, changeTracks, token);
 
         if (tracksOwner is SongsRubricViewModel)
         {
             if (RecentlyAddedRubric is null)
-                await FillRecentlyAddedTracks(token);
+                await FillRecentlyAddedTracksAsync(token);
         }
         else if (tracksOwner is PlaylistRubricViewModel)
         {
@@ -125,14 +193,29 @@ public sealed class MainDeviceViewModel : MainViewModel
             BackCaption = trackSourceViewModel.Rubric.Name;
             trackSourceCaption = trackSourceViewModel.ToString();
         }
-        else if (tracksOwner is RubricViewModel rubricViewModel && rubricViewModel.IsDependent)
+        else if (tracksOwner is RubricViewModel rubricViewModel && rubricViewModel.IsDependent && changeTracks)
         {
-            IsTrackListVisible = true;
-            BackCaption = rubricViewModel.Name;
+            object prevTracksOwner = TrackSourceHistory.Count > 1 ? TrackSourceHistory[^2] : null;
+
+            if (prevTracksOwner is PlaylistViewModel or PlaylistRubricViewModel)
+            {
+                BackPlaylistCaption = rubricViewModel.Name;
+                PlaylistCaption = null;
+                PlaylistDescription = null;
+                IsPlaylistsVisible = false;
+            }
+            else
+            {
+                IsTrackListVisible = true;
+                BackCaption = rubricViewModel.Name;
+            }
         }
 
         if (tracksOwner is not PlaylistViewModel and not PlaylistRubricViewModel)
             TrackSourceCaption = trackSourceCaption;
+
+        if (changeTracks)
+            IsPlaylistCaptionVisible = tracksOwner is PlaylistViewModel or PlaylistRubricViewModel;
     }
 
     protected override bool CanAddRubricTracks(RubricViewModel rubricViewModel)
@@ -142,6 +225,7 @@ public sealed class MainDeviceViewModel : MainViewModel
     {
         BackPlaylistCaption = Texts.Playlists;
         PlaylistCaption = playlist.Name;
+        PlaylistDescription = string.Format(Texts.SongsFormat, playlist.Tracks.Count);
         IsPlaylistsVisible = false;
     }
 
@@ -153,7 +237,7 @@ public sealed class MainDeviceViewModel : MainViewModel
         TrackSourceHistory.Add(tracksOwner);
     }
 
-    private async Task FillRecentlyAddedTracks(CancellationToken token)
+    private async ValueTask FillRecentlyAddedTracksAsync(CancellationToken token)
     {
         var player = TrackPlay.Player;
         var screenshot = await player.GetAllTracksAsync(token);
@@ -180,6 +264,12 @@ public sealed class MainDeviceViewModel : MainViewModel
         IsTrackVisible = true;
     }
 
+    public void HideTrackPage()
+    {
+        IsShortTrackVisible = true;
+        IsTrackVisible = false;
+    }
+
     private Task OnBackAsync()
     {
         if (TrackSourceHistory.Count == 0)
@@ -191,29 +281,52 @@ public sealed class MainDeviceViewModel : MainViewModel
 
         if (currentTracksOwner is PlaylistViewModel or PlaylistRubricViewModel)
         {
+            IsPlaylistCaptionVisible = false;
             IsPlaylistsVisible = true;
             return Task.CompletedTask;
         }
         else
         {
-            IsTrackListVisible = TrackSourceHistory.Count > 1;
+            if (tracksOwner is not PlaylistViewModel and not PlaylistRubricViewModel)
+                IsTrackListVisible = TrackSourceHistory.Count > 1;
+
             return ChangeTracksAsync(tracksOwner);
         }
     }
 
+    private static IReadOnlyList<Track>? GetCurrentTracks(object tracksOwner)
+    {
+        if (tracksOwner is PlaylistViewModel playlistViewModel)
+            return playlistViewModel.Playlist.Tracks;
+        else if (tracksOwner is RubricViewModel rubricViewModel && rubricViewModel.IsDependent)
+            return rubricViewModel.GetCurrentTracks();
+
+        return null;
+    }
+
     private async Task OnRandomPlayRunAsync()
     {
-        var rubricViewModel = new RandomizeRubricViewModel(TrackPlay.Player);
-        await ChangeTracksAsync(rubricViewModel);
+        object tracksOwner = TrackSourceHistory.Count > 0 ? TrackSourceHistory[^1] : null;
+        var tracks = GetCurrentTracks(tracksOwner);
+        var rubricViewModel = new RandomizeRubricViewModel(TrackPlay.Player, tracks);
+        await ChangeTracksAsync(rubricViewModel, changeTracks: tracks is null);
+        var rubricTracks = rubricViewModel.GetCurrentTracks();
+        var track = rubricTracks is null || rubricTracks.Count == 0 ? null : rubricTracks[0];
 
-        var trackViewModel = Tracks.FirstOrDefault();
-
-        if (trackViewModel is null)
+        if (track is null)
             return;
 
+        var trackViewModel = GetTrackViewModel(track);
         TrackPlay.ChangeOwnerRubric(rubricViewModel);
         await TrackPlay.PlayAsync(trackViewModel);
-        ShowTrackPage();
+
+        if (tracksOwner is PlaylistViewModel playlistViewModel)
+            BackPlaylistCaption = playlistViewModel.Name;
+
+        if (tracks is null)
+            ShowTrackPage();
+        else
+            IsShortTrackVisible = true;
     }
 
     private Task OnRecentlyAddedAsync()
@@ -223,12 +336,16 @@ public sealed class MainDeviceViewModel : MainViewModel
         return ChangeTracksAsync(rubricViewModel);
     }
 
-    private Task OnRecentlyAddedPlaylistsAsync()
+    private async Task OnRecentlyAddedPlaylistsAsync()
     {
-        //var rubricViewModel = RecentlyAddedRubric;
-        //TrackPlay.ChangeOwnerRubric(rubricViewModel);
-        //return ChangeTracksAsync(rubricViewModel);
-        return Task.CompletedTask;
+        var playlistViewModel = RecentlyAddedPlaylists.FirstOrDefault();
+
+        if (playlistViewModel is null)
+            return;
+
+        SelectedPlaylist = playlistViewModel;
+        IsPlaylistsVisible = false;
+        await ChangeTracksAsync(playlistViewModel);
     }
 
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
@@ -239,12 +356,52 @@ public sealed class MainDeviceViewModel : MainViewModel
         {
             var rubricViewModel = SelectedRubrick;
 
-            if (rubricViewModel is not null && !ReferenceEquals(TracksOwner, rubricViewModel))
+            if (rubricViewModel is not null && !ReferenceEquals(TracksOwner, rubricViewModel) && !TrackSourceHistory.Contains(rubricViewModel))
             {
                 TrackSourceHistory.Clear();
                 await ChangeTracksAsync(rubricViewModel);
             }
         }
+        else if (e.PropertyName == nameof(SelectedTabIndex))
+        {
+            if (SelectedTab == DeviceTabs.Playlists && TrackPlay.OwnerRubric is PlaylistRubricViewModel rubricViewModel)
+                await ChangeTracksAsync(rubricViewModel);
+        }
+        else if (e.PropertyName == nameof(SearchText))
+            await UpdateSearchResultsAsync();
+        else if (e.PropertyName == nameof(IsTrackVisible))
+        {
+            if (!_isTrackVisible)
+                TrackPlay.CancelChangeTrack();
+        }
+    }
+
+    private async ValueTask UpdateSearchResultsAsync()
+    {
+        var result = await TrackPlay.Player.SearchAsync(SearchText);
+        IsSearchTracksVisible = result.Tracks.Count > 0;
+        SearchTracks.Clear();
+
+        foreach (var track in result.Tracks)
+            SearchTracks.Add(GetTrackViewModel(track));
+
+        IsSearchArtistsVisible = result.Artists.Count > 0;
+        SearchArtists.Clear();
+
+        foreach (var (name, tracksByAlbums) in result.Artists)
+            SearchArtists.Add(ArtistViewModel.Create(Artists, name, tracksByAlbums));
+
+        IsSearchAlbumsVisible = result.Albums.Count > 0;
+        SearchAlbums.Clear();
+
+        foreach (var (name, artist, tracks) in result.Albums)
+            SearchAlbums.Add(new AlbumViewModel(Albums, name, artist, tracks));
+
+        IsSearchGenresVisible = result.Genres.Count > 0;
+        SearchGenres.Clear();
+
+        foreach (var (name, tracks) in result.Genres)
+            SearchGenres.Add(new GenreViewModel(Genres, name, tracks));
     }
 
     public async override Task OnNextListAsync()
@@ -255,13 +412,26 @@ public sealed class MainDeviceViewModel : MainViewModel
         if (ownerRubric is null || tracksOwner is null)
             return;
 
-        if (tracksOwner is PlaylistViewModel or PlaylistRubricViewModel)
+        object prevTracksOwner = tracksOwner;
+
+        if (ownerRubric is RandomizeRubricViewModel)
+            prevTracksOwner = TrackSourceHistory.Count > 0 ? TrackSourceHistory[^1] : null;
+
+        if (prevTracksOwner is PlaylistViewModel or PlaylistRubricViewModel)
         {
             SelectedTab = DeviceTabs.Playlists;
             IsPlaylistsVisible = false;
         }
         else
         {
+            if (!IsTrackVisible && ReferenceEquals(SelectedRubrick, ownerRubric))
+                return;
+            else if (ownerRubric is SearchRubricViewModel)
+            {
+                HideTrackPage();
+                return;
+            }
+
             SelectedTab = DeviceTabs.Tracks;
 
             if (!ownerRubric.IsDependent)
@@ -274,10 +444,16 @@ public sealed class MainDeviceViewModel : MainViewModel
         SelectedTrack = TrackPlay.CurrentTrack;
     }
 
-    public override void OnExit()
+    protected override async ValueTask OnRemoveAsync(int trackId, CancellationToken token)
     {
-        IsTrackVisible = false;
-        IsShortTrackVisible = true;
+        await FillRecentlyAddedTracksAsync(token);
+        await UpdateSearchResultsAsync();
     }
 
+    private void OnChangePlaylist()
+    {
+        // %%TODO
+    }
+
+    public override void OnExit() => HideTrackPage();
 }

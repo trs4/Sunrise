@@ -79,6 +79,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Добавить в плейлист.
+        /// </summary>
+        public static string AddInPlaylist {
+            get {
+                return ResourceManager.GetString("AddInPlaylist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Альбом.
         /// </summary>
         public static string Album {
@@ -142,6 +151,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Отменить.
+        /// </summary>
+        public static string Cancel {
+            get {
+                return ResourceManager.GetString("Cancel", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Категории.
         /// </summary>
         public static string Categories {
@@ -156,6 +174,15 @@ namespace Sunrise.Model.Resources {
         public static string Category {
             get {
                 return ResourceManager.GetString("Category", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Изменить.
+        /// </summary>
+        public static string Change {
+            get {
+                return ResourceManager.GetString("Change", resourceCulture);
             }
         }
         
@@ -201,15 +228,6 @@ namespace Sunrise.Model.Resources {
         public static string Genre {
             get {
                 return ResourceManager.GetString("Genre", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Песен: {0}.
-        /// </summary>
-        public static string GenreDescriptionFormat {
-            get {
-                return ResourceManager.GetString("GenreDescriptionFormat", resourceCulture);
             }
         }
         
@@ -372,6 +390,15 @@ namespace Sunrise.Model.Resources {
         public static string Songs {
             get {
                 return ResourceManager.GetString("Songs", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Песен: {0}.
+        /// </summary>
+        public static string SongsFormat {
+            get {
+                return ResourceManager.GetString("SongsFormat", resourceCulture);
             }
         }
         

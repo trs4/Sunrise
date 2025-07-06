@@ -9,7 +9,7 @@ namespace Sunrise.ViewModels;
 public sealed class SongsRubricViewModel : RubricViewModel
 {
     private TracksScreenshot? _screenshot;
-    private List<Track> _tracks = [];
+    private List<Track>? _tracks;
 
     public SongsRubricViewModel(Player player) : base(player, IconSource.From(nameof(Icons.Song)), Texts.Songs) { }
 
@@ -23,7 +23,8 @@ public sealed class SongsRubricViewModel : RubricViewModel
             return _tracks = [.. screenshot.AllTracks.OrderBy(t => t.Title)];
         }
 
-        return _tracks;
+        return _tracks ?? [];
     }
 
+    public override IReadOnlyList<Track>? GetCurrentTracks() => _tracks;
 }

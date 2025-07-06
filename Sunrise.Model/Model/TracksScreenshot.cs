@@ -2,9 +2,9 @@
 
 public sealed class TracksScreenshot
 {
-    private Dictionary<string, Track> _allTracksByPath;
-    private Dictionary<string, Dictionary<string, List<Track>>> _allTracksByArtist;
-    private Dictionary<string, List<Track>> _allTracksByGenre;
+    private Dictionary<string, Track>? _allTracksByPath;
+    private Dictionary<string, Dictionary<string, List<Track>>>? _allTracksByArtist;
+    private Dictionary<string, List<Track>>? _allTracksByGenre;
 
     internal TracksScreenshot(List<Track> allTracks, Dictionary<int, Track> allTracksById)
     {
@@ -81,6 +81,33 @@ public sealed class TracksScreenshot
         }
 
         return allTracksByGenre;
+    }
+
+    public void Remove(Track? track)
+    {
+        if (track is null)
+            return;
+
+        int trackId = track.Id;
+
+        for (int i = AllTracks.Count - 1; i >= 0; i--)
+        {
+            if (AllTracks[i].Id == trackId)
+            {
+                AllTracks.RemoveAt(i);
+                break;
+            }
+        }
+
+        AllTracksById.Remove(trackId);
+        ClearCache();
+    }
+
+    public void ClearCache()
+    {
+        _allTracksByPath = null;
+        _allTracksByArtist = null;
+        _allTracksByGenre = null;
     }
 
     public override string ToString() => $"Count: {AllTracks.Count}";

@@ -9,7 +9,7 @@ public sealed class RecentlyAddedRubricViewModel : RubricViewModel
 {
     private const int _maxCount = 50;
     private TracksScreenshot? _screenshot;
-    private List<Track> _tracks = [];
+    private List<Track>? _tracks;
 
     public RecentlyAddedRubricViewModel(Player player) : base(player, null, Texts.RecentlyAdded) { }
 
@@ -25,7 +25,8 @@ public sealed class RecentlyAddedRubricViewModel : RubricViewModel
             return _tracks = [.. screenshot.AllTracks.OrderByDescending(t => t.Added).Take(_maxCount)];
         }
 
-        return _tracks;
+        return _tracks ?? [];
     }
 
+    public override IReadOnlyList<Track>? GetCurrentTracks() => _tracks;
 }

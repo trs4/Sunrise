@@ -3,14 +3,114 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 						 xmlns:svm="clr-namespace:Sunrise.ViewModels"
+				     xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
              mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
              x:Class="Sunrise.Views.SearchTabView"
              x:DataType="svm:MainDeviceViewModel">
 	<Design.DataContext>
 		<svm:MainDeviceViewModel />
 	</Design.DataContext>
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceInclude Source="/Views/DeviceStyles.axaml"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</UserControl.Resources>
 
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition />
+		</Grid.RowDefinitions>
 
+		<TextBox Grid.Row="0"
+						 Theme="{StaticResource SoloTextBox}"
+					   UseFloatingWatermark="False"
+					   Watermark="{x:Static res:Texts.Search}"
+						 Margin="10 0"
+						 Text="{Binding SearchText, Delay=250}">
+			<TextBox.InnerRightContent>
+				<Button Classes="Flat" Padding="4"
+								Content="{x:Static res:Texts.Cancel}" />
+			</TextBox.InnerRightContent>
+		</TextBox>
 
-	Search
+		<ScrollViewer Grid.Row="1">
+			<Grid>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition />
+				</Grid.RowDefinitions>
+
+				<!-- Треки -->
+				<TextBlock Grid.Row="0"
+									 Text="{x:Static res:Texts.Tracks}"
+								   IsVisible="{Binding IsSearchTracksVisible, Mode=OneWay}"
+									 Margin="15 0 0 0"
+									 VerticalAlignment="Center" HorizontalAlignment="Left"
+									 FontWeight="SemiBold"
+									 FontSize="14" />
+
+				<ListBox Grid.Row="1"
+								 ItemsSource="{Binding SearchTracks, Mode=OneWay}"
+							   IsVisible="{Binding IsSearchTracksVisible, Mode=OneWay}"
+							   ItemTemplate="{StaticResource TrackTemplate}"
+								 Tapped="Track_Tapped" />
+
+				<!-- Артисты -->
+				<TextBlock Grid.Row="2"
+									 Text="{x:Static res:Texts.Artists}"
+								   IsVisible="{Binding IsSearchArtistsVisible, Mode=OneWay}"
+									 Margin="15 0 0 0"
+									 VerticalAlignment="Center" HorizontalAlignment="Left"
+									 FontWeight="SemiBold"
+									 FontSize="14" />
+
+				<ListBox Grid.Row="3"
+								 ItemsSource="{Binding SearchArtists, Mode=OneWay}"
+							   IsVisible="{Binding IsSearchArtistsVisible, Mode=OneWay}"
+						  	 ItemTemplate="{StaticResource TrackSourceTemplate}"
+								 Tapped="TrackSource_Tapped" />
+
+				<!-- Альбомы -->
+				<TextBlock Grid.Row="4"
+									 Text="{x:Static res:Texts.Albums}"
+								   IsVisible="{Binding IsSearchAlbumsVisible, Mode=OneWay}"
+									 Margin="15 0 0 0"
+									 VerticalAlignment="Center" HorizontalAlignment="Left"
+									 FontWeight="SemiBold"
+									 FontSize="14" />
+
+				<ListBox Grid.Row="5"
+								 ItemsSource="{Binding SearchAlbums, Mode=OneWay}"
+							   IsVisible="{Binding IsSearchAlbumsVisible, Mode=OneWay}"
+							   ItemTemplate="{StaticResource TrackSourceTemplate}"
+								 Tapped="TrackSource_Tapped" />
+
+				<!-- Жанры -->
+				<TextBlock Grid.Row="6"
+									 Text="{x:Static res:Texts.Genres}"
+								   IsVisible="{Binding IsSearchGenresVisible, Mode=OneWay}"
+									 Margin="15 0 0 0"
+									 VerticalAlignment="Center" HorizontalAlignment="Left"
+									 FontWeight="SemiBold"
+									 FontSize="14" />
+
+				<ListBox Grid.Row="7"
+								 ItemsSource="{Binding SearchGenres, Mode=OneWay}"
+								 IsVisible="{Binding IsSearchGenresVisible, Mode=OneWay}"
+								 ItemTemplate="{StaticResource TrackSourceTemplate}"
+								 Tapped="TrackSource_Tapped" />
+			</Grid>
+		</ScrollViewer>
+
+	</Grid>
 </UserControl>
