@@ -92,7 +92,7 @@
 						  IsVisible="{Binding IsChanging}"
 						  ToolTip.Tip="{x:Static res:Texts.Delete}"
 							Command="{Binding DeleteTrackCommand, Mode=OneWay}">
-				<Image Source="{su:FromIcon Stop}"
+				<Image Source="{su:FromIcon Remove}"
 							 Height="28" Width="28"
 							 OpacityMask="Gray" Opacity="0.2" />
 			</Button>

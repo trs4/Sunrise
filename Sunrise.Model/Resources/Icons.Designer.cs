@@ -233,6 +233,16 @@ namespace Sunrise.Model.Resources {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
+        public static byte[] Remove {
+            get {
+                object obj = ResourceManager.GetObject("Remove", resourceCulture);
+                return ((byte[])(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Byte[].
+        /// </summary>
         public static byte[] RepeatOnePlay {
             get {
                 object obj = ResourceManager.GetObject("RepeatOnePlay", resourceCulture);
