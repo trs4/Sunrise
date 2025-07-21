@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Sunrise.ViewModels;
 
 namespace Sunrise.Views;
 
@@ -19,21 +20,12 @@ public partial class CategoriesTabView : UserControl
     private async void Category_LostFocus(object? sender, RoutedEventArgs e)
         => await OnCategoryNameChanged(e);
 
-#pragma warning disable CA1822 // Mark members as static
-    private async Task OnCategoryNameChanged(RoutedEventArgs e)
-#pragma warning restore CA1822 // Mark members as static
+    private Task OnCategoryNameChanged(RoutedEventArgs e)
     {
-        //var playlistViewModel = e.GetDataContext<PlaylistViewModel>();
+        if (DataContext is not MainDeviceViewModel mainViewModel)
+            return Task.CompletedTask;
 
-        //if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
-        //    return;
-
-        //if (!await mainViewModel.TrackPlay.Player.ChangePlaylistNameAsync(playlistViewModel.Playlist, playlistViewModel.Name))
-        //    playlistViewModel.Name = playlistViewModel.Playlist.Name;
-
-        //playlistViewModel.Editing = false;
-
-        await Task.Delay(1);
+        return mainViewModel.OnApplyCategoryAsync();
     }
 
 }
