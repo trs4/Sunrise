@@ -28,6 +28,7 @@ public sealed class MainDeviceViewModel : MainViewModel
     private string _changingPlaylistText = Texts.Change;
     private bool _isCategoryChanging;
     private string _changingCategoryText = Texts.Change;
+    private bool[] _selectedCategories;
 
     public MainDeviceViewModel() { } // For designer
 
@@ -398,7 +399,7 @@ public sealed class MainDeviceViewModel : MainViewModel
         await ChangeTracksAsync(playlistViewModel);
     }
 
-    protected override void OnPropertyChanging(PropertyChangingEventArgs e)
+    protected async override void OnPropertyChanging(PropertyChangingEventArgs e)
     {
         base.OnPropertyChanging(e);
 
@@ -406,21 +407,51 @@ public sealed class MainDeviceViewModel : MainViewModel
         {
             if (SelectedTab == DeviceTabs.Categories)
             {
+                int count = Categories.Count;
+                bool[] selectedCategories = new bool[count];
 
+                for (int i = 0; i < count; i++)
+                    selectedCategories[i] = Categories[i].IsChecked;
 
+                try
+                {
+                    if (_selectedCategories is null)
+                    {
+                        if (selectedCategories.Length == 0 || selectedCategories.All(c => !c))
+                            return;
+                    }
+                    else if (_selectedCategories.Length != selectedCategories.Length)
+                    {
+                        for (int i = 0; i < count; i++)
+                        {
+                            if (_selectedCategories[i] != selectedCategories[i])
+                                return;
+                        }
+                    }
+                }
+                finally
+                {
+                    _selectedCategories = selectedCategories;
+                }
 
+                var playlists = await TrackPlay.Player.GetPlaylistsAsync();
+                var filteredPlaylists = new List<Playlist>(playlists.Count);
 
+                foreach (var playlist in playlists.Values)
+                {
+                    foreach (var category in Categories)
+                    {
+                        int categoryId = category.Category.Id;
 
-                // && TrackPlay.OwnerRubric is PlaylistRubricViewModel rubricViewModel)
-                //    await ChangeTracksAsync(rubricViewModel);
+                        if (playlist.Categories.Any(c => c.Id == categoryId))
+                        {
+                            filteredPlaylists.Add(playlist);
+                            break;
+                        }
+                    }
+                }
 
-
-
-                //var playlists = await TrackPlay.Player.GetPlaylistsAsync(token);
-                //var categoriesScreenshot = await TrackPlay.Player.GetCategoriesAsync(token);
-                //await SelectTracksAsync(rubricViewModel, token: token);
-                //ChangePlaylists(playlists.Values);
-
+                ChangePlaylists(filteredPlaylists);
             }
         }
     }
@@ -616,7 +647,7 @@ public sealed class MainDeviceViewModel : MainViewModel
         }
     }
 
-    private async Task OnApplyCategoryAsync()
+    public async Task OnApplyCategoryAsync()
     {
         var selectedChangedCategory = SelectedChangedCategory;
 
