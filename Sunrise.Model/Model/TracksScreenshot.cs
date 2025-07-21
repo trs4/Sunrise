@@ -2,52 +2,57 @@
 
 public sealed class TracksScreenshot
 {
-    private Dictionary<string, Track>? _allTracksByPath;
-    private Dictionary<string, Dictionary<string, List<Track>>>? _allTracksByArtist;
-    private Dictionary<string, List<Track>>? _allTracksByGenre;
+    private Dictionary<string, Track>? _tracksByPath;
+    private Dictionary<string, Dictionary<string, List<Track>>>? _tracksByArtist;
+    private Dictionary<string, List<Track>>? _tracksByGenre;
 
-    internal TracksScreenshot(List<Track> allTracks, Dictionary<int, Track> allTracksById)
+    internal TracksScreenshot(List<Track> tracks)
     {
-        AllTracks = allTracks ?? throw new ArgumentNullException(nameof(allTracks));
-        AllTracksById = allTracksById ?? throw new ArgumentNullException(nameof(allTracksById));
+        Tracks = tracks ?? throw new ArgumentNullException(nameof(tracks));
+        var tracksById = new Dictionary<int, Track>(tracks.Count);
+
+        foreach (var track in tracks)
+            tracksById.Add(track.Id, track);
+
+        TracksById = tracksById;
     }
 
-    public List<Track> AllTracks { get; }
+    public List<Track> Tracks { get; }
 
-    public Dictionary<int, Track> AllTracksById { get; }
+    public Dictionary<int, Track> TracksById { get; }
 
-    public Dictionary<string, Track> AllTracksByPath
-        => _allTracksByPath ??= CreateAllTracksByPath();
+    public Dictionary<string, Track> TracksByPath
+        => _tracksByPath ??= CreateTracksByPath();
 
-    public Dictionary<string, Dictionary<string, List<Track>>> AllTracksByArtist
-        => _allTracksByArtist ??= CreateAllTracksByArtist();
+    public Dictionary<string, Dictionary<string, List<Track>>> TracksByArtist
+        => _tracksByArtist ??= CreateTracksByArtist();
 
-    public Dictionary<string, List<Track>> AllTracksByGenre
-        => _allTracksByGenre ??= CreateAllTracksByGenre();
+    public Dictionary<string, List<Track>> TracksByGenre
+        => _tracksByGenre ??= CreateTracksByGenre();
 
-    private Dictionary<string, Track> CreateAllTracksByPath()
+    private Dictionary<string, Track> CreateTracksByPath()
     {
-        var allTracksByPath = new Dictionary<string, Track>(AllTracks.Count, StringComparer.OrdinalIgnoreCase);
+        var tracksByPath = new Dictionary<string, Track>(Tracks.Count, StringComparer.OrdinalIgnoreCase);
 
-        foreach (var track in AllTracks)
-            allTracksByPath[track.Path] = track;
+        foreach (var track in Tracks)
+            tracksByPath[track.Path] = track;
 
-        return allTracksByPath;
+        return tracksByPath;
     }
 
-    private Dictionary<string, Dictionary<string, List<Track>>> CreateAllTracksByArtist()
+    private Dictionary<string, Dictionary<string, List<Track>>> CreateTracksByArtist()
     {
-        var allTracksByArtist = new Dictionary<string, Dictionary<string, List<Track>>>(StringComparer.OrdinalIgnoreCase);
+        var tracksByArtist = new Dictionary<string, Dictionary<string, List<Track>>>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var track in AllTracks)
+        foreach (var track in Tracks)
         {
             string artist = track.Artist;
 
             if (string.IsNullOrWhiteSpace(artist))
                 continue;
 
-            if (!allTracksByArtist.TryGetValue(artist, out var tracksByAlbums))
-                allTracksByArtist.Add(artist, tracksByAlbums = new(StringComparer.OrdinalIgnoreCase));
+            if (!tracksByArtist.TryGetValue(artist, out var tracksByAlbums))
+                tracksByArtist.Add(artist, tracksByAlbums = new(StringComparer.OrdinalIgnoreCase));
 
             string album = track.Album;
 
@@ -60,27 +65,27 @@ public sealed class TracksScreenshot
             tracks.Add(track);
         }
 
-        return allTracksByArtist;
+        return tracksByArtist;
     }
 
-    private Dictionary<string, List<Track>> CreateAllTracksByGenre()
+    private Dictionary<string, List<Track>> CreateTracksByGenre()
     {
-        var allTracksByGenre = new Dictionary<string, List<Track>>(StringComparer.OrdinalIgnoreCase);
+        var tracksByGenre = new Dictionary<string, List<Track>>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var track in AllTracks)
+        foreach (var track in Tracks)
         {
             string genre = track.Genre;
 
             if (string.IsNullOrWhiteSpace(genre))
                 continue;
 
-            if (!allTracksByGenre.TryGetValue(genre, out var tracks))
-                allTracksByGenre.Add(genre, tracks = []);
+            if (!tracksByGenre.TryGetValue(genre, out var tracks))
+                tracksByGenre.Add(genre, tracks = []);
 
             tracks.Add(track);
         }
 
-        return allTracksByGenre;
+        return tracksByGenre;
     }
 
     public void Remove(Track? track)
@@ -90,25 +95,25 @@ public sealed class TracksScreenshot
 
         int trackId = track.Id;
 
-        for (int i = AllTracks.Count - 1; i >= 0; i--)
+        for (int i = Tracks.Count - 1; i >= 0; i--)
         {
-            if (AllTracks[i].Id == trackId)
+            if (Tracks[i].Id == trackId)
             {
-                AllTracks.RemoveAt(i);
+                Tracks.RemoveAt(i);
                 break;
             }
         }
 
-        AllTracksById.Remove(trackId);
+        TracksById.Remove(trackId);
         ClearCache();
     }
 
     public void ClearCache()
     {
-        _allTracksByPath = null;
-        _allTracksByArtist = null;
-        _allTracksByGenre = null;
+        _tracksByPath = null;
+        _tracksByArtist = null;
+        _tracksByGenre = null;
     }
 
-    public override string ToString() => $"Count: {AllTracks.Count}";
+    public override string ToString() => $"Count: {Tracks.Count}";
 }

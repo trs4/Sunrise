@@ -144,6 +144,7 @@ public static class ImportFromITunes
                 Guid = Guid.NewGuid(),
                 Created = now,
                 Tracks = [],
+                Categories = [],
             };
 
             var playlistProperties = playlistElement.Elements().ToList();

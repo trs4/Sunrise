@@ -240,4 +240,13 @@
   <data name="AddInPlaylist" xml:space="preserve">
     <value>Добавить в плейлист</value>
   </data>
+  <data name="AddIn" xml:space="preserve">
+    <value>Добавить в</value>
+  </data>
+  <data name="AddCategory" xml:space="preserve">
+    <value>Добавить категорию</value>
+  </data>
+  <data name="Apply" xml:space="preserve">
+    <value>Готово</value>
+  </data>
 </root>

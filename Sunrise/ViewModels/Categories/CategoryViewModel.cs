@@ -2,11 +2,12 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using Sunrise.Model;
 
-namespace Sunrise.ViewModels.Categories;
+namespace Sunrise.ViewModels;
 
 public class CategoryViewModel : ObservableObject
 {
     private string _name;
+    private bool _isChecked;
     private bool _editing;
 
     public CategoryViewModel(Category category)
@@ -15,12 +16,22 @@ public class CategoryViewModel : ObservableObject
         _name = category.Name;
     }
 
+    public CategoryViewModel(Category category, bool isChecked)
+        : this(category)
+        => _isChecked = isChecked;
+
     public Category Category { get; }
 
     public string Name
     {
         get => _name;
         set => SetProperty(ref _name, value);
+    }
+
+    public bool IsChecked
+    {
+        get => _isChecked;
+        set => SetProperty(ref _isChecked, value);
     }
 
     public bool Editing

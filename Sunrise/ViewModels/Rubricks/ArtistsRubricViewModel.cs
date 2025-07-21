@@ -2,7 +2,6 @@
 using Sunrise.Model;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
-using Sunrise.ViewModels.Artists;
 
 namespace Sunrise.ViewModels;
 
@@ -19,9 +18,9 @@ public sealed class ArtistsRubricViewModel : RubricViewModel
         if (_trackSources is not null && ReferenceEquals(screenshot, _screenshot))
             return _trackSources;
 
-        var trackSources = new List<ArtistViewModel>(screenshot.AllTracksByArtist.Count);
+        var trackSources = new List<ArtistViewModel>(screenshot.TracksByArtist.Count);
 
-        foreach (var pair in screenshot.AllTracksByArtist)
+        foreach (var pair in screenshot.TracksByArtist)
             trackSources.Add(ArtistViewModel.Create(this, pair.Key, pair.Value));
 
         trackSources.Sort((a, b) => string.Compare(a.Name, b.Name, true));

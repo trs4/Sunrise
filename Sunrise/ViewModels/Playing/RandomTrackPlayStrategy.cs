@@ -52,8 +52,8 @@ public sealed class RandomTrackPlayStrategy : TrackPlayStrategy
     {
         if (_ownerRubric is not null)
         {
-            var screenshot = await Owner.TrackPlay.Player.GetAllTracksAsync();
-            var tracks = _ownerRubric.GetTracks(screenshot, _ownerTrackSource);
+            var tracksScreenshot = await Owner.TrackPlay.Player.GetTracksAsync();
+            var tracks = _ownerRubric.GetTracks(tracksScreenshot, _ownerTrackSource);
             return RandomHelper.CreateRandomizeTracks(tracks);
         }
 

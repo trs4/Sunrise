@@ -32,4 +32,26 @@ public partial class TracksTabView : UserControl
         await mainViewModel.ChangeTracksAsync(trackSourceViewModel);
     }
 
+    private async void TrackSourceCaption_Tapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is not MainViewModel mainViewModel)
+            return;
+
+        var selectedTrackSource = mainViewModel.SelectedTrackSource;
+
+        if (selectedTrackSource is AlbumViewModel albumViewModel) // Select artist
+        {
+            var trackPlay = mainViewModel.TrackPlay;
+            var ownerRubric = mainViewModel.Artists;
+            var tracksScreenshot = await trackPlay.Player.GetTracksAsync();
+
+            if (!tracksScreenshot.TracksByArtist.TryGetValue(albumViewModel.Artist, out var tracksByAlbums))
+                return;
+
+            var ownerTrackSource = ArtistViewModel.Create(ownerRubric, albumViewModel.Artist, tracksByAlbums);
+            trackPlay.ChangeOwnerRubric(ownerRubric, ownerTrackSource);
+            await mainViewModel.ChangeTracksAsync(ownerTrackSource);
+        }
+    }
+
 }

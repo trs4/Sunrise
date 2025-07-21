@@ -2,7 +2,7 @@
 using System.Linq;
 using Sunrise.Model;
 
-namespace Sunrise.ViewModels.Albums;
+namespace Sunrise.ViewModels;
 
 public sealed class AlbumViewModel : TrackSourceViewModel
 {

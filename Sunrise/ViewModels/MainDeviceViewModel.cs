@@ -7,9 +7,6 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
-using Sunrise.ViewModels.Albums;
-using Sunrise.ViewModels.Artists;
-using Sunrise.ViewModels.Genres;
 
 namespace Sunrise.ViewModels;
 
@@ -27,6 +24,10 @@ public sealed class MainDeviceViewModel : MainViewModel
     private string? _playlistCaption;
     private string? _playlistDescription;
     private bool _isPlaylistCaptionVisible;
+    private bool _isPlaylistChanging;
+    private string _changingPlaylistText = Texts.Change;
+    private bool _isCategoryChanging;
+    private string _changingCategoryText = Texts.Change;
 
     public MainDeviceViewModel() { } // For designer
 
@@ -38,6 +39,9 @@ public sealed class MainDeviceViewModel : MainViewModel
         RecentlyAddedCommand = new AsyncRelayCommand(OnRecentlyAddedAsync);
         RecentlyAddedPlaylistsCommand = new AsyncRelayCommand(OnRecentlyAddedPlaylistsAsync);
         ChangePlaylistCommand = new RelayCommand(OnChangePlaylist);
+        ApplyPlaylistCommand = new AsyncRelayCommand(OnApplyPlaylistAsync);
+        ApplyCategoryCommand = new AsyncRelayCommand(OnApplyCategoryAsync);
+        ChangeCategoryCommand = new RelayCommand(OnChangeCategory);
     }
 
     public new TrackPlayDeviceViewModel TrackPlay => (TrackPlayDeviceViewModel)base.TrackPlay;
@@ -108,6 +112,38 @@ public sealed class MainDeviceViewModel : MainViewModel
         set => SetProperty(ref _isPlaylistCaptionVisible, value);
     }
 
+    public ObservableCollection<CategoryViewModel> ChangedCategories { get; } = [];
+
+    public bool IsPlaylistChanging
+    {
+        get => _isPlaylistChanging;
+        set => SetProperty(ref _isPlaylistChanging, value);
+    }
+
+    public string ChangingPlaylistText
+    {
+        get => _changingPlaylistText;
+        set => SetProperty(ref _changingPlaylistText, value);
+    }
+
+    public IRelayCommand ApplyCategoryCommand { get; }
+
+    public IRelayCommand ChangeCategoryCommand { get; }
+
+    public bool IsCategoryChanging
+    {
+        get => _isCategoryChanging;
+        set => SetProperty(ref _isCategoryChanging, value);
+    }
+
+    public string ChangingCategoryText
+    {
+        get => _changingCategoryText;
+        set => SetProperty(ref _changingCategoryText, value);
+    }
+
+    public CategoryViewModel? SelectedChangedCategory { get; private set; }
+
     public IRelayCommand BackCommand { get; }
 
     public IRelayCommand RandomPlayRunCommand { get; }
@@ -117,6 +153,8 @@ public sealed class MainDeviceViewModel : MainViewModel
     public IRelayCommand RecentlyAddedPlaylistsCommand { get; }
 
     public IRelayCommand ChangePlaylistCommand { get; }
+
+    public IRelayCommand ApplyPlaylistCommand { get; }
 
     public RecentlyAddedRubricViewModel RecentlyAddedRubric { get; private set; }
 
@@ -240,18 +278,22 @@ public sealed class MainDeviceViewModel : MainViewModel
     private async ValueTask FillRecentlyAddedTracksAsync(CancellationToken token)
     {
         var player = TrackPlay.Player;
-        var screenshot = await player.GetAllTracksAsync(token);
+        var tracksScreenshot = await player.GetTracksAsync(token);
         RecentlyAddedRubric = new RecentlyAddedRubricViewModel(player);
         RecentlyAddedTracks.Clear();
 
-        foreach (var track in RecentlyAddedRubric.GetTracks(screenshot).Take(_recentlyAddedTracksCount))
+        foreach (var track in RecentlyAddedRubric.GetTracks(tracksScreenshot).Take(_recentlyAddedTracksCount))
             RecentlyAddedTracks.Add(GetTrackViewModel(track));
     }
 
     public override void ChangePlaylists(IEnumerable<Playlist> playlists)
     {
         base.ChangePlaylists(playlists);
+        FillRecentlyAddedPlaylists();
+    }
 
+    private void FillRecentlyAddedPlaylists()
+    {
         RecentlyAddedPlaylists.Clear();
 
         foreach (var playlistViewModel in Playlists.OrderByDescending(p => p.Playlist.Created).Take(_recentlyAddedPlaylistsCount))
@@ -273,7 +315,10 @@ public sealed class MainDeviceViewModel : MainViewModel
     private Task OnBackAsync()
     {
         if (TrackSourceHistory.Count == 0)
+        {
+            GoToPlaylists();
             return Task.CompletedTask;
+        }
 
         object currentTracksOwner = TrackSourceHistory[^1];
         TrackSourceHistory.RemoveAt(TrackSourceHistory.Count - 1);
@@ -281,8 +326,7 @@ public sealed class MainDeviceViewModel : MainViewModel
 
         if (currentTracksOwner is PlaylistViewModel or PlaylistRubricViewModel)
         {
-            IsPlaylistCaptionVisible = false;
-            IsPlaylistsVisible = true;
+            GoToPlaylists();
             return Task.CompletedTask;
         }
         else
@@ -292,6 +336,12 @@ public sealed class MainDeviceViewModel : MainViewModel
 
             return ChangeTracksAsync(tracksOwner);
         }
+    }
+
+    private void GoToPlaylists()
+    {
+        IsPlaylistCaptionVisible = false;
+        IsPlaylistsVisible = true;
     }
 
     private static IReadOnlyList<Track>? GetCurrentTracks(object tracksOwner)
@@ -348,6 +398,33 @@ public sealed class MainDeviceViewModel : MainViewModel
         await ChangeTracksAsync(playlistViewModel);
     }
 
+    protected override void OnPropertyChanging(PropertyChangingEventArgs e)
+    {
+        base.OnPropertyChanging(e);
+
+        if (e.PropertyName == nameof(SelectedTabIndex))
+        {
+            if (SelectedTab == DeviceTabs.Categories)
+            {
+
+
+
+
+
+                // && TrackPlay.OwnerRubric is PlaylistRubricViewModel rubricViewModel)
+                //    await ChangeTracksAsync(rubricViewModel);
+
+
+
+                //var playlists = await TrackPlay.Player.GetPlaylistsAsync(token);
+                //var categoriesScreenshot = await TrackPlay.Player.GetCategoriesAsync(token);
+                //await SelectTracksAsync(rubricViewModel, token: token);
+                //ChangePlaylists(playlists.Values);
+
+            }
+        }
+    }
+
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
     {
         base.OnPropertyChanged(e);
@@ -373,6 +450,11 @@ public sealed class MainDeviceViewModel : MainViewModel
         {
             if (!_isTrackVisible)
                 TrackPlay.CancelChangeTrack();
+        }
+        else if (e.PropertyName == nameof(IsPlaylistsVisible))
+        {
+            if (!IsPlaylistsVisible)
+                CancelChangePlaylist();
         }
     }
 
@@ -444,15 +526,137 @@ public sealed class MainDeviceViewModel : MainViewModel
         SelectedTrack = TrackPlay.CurrentTrack;
     }
 
-    protected override async ValueTask OnRemoveAsync(int trackId, CancellationToken token)
+    protected override async ValueTask OnRemoveTrackAsync(int trackId, CancellationToken token)
     {
         await FillRecentlyAddedTracksAsync(token);
         await UpdateSearchResultsAsync();
     }
 
+    protected override async ValueTask OnRemovePlaylistAsync(int playlistId, CancellationToken token)
+    {
+        FillRecentlyAddedPlaylists();
+        await UpdateSearchResultsAsync();
+    }
+
     private void OnChangePlaylist()
     {
-        // %%TODO
+        IsPlaylistChanging = !IsPlaylistChanging;
+        ChangingPlaylistText = IsPlaylistChanging ? Texts.Cancel : Texts.Change;
+        var playlist = SelectedPlaylist?.Playlist;
+
+        if (IsPlaylistChanging && playlist is not null)
+        {
+            foreach (var category in Categories)
+            {
+                int categoryId = category.Category.Id;
+                bool isChecked = playlist.Categories.Any(c => c.Id == categoryId);
+                ChangedCategories.Add(new CategoryViewModel(category.Category, isChecked));
+            }
+        }
+    }
+
+    private async Task OnApplyPlaylistAsync()
+    {
+        var currentPlaylist = SelectedPlaylist;
+
+        if (currentPlaylist is not null)
+        {
+            var playlist = currentPlaylist.Playlist;
+            await TrackPlay.Player.ChangePlaylistNameAsync(playlist, PlaylistCaption);
+            PlaylistCaption = currentPlaylist.Name = playlist.Name;
+
+            foreach (var category in ChangedCategories)
+            {
+                int categoryId = category.Category.Id;
+
+                if (category.IsChecked)
+                {
+                    if (!playlist.Categories.Any(c => c.Id == categoryId))
+                        await TrackPlay.Player.AddCategoryInPlaylistAsync(playlist, category.Category);
+                }
+                else if (playlist.Categories.Any(c => c.Id == categoryId))
+                    await TrackPlay.Player.DeleteCategoryInPlaylistAsync(playlist, category.Category);
+            }
+        }
+
+        CancelChangePlaylist();
+    }
+
+    private void CancelChangePlaylist()
+    {
+        IsPlaylistChanging = false;
+        ChangedCategories.Clear();
+        ChangingPlaylistText = Texts.Change;
+    }
+
+    protected override async Task DeletePlaylistAsync()
+    {
+        var currentPlaylist = SelectedPlaylist;
+
+        if (currentPlaylist is null)
+            return;
+
+        TrackPlay.Clear(); // Stop
+        GoToPlaylists();
+        await TrackPlay.Player.DeletePlaylistAsync(currentPlaylist.Playlist);
+        await RemoveAsync(currentPlaylist.Playlist);
+    }
+
+    protected override async Task DeleteCategoryAsync()
+    {
+        var selectedChangedCategory = SelectedChangedCategory;
+
+        if (selectedChangedCategory is not null)
+        {
+            if (!await TrackPlay.Player.DeleteCategoryAsync(selectedChangedCategory.Category))
+                return;
+
+            SelectedCategory = SelectedChangedCategory = null;
+            Categories.Remove(selectedChangedCategory);
+        }
+    }
+
+    private async Task OnApplyCategoryAsync()
+    {
+        var selectedChangedCategory = SelectedChangedCategory;
+
+        if (selectedChangedCategory is not null)
+        {
+            selectedChangedCategory.Editing = false;
+            await TrackPlay.Player.ChangeCategoryNameAsync(selectedChangedCategory.Category, selectedChangedCategory.Name);
+            selectedChangedCategory.Name = selectedChangedCategory.Category.Name;
+        }
+
+        SelectedChangedCategory = null;
+        CancelChangeCategory();
+    }
+
+    private void OnChangeCategory()
+    {
+        var selectedCategory = SelectedCategory;
+
+        if (IsCategoryChanging)
+        {
+            foreach (var category in Categories)
+                category.Editing = false;
+        }
+        else if (selectedCategory is not null)
+        {
+            selectedCategory.Editing = true;
+            SelectedChangedCategory = selectedCategory;
+        }
+
+        IsCategoryChanging = !IsCategoryChanging;
+        ChangingCategoryText = IsCategoryChanging ? Texts.Cancel : Texts.Change;
+    }
+
+    private void CancelChangeCategory()
+    {
+        IsCategoryChanging = false;
+        ChangingCategoryText = Texts.Change;
+
+        foreach (var category in Categories)
+            category.Editing = false;
     }
 
     public override void OnExit() => HideTrackPage();

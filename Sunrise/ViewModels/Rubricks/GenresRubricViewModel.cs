@@ -3,7 +3,6 @@ using System.Linq;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
-using Sunrise.ViewModels.Genres;
 
 namespace Sunrise.ViewModels;
 
@@ -20,9 +19,9 @@ public sealed class GenresRubricViewModel : RubricViewModel
         if (_trackSources is not null && ReferenceEquals(screenshot, _screenshot))
             return _trackSources;
 
-        var trackSources = new List<GenreViewModel>(screenshot.AllTracksByGenre.Count);
+        var trackSources = new List<GenreViewModel>(screenshot.TracksByGenre.Count);
 
-        foreach (var pair in screenshot.AllTracksByGenre)
+        foreach (var pair in screenshot.TracksByGenre)
         {
             var tracks = pair.Value.OrderBy(t => t.Title).ToList();
             trackSources.Add(new GenreViewModel(this, pair.Key, tracks));

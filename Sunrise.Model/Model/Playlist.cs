@@ -18,5 +18,8 @@ public class Playlist
     /// <summary>Треки</summary>
     public List<Track> Tracks { get; set; }
 
+    /// <summary>Категории</summary>
+    public List<Category> Categories { get; set; }
+
     public override string ToString() => Name;
 }

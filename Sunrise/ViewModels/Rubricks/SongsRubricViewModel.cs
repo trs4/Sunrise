@@ -20,7 +20,7 @@ public sealed class SongsRubricViewModel : RubricViewModel
         if (!ReferenceEquals(_screenshot, screenshot))
         {
             _screenshot = screenshot;
-            return _tracks = [.. screenshot.AllTracks.OrderBy(t => t.Title)];
+            return _tracks = [.. screenshot.Tracks.OrderBy(t => t.Title)];
         }
 
         return _tracks ?? [];

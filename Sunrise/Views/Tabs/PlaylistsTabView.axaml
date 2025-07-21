@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:scv="clr-namespace:Sunrise.Converters"
 						 xmlns:svm="clr-namespace:Sunrise.ViewModels"
 						 xmlns:su="clr-namespace:Sunrise.Utils"
 				     xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
@@ -51,6 +52,7 @@
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
 					<RowDefinition />
 				</Grid.RowDefinitions>
 
@@ -63,28 +65,51 @@
 						<ColumnDefinition />
 					</Grid.ColumnDefinitions>
 					<Grid.RowDefinitions>
+						<RowDefinition Height="Auto" MinHeight="32" />
 						<RowDefinition Height="Auto" />
-						<RowDefinition Height="Auto" />
-						<RowDefinition Height="Auto" />
+						<RowDefinition Height="Auto" MinHeight="32" />
 					</Grid.RowDefinitions>
 
-					<Image Grid.RowSpan="9"
-								 Source="{su:FromIcon Track}"
-								 IsVisible="{Binding SelectedPlaylist.Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
-								 OpacityMask="Gray" Opacity="0.15"
-								 VerticalAlignment="Center" HorizontalAlignment="Center"
-								 Height="64" Width="64" />
-					<Image Grid.RowSpan="9"
-								 Source="{Binding SelectedPlaylist.Icon, Mode=OneWay}"
-								 IsVisible="{Binding SelectedPlaylist.Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-								 VerticalAlignment="Center" HorizontalAlignment="Center"
-								 Height="64" Width="64" />
+					<Grid Grid.RowSpan="9"
+								VerticalAlignment="Top">
+						<Image Source="{su:FromIcon Track}"
+									 IsVisible="{Binding SelectedPlaylist.Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
+									 OpacityMask="Gray" Opacity="0.15"
+									 VerticalAlignment="Center" HorizontalAlignment="Center"
+									 Height="64" Width="64" />
+						<Image Source="{Binding SelectedPlaylist.Icon, Mode=OneWay}"
+									 IsVisible="{Binding SelectedPlaylist.Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+									 VerticalAlignment="Center" HorizontalAlignment="Center"
+									 Height="64" Width="64" />
+					</Grid>
 
 					<TextBlock Grid.Column="2" Grid.Row="0"
 										 Text="{Binding PlaylistCaption, Mode=OneWay}"
+										 IsVisible="{Binding !IsPlaylistChanging}"
 										 FontSize="18"
 										 FontWeight="DemiBold"
 										 HorizontalAlignment="Left" VerticalAlignment="Top" />
+
+					<TextBox Grid.Column="2" Grid.Row="0"
+									 Text="{Binding PlaylistCaption}"
+									 IsVisible="{Binding IsPlaylistChanging}"
+								   FontSize="18"
+									 FontWeight="DemiBold"
+								   Height="32"
+									 HorizontalAlignment="Left" VerticalAlignment="Top" />
+
+
+					<Button Grid.Column="3" Grid.Row="0"
+									Theme="{StaticResource MaterialFlatButton}"
+								  Command="{Binding ApplyPlaylistCommand, Mode=OneWay}"
+									IsVisible="{Binding IsPlaylistChanging}"
+									Margin="0 0 10 0"
+								  Height="32"
+									HorizontalAlignment="Right"
+									HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+						<TextBlock Text="{x:Static res:Texts.Apply}"
+											 FontSize="11" />
+					</Button>
 
 					<TextBlock Grid.Column="2" Grid.Row="1"
 										 Text="{Binding PlaylistDescription, Mode=OneWay}"
@@ -92,19 +117,51 @@
 										 FontSize="11"
 										 HorizontalAlignment="Left" VerticalAlignment="Top" />
 
-					<Button Grid.Column="2" Grid.Row="2"
-									Theme="{StaticResource MaterialFlatButton}"
-									Command="{Binding ChangePlaylistCommand, Mode=OneWay}"
-									Height="32"
-									Margin="0 0 10 0"
-									HorizontalAlignment="Right"
-									HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-						<TextBlock Text="{x:Static res:Texts.Change}"
-											 FontSize="11" />
-					</Button>
+					<Grid Grid.Column="2" Grid.Row="2"
+								Height="32"
+								Margin="0 0 10 0">
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition Width="Auto" />
+							<ColumnDefinition Width="Auto" />
+						</Grid.ColumnDefinitions>
+
+						<Button Grid.Column="1"
+										Theme="{StaticResource MaterialFlatButton}"
+										HorizontalAlignment="Right" VerticalAlignment="Top"
+										Height="32" Width="32"
+										IsVisible="{Binding IsPlaylistChanging}"
+										ToolTip.Tip="{x:Static res:Texts.Delete}"
+										Command="{Binding DeletePlaylistCommand, Mode=OneWay}">
+							<Image Source="{su:FromIcon Remove}"
+										 Height="28" Width="28"
+										 OpacityMask="Gray" Opacity="0.2" />
+						</Button>
+
+						<Button Grid.Column="2"
+										Theme="{StaticResource MaterialFlatButton}"
+										Command="{Binding ChangePlaylistCommand, Mode=OneWay}"
+										HorizontalAlignment="Right"
+										HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+							<TextBlock Text="{Binding ChangingPlaylistText, Mode=OneWay}"
+												 FontSize="11" />
+						</Button>
+					</Grid>
 				</Grid>
 
-				<Button Grid.Row="1"
+				<ListBox Grid.Row="1"
+								 ItemsSource="{Binding ChangedCategories}"
+								 IsVisible="{Binding IsPlaylistChanging}">
+					<ListBox.ItemTemplate>
+						<DataTemplate DataType="svm:CategoryViewModel">
+							<CheckBox IsChecked="{Binding IsChecked}"
+												Content="{Binding Name, Mode=OneWay}"
+												Background="Transparent" />
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+
+				<Button Grid.Row="2"
 								Theme="{StaticResource MaterialFlatButton}"
 							  Command="{Binding RandomPlayRunCommand, Mode=OneWay}"
 						    IsVisible="{Binding IsPlaylistCaptionVisible, Mode=OneWay}"
@@ -128,7 +185,7 @@
 					</Grid>
 				</Button>
 
-				<Button Grid.Row="2"
+				<Button Grid.Row="3"
 								Theme="{StaticResource MaterialFlatButton}"
 								Command="{Binding RecentlyAddedPlaylistsCommand, Mode=OneWay}"
 								IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}"
@@ -138,13 +195,18 @@
 										 FontSize="11" />
 				</Button>
 
-				<ListBox Grid.Row="3"
+				<ListBox Grid.Row="4"
 								 ItemsSource="{Binding RecentlyAddedPlaylists, Mode=OneWay}"
-								 IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}"
 							   ItemTemplate="{StaticResource RecentlyAddedPlaylistTemplate}"
 								 Tapped="RecentlyAddedPlaylist_Tapped"
 								 Height="125"
 								 ScrollViewer.HorizontalScrollBarVisibility="Auto">
+					<ListBox.IsVisible>
+						<MultiBinding Mode="OneWay" Converter="{x:Static BoolConverters.And}">
+							<Binding Path="IsPlaylistsVisible" Mode="OneWay" />
+							<Binding Path="RecentlyAddedPlaylists" Mode="OneWay" Converter="{x:Static scv:AnyConverter.Instance}" />
+						</MultiBinding>
+					</ListBox.IsVisible>
 					<ListBox.ItemsPanel>
 						<ItemsPanelTemplate>
 							<StackPanel Orientation="Horizontal" />
@@ -152,7 +214,7 @@
 					</ListBox.ItemsPanel>
 				</ListBox>
 
-				<Button Grid.Row="4"
+				<Button Grid.Row="5"
 								Theme="{StaticResource MaterialFlatButton}"
 							  Command="{Binding AddPlaylistCommand, Mode=OneWay}"
 							  IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}"
@@ -170,14 +232,14 @@
 					</StackPanel>
 				</Button>
 
-				<ListBox Grid.Row="5"
+				<ListBox Grid.Row="6"
 								 ItemsSource="{Binding Tracks, Mode=OneWay}"
 								 SelectedItem="{Binding SelectedTrack, Mode=TwoWay}"
 							   IsVisible="{Binding !IsPlaylistsVisible, Mode=OneWay}"
 							   ItemTemplate="{StaticResource TrackTemplate}"
 								 Tapped="Track_Tapped" />
 
-				<ListBox Grid.Row="6"
+				<ListBox Grid.Row="7"
 								 ItemsSource="{Binding Playlists, Mode=OneWay}"
 								 SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}"
 								 IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}"

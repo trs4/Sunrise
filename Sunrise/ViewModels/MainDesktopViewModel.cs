@@ -45,7 +45,7 @@ public sealed class MainDesktopViewModel : MainViewModel
     {
         await MediaFoldersViewModel.ShowAsync(Owner, TrackPlay.Player, token);
 
-        if (TrackPlay.Player.IsAllTracksLoaded())
+        if (TrackPlay.Player.IsTracksLoaded())
             return;
 
         await ReloadTracksAsync(token);
@@ -132,6 +132,29 @@ public sealed class MainDesktopViewModel : MainViewModel
             Width = 100,
             IsVisible = false,
         });
+    }
+
+    protected override async Task DeletePlaylistAsync()
+    {
+        var selectedPlaylist = SelectedPlaylist;
+
+        if (!await TrackPlay.Player.DeletePlaylistAsync(selectedPlaylist?.Playlist))
+            return;
+
+        SelectedPlaylist = null;
+        Playlists.Remove(selectedPlaylist);
+        await SelectSongsAsync();
+    }
+
+    protected override async Task DeleteCategoryAsync()
+    {
+        var selectedCategory = SelectedCategory;
+
+        if (!await TrackPlay.Player.DeleteCategoryAsync(selectedCategory?.Category))
+            return;
+
+        SelectedCategory = null;
+        Categories.Remove(selectedCategory);
     }
 
     public override Task OnNextListAsync() => Task.CompletedTask;

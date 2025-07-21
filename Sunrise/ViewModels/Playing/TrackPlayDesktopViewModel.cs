@@ -25,8 +25,8 @@ public sealed class TrackPlayDesktopViewModel : TrackPlayViewModel
             return;
 
         await ImportFromITunes.LoadAsync(Player, filePath, token: token);
-        Player.ClearAllTracks();
-        Player.ClearAllPlaylists();
+        Player.ClearTracks();
+        Player.ClearPlaylists();
         await Owner.ReloadTracksAsync(token);
     }
 

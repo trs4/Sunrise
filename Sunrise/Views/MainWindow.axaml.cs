@@ -4,7 +4,6 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Sunrise.ViewModels;
-using Sunrise.ViewModels.Categories;
 
 namespace Sunrise.Views;
 

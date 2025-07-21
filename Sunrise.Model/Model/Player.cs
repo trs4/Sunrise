@@ -74,6 +74,7 @@ public sealed class Player
 
         await connection.Schema.CreateTableWithParseQuery<Playlists>().RunAsync(token);
         await connection.Schema.CreateTableWithParseQuery<PlaylistTracks>().RunAsync(token);
+        await connection.Schema.CreateTableWithParseQuery<PlaylistCategories>().RunAsync(token);
 
         await connection.Schema.CreateTableWithParseQuery<AppNames>().RunAsync(token);
         await connection.Schema.CreateTableWithParseQuery<TrackReproduceds>().RunAsync(token);
@@ -81,81 +82,69 @@ public sealed class Player
 
     #region Tracks
 
-    private TracksScreenshot? _tracksScreenshot;
-    private readonly object _tracksScreenshotSync = new();
+    private TracksScreenshot? _tracks;
+    private readonly object _tracksSync = new();
 
-    public bool IsAllTracksLoaded()
+    public bool IsTracksLoaded()
     {
-        lock (_tracksScreenshotSync)
-            return _tracksScreenshot is not null;
+        lock (_tracksSync)
+            return _tracks is not null;
     }
 
-    public async Task<TracksScreenshot> GetAllTracksAsync(CancellationToken token = default)
+    public async Task<TracksScreenshot> GetTracksAsync(CancellationToken token = default)
     {
-        TracksScreenshot? tracksScreenshot;
+        TracksScreenshot? screenshot;
 
-        lock (_tracksScreenshotSync)
-            tracksScreenshot = _tracksScreenshot;
+        lock (_tracksSync)
+            screenshot = _tracks;
 
-        if (tracksScreenshot is not null)
-            return tracksScreenshot;
+        if (screenshot is not null)
+            return screenshot;
 
-        var allTracks = await _connection.Select.CreateWithParseQuery<Track, Tracks>().GetAsync(token);
-        var allTracksById = new Dictionary<int, Track>(allTracks.Count);
+        var tracks = await _connection.Select.CreateWithParseQuery<Track, Tracks>().GetAsync(token);
+        screenshot = new TracksScreenshot(tracks);
 
-        foreach (var track in allTracks)
-            allTracksById.Add(track.Id, track);
+        lock (_tracksSync)
+            _tracks = screenshot;
 
-        tracksScreenshot = new(allTracks, allTracksById);
-
-        lock (_tracksScreenshotSync)
-            _tracksScreenshot = tracksScreenshot;
-
-        return tracksScreenshot;
+        return screenshot;
     }
 
-    public void ClearAllTracks()
+    public void ClearTracks()
     {
-        lock (_tracksScreenshotSync)
-            _tracksScreenshot = null;
+        lock (_tracksSync)
+            _tracks = null;
     }
 
     #endregion
     #region Categories
 
-    private Dictionary<string, Category>? _allCategoriesByName;
-    private readonly object _allCategoriesSync = new();
+    private CategoriesScreenshot? _categories;
+    private readonly object _categoriesSync = new();
 
-    public async Task<Dictionary<string, Category>> GetAllCategoriesAsync(CancellationToken token = default)
+    public async Task<CategoriesScreenshot> GetCategoriesAsync(CancellationToken token = default)
     {
-        Dictionary<string, Category>? allCategoriesByName;
+        CategoriesScreenshot? screenshot;
 
-        lock (_allPlaylistsSync)
-            allCategoriesByName = _allCategoriesByName;
+        lock (_categoriesSync)
+            screenshot = _categories;
 
-        if (allCategoriesByName is not null)
-            return allCategoriesByName;
+        if (screenshot is not null)
+            return screenshot;
 
         var categories = await _connection.Select.CreateWithParseQuery<Category, Categories>().GetAsync(token);
-        var allCategoriesById = new Dictionary<int, Category>(categories.Count);
-        allCategoriesByName = new(categories.Count, StringComparer.OrdinalIgnoreCase);
+        screenshot = new CategoriesScreenshot(categories);
 
-        foreach (var category in categories)
-        {
-            allCategoriesById.Add(category.Id, category);
-            allCategoriesByName[category.Name] = category;
-        }
+        lock (_categoriesSync)
+            _categories = screenshot;
 
-        lock (_allCategoriesSync)
-            _allCategoriesByName = allCategoriesByName;
-
-        return allCategoriesByName;
+        return screenshot;
     }
 
     public async Task<Category> AddCategoryAsync(CancellationToken token = default)
     {
-        var categories = await GetAllCategoriesAsync(token);
-        string name = FindNewCategoryName(categories);
+        var categoriesScreenshot = await GetCategoriesAsync(token);
+        string name = FindNewCategoryName(categoriesScreenshot);
 
         var category = new Category()
         {
@@ -164,15 +153,15 @@ public sealed class Player
         };
 
         await _connection.Insert.CreateWithParseQuery<Category, Categories>(category).FillAsync(token);
-        categories.Add(name, category);
+        categoriesScreenshot.Add(category);
         return category;
     }
 
-    private static string FindNewCategoryName(Dictionary<string, Category> categories)
+    private static string FindNewCategoryName(CategoriesScreenshot screenshot)
     {
         string name = Texts.Category;
 
-        if (categories.ContainsKey(name))
+        if (screenshot.CategoriesByName.ContainsKey(name))
         {
             int number = 2;
 
@@ -180,7 +169,7 @@ public sealed class Player
             {
                 name = $"{Texts.Category} {number++}";
 
-                if (!categories.ContainsKey(name))
+                if (!screenshot.CategoriesByName.ContainsKey(name))
                     break;
             }
         }
@@ -190,17 +179,17 @@ public sealed class Player
 
     public async Task<bool> ChangeCategoryNameAsync(Category? category, string name, CancellationToken token = default)
     {
-        if (category is null || string.IsNullOrWhiteSpace(name))
+        if (category is null || name is null)
             return false;
 
-        name = name.Replace(Environment.NewLine, string.Empty).Replace("\t", string.Empty);
+        name = name.Replace(Environment.NewLine, string.Empty).Replace("\t", string.Empty).Trim();
 
-        if (category.Name == name)
+        if (string.IsNullOrEmpty(name) || category.Name == name)
             return false;
 
-        var categories = await GetAllCategoriesAsync(token);
+        var categoriesScreenshot = await GetCategoriesAsync(token);
 
-        if (categories.ContainsKey(name))
+        if (categoriesScreenshot.CategoriesByName.ContainsKey(name))
             return false;
 
         bool result = await _connection.Update.CreateQuery<Categories>()
@@ -220,49 +209,64 @@ public sealed class Player
         if (category is null)
             return false;
 
-        lock (_allCategoriesSync)
-            _allCategoriesByName?.Remove(category.Name);
+        lock (_categoriesSync)
+            _categories?.Remove(category);
 
         return await _connection.Delete.CreateQuery<Categories>()
             .WithTerm(Categories.Id, category.Id)
             .RunAsync(token) > 0;
     }
 
-    public void ClearAllCategories()
+    public void ClearCategories()
     {
-        lock (_allCategoriesSync)
-            _allCategoriesByName = null;
+        lock (_categoriesSync)
+            _categories = null;
     }
 
     #endregion
     #region Playlists
 
-    private Dictionary<string, Playlist>? _allPlaylistsByName;
-    private readonly object _allPlaylistsSync = new();
+    private Dictionary<string, Playlist>? _playlistsByName;
+    private readonly object _playlistsSync = new();
 
-    public async Task<Dictionary<string, Playlist>> GetAllPlaylistsAsync(CancellationToken token = default)
+    public async Task<Dictionary<string, Playlist>> GetPlaylistsAsync(CancellationToken token = default)
     {
-        Dictionary<string, Playlist>? allPlaylistsByName;
+        Dictionary<string, Playlist>? playlistsByName;
 
-        lock (_allPlaylistsSync)
-            allPlaylistsByName = _allPlaylistsByName;
+        lock (_playlistsSync)
+            playlistsByName = _playlistsByName;
 
-        if (allPlaylistsByName is not null)
-            return allPlaylistsByName;
+        if (playlistsByName is not null)
+            return playlistsByName;
 
-        var screenshot = await GetAllTracksAsync(token);
+        var tracksScreenshot = await GetTracksAsync(token);
+        var categoriesScreenshot = await GetCategoriesAsync(token);
         var playlists = await _connection.Select.CreateWithParseQuery<Playlist, Playlists>().GetAsync(token);
-        var allPlaylistsById = new Dictionary<int, Playlist>(playlists.Count);
-        allPlaylistsByName = new(playlists.Count, StringComparer.OrdinalIgnoreCase);
+        var playlistsById = new Dictionary<int, Playlist>(playlists.Count);
+        playlistsByName = new(playlists.Count, StringComparer.OrdinalIgnoreCase);
 
         foreach (var playlist in playlists)
         {
             playlist.Tracks = [];
-            allPlaylistsById.Add(playlist.Id, playlist);
-            allPlaylistsByName[playlist.Name] = playlist;
+            playlist.Categories = [];
+            playlistsById.Add(playlist.Id, playlist);
+            playlistsByName[playlist.Name] = playlist;
         }
 
-        var playlistTracks = await _connection.Select.CreateWithParseQuery<PlaylistTracks>().OrderBy(PlaylistTracks.Position).GetAsync<DataTable>(token);
+        await FillTracksAsync(playlistsById, tracksScreenshot, token);
+        await FillCategoriesAsync(playlistsById, categoriesScreenshot, token);
+
+        lock (_playlistsSync)
+            _playlistsByName = playlistsByName;
+
+        return playlistsByName;
+    }
+
+    private async Task FillTracksAsync(Dictionary<int, Playlist> playlistsById, TracksScreenshot tracks, CancellationToken token)
+    {
+        var playlistTracks = await _connection.Select.CreateWithParseQuery<PlaylistTracks>()
+            .OrderBy(PlaylistTracks.Position).GetAsync<DataTable>(token);
+
         var playlistIdColumn = playlistTracks[nameof(PlaylistTracks.PlaylistId)];
         var trackIdColumn = playlistTracks[nameof(PlaylistTracks.TrackId)];
 
@@ -271,19 +275,38 @@ public sealed class Player
             int playlistId = playlistIdColumn.GetInt(row);
             int trackId = trackIdColumn.GetInt(row);
 
-            if (allPlaylistsById.TryGetValue(playlistId, out var playlist) && screenshot.AllTracksById.TryGetValue(trackId, out var track))
+            if (playlistsById.TryGetValue(playlistId, out var playlist)
+                && tracks.TracksById.TryGetValue(trackId, out var track))
+            {
                 playlist.Tracks.Add(track);
+            }
         }
+    }
 
-        lock (_allPlaylistsSync)
-            _allPlaylistsByName = allPlaylistsByName;
+    private async Task FillCategoriesAsync(Dictionary<int, Playlist> playlistsById, CategoriesScreenshot categories,
+        CancellationToken token)
+    {
+        var playlistCategories = await _connection.Select.CreateWithParseQuery<PlaylistCategories>().GetAsync<DataTable>(token);
 
-        return allPlaylistsByName;
+        var playlistIdColumn = playlistCategories[nameof(PlaylistCategories.PlaylistId)];
+        var categoryIdColumn = playlistCategories[nameof(PlaylistCategories.CategoryId)];
+
+        for (int row = 0; row < playlistCategories.RowCount; row++)
+        {
+            int playlistId = playlistIdColumn.GetInt(row);
+            int categoryId = categoryIdColumn.GetInt(row);
+
+            if (playlistsById.TryGetValue(playlistId, out var playlist)
+                && categories.CategoriesById.TryGetValue(categoryId, out var category))
+            {
+                playlist.Categories.Add(category);
+            }
+        }
     }
 
     public async Task<Playlist> AddPlaylistAsync(CancellationToken token = default)
     {
-        var playlists = await GetAllPlaylistsAsync(token);
+        var playlists = await GetPlaylistsAsync(token);
         string name = FindNewPlaylistName(playlists);
 
         var playlist = new Playlist()
@@ -292,11 +315,52 @@ public sealed class Player
             Name = name,
             Created = DateTime.Now,
             Tracks = [],
+            Categories = [],
         };
 
         await _connection.Insert.CreateWithParseQuery<Playlist, Playlists>(playlist).FillAsync(token);
         playlists.Add(name, playlist);
         return playlist;
+    }
+
+    public async Task AddTrackInPlaylistAsync(Playlist? playlist, Track? track, CancellationToken token = default)
+    {
+        if (playlist is null || track is null)
+            return;
+
+        await _connection.Insert.CreateQuery<PlaylistTracks>()
+            .AddColumn(nameof(PlaylistTracks.PlaylistId), playlist.Id)
+            .AddColumn(nameof(PlaylistTracks.TrackId), track.Id)
+            .AddColumn(nameof(PlaylistTracks.Position), playlist.Tracks.Count + 1)
+            .RunAsync(token);
+
+        playlist.Tracks.Add(track);
+    }
+
+    public async Task AddCategoryInPlaylistAsync(Playlist? playlist, Category? category, CancellationToken token = default)
+    {
+        if (playlist is null || category is null)
+            return;
+
+        await _connection.Insert.CreateQuery<PlaylistCategories>()
+            .AddColumn(nameof(PlaylistCategories.PlaylistId), playlist.Id)
+            .AddColumn(nameof(PlaylistCategories.CategoryId), category.Id)
+            .RunAsync(token);
+
+        playlist.Categories.Add(category);
+    }
+
+    public async Task DeleteCategoryInPlaylistAsync(Playlist? playlist, Category? category, CancellationToken token = default)
+    {
+        if (playlist is null || category is null)
+            return;
+
+        await _connection.Delete.CreateQuery<PlaylistCategories>()
+            .WithTerm(nameof(PlaylistCategories.PlaylistId), playlist.Id)
+            .WithTerm(nameof(PlaylistCategories.CategoryId), category.Id)
+            .RunAsync(token);
+        
+        playlist.Categories.Remove(category);
     }
 
     private static string FindNewPlaylistName(Dictionary<string, Playlist> playlists)
@@ -321,15 +385,15 @@ public sealed class Player
 
     public async Task<bool> ChangePlaylistNameAsync(Playlist? playlist, string name, CancellationToken token = default)
     {
-        if (playlist is null || string.IsNullOrWhiteSpace(name))
+        if (playlist is null || name is null)
             return false;
 
-        name = name.Replace(Environment.NewLine, string.Empty).Replace("\t", string.Empty);
+        name = name.Replace(Environment.NewLine, string.Empty).Replace("\t", string.Empty).Trim();
 
-        if (playlist.Name == name)
+        if (string.IsNullOrEmpty(name) || playlist.Name == name)
             return false;
 
-        var playlists = await GetAllPlaylistsAsync(token);
+        var playlists = await GetPlaylistsAsync(token);
 
         if (playlists.ContainsKey(name))
             return false;
@@ -353,21 +417,23 @@ public sealed class Player
 
         int trackId = track.Id;
 
-        lock (_tracksScreenshotSync)
-            _tracksScreenshot?.Remove(track);
+        lock (_tracksSync)
+            _tracks?.Remove(track);
 
-        lock (_allPlaylistsSync)
+        lock (_playlistsSync)
         {
-            var allPlaylistsByName = _allPlaylistsByName;
+            var playlistsByName = _playlistsByName;
 
-            if (allPlaylistsByName is not null)
+            if (playlistsByName is not null)
             {
-                foreach (var playlist in allPlaylistsByName.Values)
+                foreach (var playlist in playlistsByName.Values)
                 {
-                    for (int i = playlist.Tracks.Count - 1; i >= 0; i--)
+                    var tracks = playlist.Tracks;
+
+                    for (int i = tracks.Count - 1; i >= 0; i--)
                     {
-                        if (playlist.Tracks[i].Id == trackId)
-                            playlist.Tracks.RemoveAt(i);
+                        if (tracks[i].Id == trackId)
+                            tracks.RemoveAt(i);
                     }
                 }
             }
@@ -392,8 +458,8 @@ public sealed class Player
         if (playlist is null)
             return false;
 
-        lock (_allPlaylistsSync)
-            _allPlaylistsByName?.Remove(playlist.Name);
+        lock (_playlistsSync)
+            _playlistsByName?.Remove(playlist.Name);
 
         bool result = await _connection.Delete.CreateQuery<Playlists>()
             .WithTerm(Playlists.Id, playlist.Id)
@@ -409,10 +475,10 @@ public sealed class Player
         return true;
     }
 
-    public void ClearAllPlaylists()
+    public void ClearPlaylists()
     {
-        lock (_allPlaylistsSync)
-            _allPlaylistsByName = null;
+        lock (_playlistsSync)
+            _playlistsByName = null;
     }
 
     #endregion
@@ -432,18 +498,18 @@ public sealed class Player
         if (maxCountForRubric < 1)
             maxCountForRubric = 1;
 
-        var screenshot = await GetAllTracksAsync(token);
-        SearchTracks(text, maxCountForRubric, screenshot, tracks);
-        SearchArtists(text, maxCountForRubric, screenshot, artists);
-        SearchAlbums(text, maxCountForRubric, screenshot, albums);
-        SearchGenres(text, maxCountForRubric, screenshot, genres);
+        var tracksScreenshot = await GetTracksAsync(token);
+        SearchTracks(text, maxCountForRubric, tracksScreenshot, tracks);
+        SearchArtists(text, maxCountForRubric, tracksScreenshot, artists);
+        SearchAlbums(text, maxCountForRubric, tracksScreenshot, albums);
+        SearchGenres(text, maxCountForRubric, tracksScreenshot, genres);
         return new(tracks, artists, albums, genres);
     }
 
     private static void SearchTracks(string text, int maxCountForRubric, TracksScreenshot screenshot,
         List<Track> tracks)
     {
-        foreach (var track in screenshot.AllTracks)
+        foreach (var track in screenshot.Tracks)
         {
             if (track.Title?.Contains(text, StringComparison.OrdinalIgnoreCase) ?? false)
             {
@@ -458,7 +524,7 @@ public sealed class Player
     private static void SearchArtists(string text, int maxCountForRubric, TracksScreenshot screenshot,
         List<(string Name, Dictionary<string, List<Track>> TracksByAlbums)> artists)
     {
-        foreach (var artistPair in screenshot.AllTracksByArtist)
+        foreach (var artistPair in screenshot.TracksByArtist)
         {
             if (artistPair.Key.Contains(text, StringComparison.OrdinalIgnoreCase))
             {
@@ -473,7 +539,7 @@ public sealed class Player
     private static void SearchAlbums(string text, int maxCountForRubric, TracksScreenshot screenshot,
         List<(string Name, string Artist, List<Track> Tracks)> albums)
     {
-        foreach (var artistPair in screenshot.AllTracksByArtist)
+        foreach (var artistPair in screenshot.TracksByArtist)
         {
             foreach (var albumPair in artistPair.Value)
             {
@@ -491,7 +557,7 @@ public sealed class Player
     private static void SearchGenres(string text, int maxCountForRubric, TracksScreenshot screenshot,
         List<(string Name, List<Track> Tracks)> genres)
     {
-        foreach (var genrePair in screenshot.AllTracksByGenre)
+        foreach (var genrePair in screenshot.TracksByGenre)
         {
             if (genrePair.Key.Contains(text, StringComparison.OrdinalIgnoreCase))
             {
@@ -533,7 +599,7 @@ public sealed class Player
             return;
 
         progressOwner?.Show(Texts.LoadTracks);
-        var screenshot = await GetAllTracksAsync(token);
+        var tracksScreenshot = await GetTracksAsync(token);
         double progress = 0d;
         double step = 100d / files.Count;
         const int tracksInPacket = 1_000;
@@ -554,7 +620,7 @@ public sealed class Player
             if (!TrackManager.TryCreate(file, now, out var track))
                 continue;
 
-            if (screenshot.AllTracksByPath.TryGetValue(file.FullName, out var existingTrack))
+            if (tracksScreenshot.TracksByPath.TryGetValue(file.FullName, out var existingTrack))
             {
                 UpdateIdProperties(track, existingTrack);
                 UpdatePostProperties(track, existingTrack);
@@ -583,7 +649,7 @@ public sealed class Player
         if (updateTracks.Count > 0)
             await UpdateTracksAsync(updateTracks, pictures, removePictureIds, token);
 
-        ClearAllTracks();
+        ClearTracks();
         progressOwner?.Hide();
     }
 
@@ -594,7 +660,7 @@ public sealed class Player
             return;
 
         progressOwner?.Show(Texts.LoadTracks);
-        var screenshot = await GetAllTracksAsync(token);
+        var tracksScreenshot = await GetTracksAsync(token);
         double progress = 0d;
         double step = 100d / tracks.Count;
         const int tracksInPacket = 1_000;
@@ -609,7 +675,7 @@ public sealed class Player
         var updateReproduceds = new List<TrackReproduced>(tracksInPacket);
         var appNames = await _connection.Select.CreateWithParseQuery<AppName, AppNames>().GetAsync(token);
         var trackReproduceds = await _connection.Select.CreateWithParseQuery<TrackReproduced, TrackReproduceds>().GetAsync(token);
-        var trackReproducedsMap = new Dictionary<int, Dictionary<int, int>>(screenshot.AllTracks.Count); // Track -> App -> Reproduced
+        var trackReproducedsMap = new Dictionary<int, Dictionary<int, int>>(tracksScreenshot.Tracks.Count); // Track -> App -> Reproduced
 
         foreach (var trackReproduced in trackReproduceds)
         {
@@ -643,7 +709,7 @@ public sealed class Player
                 progressOwner.Next(progress, fileName);
             }
 
-            if (screenshot.AllTracksByPath.TryGetValue(track.Path, out var existingTrack))
+            if (tracksScreenshot.TracksByPath.TryGetValue(track.Path, out var existingTrack))
             {
                 UpdateIdProperties(track, existingTrack);
 
@@ -697,7 +763,7 @@ public sealed class Player
         if (updateReproduceds.Count > 0)
             await UpdateReproducedsAsync(updateReproduceds, token);
 
-        ClearAllTracks();
+        ClearTracks();
         progressOwner?.Hide();
     }
 
@@ -847,7 +913,7 @@ public sealed class Player
             return;
 
         progressOwner?.Show(Texts.LoadPlaylists);
-        var existingPlaylists = await GetAllPlaylistsAsync(token);
+        var existingPlaylists = await GetPlaylistsAsync(token);
         double progress = 0d;
         double step = 100d / playlists.Count;
         const int playlistsInPacket = 1_000;
@@ -946,7 +1012,7 @@ public sealed class Player
         if (addPlaylistTracks.RowCount > 0)
             await _connection.Insert.CreateWithParseMultiQuery<DataTable, PlaylistTracks>(addPlaylistTracks, returningIdentity: false).RunAsync(token);
 
-        ClearAllPlaylists();
+        ClearPlaylists();
         progressOwner?.Hide();
     }
 

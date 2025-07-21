@@ -3,7 +3,7 @@ using System.Linq;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
 
-namespace Sunrise.ViewModels.Artists;
+namespace Sunrise.ViewModels;
 
 public sealed class ArtistViewModel : TrackSourceViewModel
 {

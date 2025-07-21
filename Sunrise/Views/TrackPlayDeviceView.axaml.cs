@@ -34,4 +34,33 @@ public partial class TrackPlayDeviceView : UserControl
         viewModel.ChangePosition(position);
     }
 
+    private async void TrackTitle_Tapped(object? sender, TappedEventArgs e)
+    {
+        if (DataContext is not TrackPlayViewModel viewModel)
+            return;
+
+        var currentTrack = viewModel.CurrentTrack;
+
+        if (currentTrack is null)
+            return;
+
+        var mainViewModel = (MainDeviceViewModel)viewModel.Owner;
+        var trackPlay = mainViewModel.TrackPlay;
+
+        if (mainViewModel.TracksOwner is not ArtistViewModel artistViewModel || artistViewModel.Name != currentTrack.Artist)
+        {
+            var ownerRubric = mainViewModel.Artists;
+            var tracksScreenshot = await trackPlay.Player.GetTracksAsync();
+
+            if (!tracksScreenshot.TracksByArtist.TryGetValue(currentTrack.Artist, out var tracksByAlbums))
+                return;
+
+            var ownerTrackSource = ArtistViewModel.Create(ownerRubric, currentTrack.Artist, tracksByAlbums);
+            trackPlay.ChangeOwnerRubric(ownerRubric, ownerTrackSource);
+            await mainViewModel.ChangeTracksAsync(ownerTrackSource);
+        }
+
+        mainViewModel.HideTrackPage();
+    }
+
 }

@@ -9,7 +9,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
 using Sunrise.Utils;
-using Sunrise.ViewModels.Categories;
 
 namespace Sunrise.ViewModels;
 
@@ -151,9 +150,11 @@ public abstract class MainViewModel : ObservableObject
     {
         _trackMap.Clear();
         var rubricViewModel = Songs;
-        var playlists = await TrackPlay.Player.GetAllPlaylistsAsync(token);
+        var playlists = await TrackPlay.Player.GetPlaylistsAsync(token);
+        var categoriesScreenshot = await TrackPlay.Player.GetCategoriesAsync(token);
         await SelectTracksAsync(rubricViewModel, token: token);
         ChangePlaylists(playlists.Values);
+        ChangeCategories(categoriesScreenshot.Categories);
     }
 
     public Task SelectSongsAsync(CancellationToken token = default)
@@ -182,8 +183,8 @@ public abstract class MainViewModel : ObservableObject
         else if (tracksOwner is RubricViewModel rubricViewModel)
         {
             var selectedTrackSource = SelectedTrackSource;
-            var screenshot = await TrackPlay.Player.GetAllTracksAsync(token);
-            var trackSources = rubricViewModel.GetTrackSources(screenshot);
+            var tracksScreenshot = await TrackPlay.Player.GetTracksAsync(token);
+            var trackSources = rubricViewModel.GetTrackSources(tracksScreenshot);
             IsTrackSourcesVisible = trackSources is not null;
             TrackSources.Clear();
 
@@ -197,12 +198,12 @@ public abstract class MainViewModel : ObservableObject
             }
 
             SelectedTrackSource = selectedTrackSource;
-            tracks = CanAddRubricTracks(rubricViewModel) ? rubricViewModel.GetTracks(screenshot, selectedTrackSource) : [];
+            tracks = CanAddRubricTracks(rubricViewModel) ? rubricViewModel.GetTracks(tracksScreenshot, selectedTrackSource) : [];
         }
         else if (tracksOwner is TrackSourceViewModel trackSourceViewModel)
         {
-            var screenshot = await TrackPlay.Player.GetAllTracksAsync(token);
-            tracks = trackSourceViewModel.Rubric.GetTracks(screenshot, trackSourceViewModel);
+            var tracksScreenshot = await TrackPlay.Player.GetTracksAsync(token);
+            tracks = trackSourceViewModel.Rubric.GetTracks(tracksScreenshot, trackSourceViewModel);
         }
         else
         {
@@ -248,6 +249,17 @@ public abstract class MainViewModel : ObservableObject
         }
     }
 
+    public void ChangeCategories(IEnumerable<Category> categories)
+    {
+        Categories.Clear();
+
+        foreach (var category in categories.OrderBy(p => p.Name, NaturalStringComparer.Instance))
+        {
+            var categoryViewModel = new CategoryViewModel(category);
+            Categories.Add(categoryViewModel);
+        }
+    }
+
     private async Task AddCategoryAsync()
     {
         var category = await TrackPlay.Player.AddCategoryAsync();
@@ -256,16 +268,7 @@ public abstract class MainViewModel : ObservableObject
         SelectedCategory = categoryViewModel;
     }
 
-    private async Task DeleteCategoryAsync()
-    {
-        var selectedCategory = SelectedCategory;
-
-        if (!await TrackPlay.Player.DeleteCategoryAsync(selectedCategory?.Category))
-            return;
-
-        SelectedCategory = null;
-        Categories.Remove(selectedCategory);
-    }
+    protected abstract Task DeleteCategoryAsync();
 
     private async Task AddPlaylistAsync()
     {
@@ -276,17 +279,7 @@ public abstract class MainViewModel : ObservableObject
         await ChangeTracksAsync(playlistViewModel);
     }
 
-    private async Task DeletePlaylistAsync()
-    {
-        var selectedPlaylist = SelectedPlaylist;
-
-        if (!await TrackPlay.Player.DeletePlaylistAsync(selectedPlaylist?.Playlist))
-            return;
-
-        SelectedPlaylist = null;
-        Playlists.Remove(selectedPlaylist);
-        await SelectSongsAsync();
-    }
+    protected abstract Task DeletePlaylistAsync();
 
     public Track[] CreateRandomizeTracks()
     {
@@ -314,10 +307,28 @@ public abstract class MainViewModel : ObservableObject
                 Tracks.RemoveAt(i);
         }
 
-        await OnRemoveAsync(trackId, token);
+        await OnRemoveTrackAsync(trackId, token);
     }
 
-    protected virtual ValueTask OnRemoveAsync(int trackId, CancellationToken token) => default;
+    protected virtual ValueTask OnRemoveTrackAsync(int trackId, CancellationToken token) => default;
+
+    public async ValueTask RemoveAsync(Playlist? playlist, CancellationToken token = default)
+    {
+        if (playlist is null)
+            return;
+
+        int playlistId = playlist.Id;
+
+        for (int i = Playlists.Count - 1; i >= 0; i--)
+        {
+            if (Playlists[i].Playlist.Id == playlistId)
+                Playlists.RemoveAt(i);
+        }
+
+        await OnRemovePlaylistAsync(playlistId, token);
+    }
+
+    protected virtual ValueTask OnRemovePlaylistAsync(int playlistId, CancellationToken token) => default;
 
     public abstract Task OnNextListAsync();
 

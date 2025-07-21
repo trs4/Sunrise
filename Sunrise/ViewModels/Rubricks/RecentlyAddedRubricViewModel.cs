@@ -22,7 +22,7 @@ public sealed class RecentlyAddedRubricViewModel : RubricViewModel
         if (!ReferenceEquals(_screenshot, screenshot))
         {
             _screenshot = screenshot;
-            return _tracks = [.. screenshot.AllTracks.OrderByDescending(t => t.Added).Take(_maxCount)];
+            return _tracks = [.. screenshot.Tracks.OrderByDescending(t => t.Added).Take(_maxCount)];
         }
 
         return _tracks ?? [];

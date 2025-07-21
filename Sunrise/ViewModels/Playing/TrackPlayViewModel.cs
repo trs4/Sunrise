@@ -257,7 +257,7 @@ public abstract class TrackPlayViewModel : ObservableObject
         _playerTimer.Stop();
     }
 
-    private void Clear()
+    public void Clear()
     {
         if (_currentTrack is not null)
             _currentTrack.IsPlaying = null;

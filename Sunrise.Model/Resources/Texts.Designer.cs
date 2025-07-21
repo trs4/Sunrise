@@ -70,11 +70,29 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Добавить категорию.
+        /// </summary>
+        public static string AddCategory {
+            get {
+                return ResourceManager.GetString("AddCategory", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Добавлено.
         /// </summary>
         public static string Added {
             get {
                 return ResourceManager.GetString("Added", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Добавить в.
+        /// </summary>
+        public static string AddIn {
+            get {
+                return ResourceManager.GetString("AddIn", resourceCulture);
             }
         }
         
@@ -102,6 +120,15 @@ namespace Sunrise.Model.Resources {
         public static string Albums {
             get {
                 return ResourceManager.GetString("Albums", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Готово.
+        /// </summary>
+        public static string Apply {
+            get {
+                return ResourceManager.GetString("Apply", resourceCulture);
             }
         }
         

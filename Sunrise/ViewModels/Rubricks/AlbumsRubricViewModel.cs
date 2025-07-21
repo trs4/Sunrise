@@ -3,7 +3,6 @@ using System.Linq;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
-using Sunrise.ViewModels.Albums;
 
 namespace Sunrise.ViewModels;
 
@@ -20,9 +19,9 @@ public sealed class AlbumsRubricViewModel : RubricViewModel
         if (_trackSources is not null && ReferenceEquals(screenshot, _screenshot))
             return _trackSources;
 
-        var trackSources = new List<AlbumViewModel>(screenshot.AllTracksByArtist.Sum(p => p.Value.Count));
+        var trackSources = new List<AlbumViewModel>(screenshot.TracksByArtist.Sum(p => p.Value.Count));
 
-        foreach (var pairByArtist in screenshot.AllTracksByArtist)
+        foreach (var pairByArtist in screenshot.TracksByArtist)
         {
             foreach (var pairByAlbum in pairByArtist.Value)
             {

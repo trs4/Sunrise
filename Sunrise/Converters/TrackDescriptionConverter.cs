@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using Avalonia.Data.Converters;
 using Sunrise.ViewModels;
-using Sunrise.ViewModels.Albums;
-using Sunrise.ViewModels.Artists;
 
 namespace Sunrise.Converters;
 

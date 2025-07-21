@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
@@ -8,6 +9,7 @@ namespace Sunrise.ViewModels;
 public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
 {
     private bool _isChanging;
+    private PlaylistViewModel? _selectedPlaylist;
     private string _changingText = Texts.Change;
     private bool _isSelectPlaylist;
 
@@ -17,7 +19,7 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         : base(owner, player)
     {
         ChangeTrackCommand = new RelayCommand(OnChangeTrack);
-        AddTrackInPlaylistCommand = new RelayCommand(OnAddTrackInPlaylist);
+        AddTrackInPlaylistCommand = new AsyncRelayCommand(OnAddTrackInPlaylistAsync);
         DeleteTrackCommand = new AsyncRelayCommand(OnDeleteTrackAsync);
     }
 
@@ -27,6 +29,12 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
     {
         get => _isChanging;
         set => SetProperty(ref _isChanging, value);
+    }
+
+    public PlaylistViewModel? SelectedPlaylist
+    {
+        get => _selectedPlaylist;
+        set => SetProperty(ref _selectedPlaylist, value);
     }
 
     public string ChangingText
@@ -55,12 +63,37 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
     public void CancelChangeTrack()
     {
         IsChanging = false;
-        ChangingText = Texts.Change;
         IsSelectPlaylist = false;
+        SelectedPlaylist = null;
+        ChangingText = Texts.Change;
     }
 
-    private void OnAddTrackInPlaylist()
-        => IsSelectPlaylist = true;
+    private async Task OnAddTrackInPlaylistAsync()
+    {
+        if (IsSelectPlaylist)
+        {
+            var currentTrack = CurrentTrack?.Track;
+            var selectedPlaylist = _selectedPlaylist;
+
+            if (currentTrack is not null && selectedPlaylist is not null)
+            {
+                var tracks = selectedPlaylist.Playlist.Tracks;
+
+                if (tracks.Count == 0 || tracks[^1] != currentTrack)
+                {
+                    await Player.AddTrackInPlaylistAsync(selectedPlaylist.Playlist, currentTrack);
+                    tracks.Add(currentTrack);
+                }
+            }
+
+            CancelChangeTrack();
+        }
+        else
+        {
+            SelectedPlaylist = Owner.Playlists.FirstOrDefault();
+            IsSelectPlaylist = true;
+        }
+    }
 
     private async Task OnDeleteTrackAsync()
     {

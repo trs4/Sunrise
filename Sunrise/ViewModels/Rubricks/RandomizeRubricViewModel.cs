@@ -23,7 +23,7 @@ public sealed class RandomizeRubricViewModel : RubricViewModel
         if (!ReferenceEquals(_screenshot, screenshot))
         {
             _screenshot = screenshot;
-            return _tracks = RandomHelper.CreateRandomizeTracks(_inputTracks ?? screenshot.AllTracks);
+            return _tracks = RandomHelper.CreateRandomizeTracks(_inputTracks ?? screenshot.Tracks);
         }
 
         return _tracks ?? [];
