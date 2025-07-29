@@ -1,11 +1,12 @@
 ﻿using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Sunrise.Model;
 using Sunrise.ViewModels;
 using Sunrise.Views;
+using System.Globalization;
+using System.Threading;
 
 namespace Sunrise;
 
@@ -16,6 +17,7 @@ public partial class App : Application
 
     public override async void OnFrameworkInitializationCompleted()
     {
+        SetCurrentCulture();
         BindingPlugins.DataValidators.RemoveAt(0);
         var player = await Player.InitAsync();
         MainViewModel viewModel = null;
@@ -39,6 +41,19 @@ public partial class App : Application
             await viewModel.ReloadTracksAsync();
 
         base.OnFrameworkInitializationCompleted();
+    }
+
+    private static void SetCurrentCulture()
+    {
+        var cultureInfo = new CultureInfo("ru-RU");
+        CultureInfo.CurrentCulture = cultureInfo;
+        CultureInfo.CurrentUICulture = cultureInfo;
+
+        CultureInfo.DefaultThreadCurrentCulture = cultureInfo;
+        CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
+
+        Thread.CurrentThread.CurrentCulture = cultureInfo;
+        Thread.CurrentThread.CurrentUICulture = cultureInfo;
     }
 
 }
