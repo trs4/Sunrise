@@ -45,7 +45,9 @@ public partial class App : Application
 
     private static void SetCurrentCulture()
     {
-        var cultureInfo = new CultureInfo("ru-RU");
+        //var cultureInfo = new CultureInfo("ru-RU");
+        var cultureInfo = new CultureInfo("en-US"); // FIX BUG
+
         CultureInfo.CurrentCulture = cultureInfo;
         CultureInfo.CurrentUICulture = cultureInfo;
 

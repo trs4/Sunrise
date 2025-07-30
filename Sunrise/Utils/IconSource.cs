@@ -1,7 +1,7 @@
-﻿using System.Collections.Concurrent;
-using System.IO;
-using Avalonia.Svg.Skia;
+﻿using Avalonia.Svg.Skia;
 using Sunrise.Model.Resources;
+using System.Collections.Concurrent;
+using System.Text;
 
 namespace Sunrise.Utils;
 
@@ -14,8 +14,8 @@ public static class IconSource
     private static SvgImage Load(string name)
     {
         var bytes = (byte[])Icons.ResourceManager.GetObject(name);
-        using var stream = new MemoryStream(bytes);
-        return new SvgImage() { Source = SvgSource.LoadFromStream(stream) };
+        string svg = Encoding.UTF8.GetString(bytes);
+        return new SvgImage() { Source = SvgSource.LoadFromSvg(svg) };
     }
 
 }
