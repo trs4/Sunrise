@@ -1,14 +1,14 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-						 xmlns:sv="clr-namespace:Sunrise.Views"
-						 xmlns:svm="clr-namespace:Sunrise.ViewModels"
-             xmlns:su="clr-namespace:Sunrise.Utils"
-						 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
-             mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="450"
-             x:Class="Sunrise.Views.MainDeviceView"
-             x:DataType="svm:MainDeviceViewModel">
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:sv="clr-namespace:Sunrise.Views"
+			 xmlns:svm="clr-namespace:Sunrise.ViewModels"
+			 xmlns:su="clr-namespace:Sunrise.Utils"
+			 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
+			 mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="450"
+			 x:Class="Sunrise.Views.MainDeviceView"
+			 x:DataType="svm:MainDeviceViewModel">
 	<Design.DataContext>
 		<svm:MainDeviceViewModel />
 	</Design.DataContext>
@@ -24,31 +24,31 @@
 
 	<Grid>
 		<TabControl TabStripPlacement="Bottom"
-								SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
-								IsVisible="{Binding !IsTrackVisible}">
+					SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
+					IsVisible="{Binding !IsTrackVisible}">
 			<TabControl.Styles>
 				<Style Selector="TabControl">
 					<Setter Property="Template">
 						<ControlTemplate>
 							<Border BorderBrush="{TemplateBinding BorderBrush}"
-											BorderThickness="{TemplateBinding BorderThickness}"
-											CornerRadius="{TemplateBinding CornerRadius}"
-											Background="{TemplateBinding Background}"
-											HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
-											VerticalAlignment="{TemplateBinding VerticalAlignment}">
+									BorderThickness="{TemplateBinding BorderThickness}"
+									CornerRadius="{TemplateBinding CornerRadius}"
+									Background="{TemplateBinding Background}"
+									HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+									VerticalAlignment="{TemplateBinding VerticalAlignment}">
 								<DockPanel>
 									<ItemsPresenter Name="PART_ItemsPresenter"
-																	ItemsPanel="{TemplateBinding ItemsPanel}"
-																	DockPanel.Dock="{TemplateBinding TabStripPlacement}" />
+													ItemsPanel="{TemplateBinding ItemsPanel}"
+													DockPanel.Dock="{TemplateBinding TabStripPlacement}" />
 									<sv:TrackPlayShortDeviceView DockPanel.Dock="{TemplateBinding TabStripPlacement}"
-																							 DataContext="{Binding TrackPlay}"
-																							 IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsShortTrackVisible}" />
+																 DataContext="{Binding TrackPlay}"
+																 IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsShortTrackVisible}" />
 									<ContentPresenter Name="PART_SelectedContentHost"
-																		Margin="{TemplateBinding Padding}"
-																		HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-																		VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-																		Content="{TemplateBinding SelectedContent}"
-																		ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+													  Margin="{TemplateBinding Padding}"
+													  HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+													  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+													  Content="{TemplateBinding SelectedContent}"
+													  ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
 								</DockPanel>
 							</Border>
 						</ControlTemplate>
@@ -105,6 +105,6 @@
 		</TabControl>
 
 		<sv:TrackPlayDeviceView DataContext="{Binding TrackPlay}"
-														IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsTrackVisible}" />
+								IsVisible="{Binding $parent.((svm:MainDeviceViewModel)DataContext).IsTrackVisible}" />
 	</Grid>
 </UserControl>

@@ -1,14 +1,14 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:scv="clr-namespace:Sunrise.Converters"
-						 xmlns:svm="clr-namespace:Sunrise.ViewModels"
-						 xmlns:su="clr-namespace:Sunrise.Utils"
-				     xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
-             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-             x:Class="Sunrise.Views.TracksTabView"
-             x:DataType="svm:MainDeviceViewModel">
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:scv="clr-namespace:Sunrise.Converters"
+			 xmlns:svm="clr-namespace:Sunrise.ViewModels"
+			 xmlns:su="clr-namespace:Sunrise.Utils"
+			 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 x:Class="Sunrise.Views.TracksTabView"
+			 x:DataType="svm:MainDeviceViewModel">
 	<Design.DataContext>
 		<svm:MainDeviceViewModel />
 	</Design.DataContext>
@@ -27,20 +27,20 @@
 		</Grid.RowDefinitions>
 
 		<Button Grid.Row="0"
-						Theme="{StaticResource MaterialFlatButton}"
-						Command="{Binding BackCommand, Mode=OneWay}"
-						IsVisible="{Binding IsTrackListVisible, Mode=OneWay}"
-						Height="48"
-						HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
+				Theme="{StaticResource MaterialFlatButton}"
+				Command="{Binding BackCommand, Mode=OneWay}"
+				IsVisible="{Binding IsTrackListVisible, Mode=OneWay}"
+				Height="48"
+				HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
 			<StackPanel Orientation="Horizontal">
 				<Image Source="{su:FromIcon LeftCircle}"
-							 Height="20" Width="20"
-							 Margin="0 0 10 0"
-							 OpacityMask="Gray" Opacity="0.2"
-							 HorizontalAlignment="Left" VerticalAlignment="Center" />
+					   Height="20" Width="20"
+					   Margin="0 0 10 0"
+					   OpacityMask="Gray" Opacity="0.2"
+					   HorizontalAlignment="Left" VerticalAlignment="Center" />
 
 				<TextBlock Text="{Binding BackCaption, Mode=OneWay}"
-									 HorizontalAlignment="Left" VerticalAlignment="Center" />
+						   HorizontalAlignment="Left" VerticalAlignment="Center" />
 			</StackPanel>
 		</Button>
 
@@ -56,20 +56,20 @@
 				</Grid.RowDefinitions>
 
 				<TextBlock Grid.Row="0"
-									 Text="{Binding TrackSourceCaption, Mode=OneWay}"
-									 IsVisible="{Binding TrackSourceCaption, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-									 FontSize="18"
-									 FontWeight="DemiBold"
-									 Margin="15 20 0 10"
-									 HorizontalAlignment="Left" VerticalAlignment="Center"
-									 Tapped="TrackSourceCaption_Tapped" />
+						   Text="{Binding TrackSourceCaption, Mode=OneWay}"
+						   IsVisible="{Binding TrackSourceCaption, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+						   FontSize="18"
+						   FontWeight="DemiBold"
+						   Margin="15 20 0 10"
+						   HorizontalAlignment="Left" VerticalAlignment="Center"
+						   Tapped="TrackSourceCaption_Tapped" />
 
 				<Button Grid.Row="1"
-								Theme="{StaticResource MaterialFlatButton}"
-								Command="{Binding RandomPlayRunCommand, Mode=OneWay}"
-								IsVisible="{Binding !IsTrackListVisible, Mode=OneWay}"
-								Height="32"
-								HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
+						Theme="{StaticResource MaterialFlatButton}"
+						Command="{Binding RandomPlayRunCommand, Mode=OneWay}"
+						IsVisible="{Binding !IsTrackListVisible, Mode=OneWay}"
+						Height="32"
+						HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
 					<Grid>
 						<Grid.ColumnDefinitions>
 							<ColumnDefinition />
@@ -77,33 +77,33 @@
 						</Grid.ColumnDefinitions>
 
 						<TextBlock Grid.Column="0"
-											 Text="{x:Static res:Texts.MixAll}"
-											 HorizontalAlignment="Left" VerticalAlignment="Center" />
+								   Text="{x:Static res:Texts.MixAll}"
+								   HorizontalAlignment="Left" VerticalAlignment="Center" />
 
 						<Image Grid.Column="1"
-									 Source="{su:FromIcon RandomPlay}"
-									 OpacityMask="Gray"
-									 HorizontalAlignment="Right" VerticalAlignment="Center"
-									 Height="20" />
+							   Source="{su:FromIcon RandomPlay}"
+							   OpacityMask="Gray"
+							   HorizontalAlignment="Right" VerticalAlignment="Center"
+							   Height="20" />
 					</Grid>
 				</Button>
 
 				<Button Grid.Row="2"
-								Theme="{StaticResource MaterialFlatButton}"
-								Command="{Binding RecentlyAddedCommand, Mode=OneWay}"
-								IsVisible="{Binding !IsTrackListVisible, Mode=OneWay}"
-								Height="32"
-								HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
+						Theme="{StaticResource MaterialFlatButton}"
+						Command="{Binding RecentlyAddedCommand, Mode=OneWay}"
+						IsVisible="{Binding !IsTrackListVisible, Mode=OneWay}"
+						Height="32"
+						HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
 					<TextBlock Text="{x:Static res:Texts.RecentlyAddedButton}"
-										 FontSize="11" />
+							   FontSize="11" />
 				</Button>
 
 				<ListBox Grid.Row="3"
-								 ItemsSource="{Binding RecentlyAddedTracks, Mode=OneWay}"
-							   ItemTemplate="{StaticResource RecentlyAddedTrackTemplate}"
-								 Tapped="RecentlyAddedTrack_Tapped"
-								 Height="125"
-								 ScrollViewer.HorizontalScrollBarVisibility="Auto">
+						 ItemsSource="{Binding RecentlyAddedTracks, Mode=OneWay}"
+						 ItemTemplate="{StaticResource RecentlyAddedTrackTemplate}"
+						 Tapped="RecentlyAddedTrack_Tapped"
+						 Height="125"
+						 ScrollViewer.HorizontalScrollBarVisibility="Auto">
 					<ListBox.IsVisible>
 						<MultiBinding Mode="OneWay" Converter="{x:Static BoolConverters.And}">
 							<Binding Path="!IsTrackListVisible" Mode="OneWay" />
@@ -118,25 +118,25 @@
 				</ListBox>
 
 				<ComboBox Grid.Row="4"
-									ItemsSource="{Binding Rubricks, Mode=OneWay}"
-									SelectedValue="{Binding SelectedRubrick}"
-							  	IsVisible="{Binding !IsTrackListVisible, Mode=OneWay}"
-					    		ItemTemplate="{StaticResource RubricTemplate}"
-									HorizontalAlignment="Center" />
+						  ItemsSource="{Binding Rubricks, Mode=OneWay}"
+						  SelectedValue="{Binding SelectedRubrick}"
+						  IsVisible="{Binding !IsTrackListVisible, Mode=OneWay}"
+						  ItemTemplate="{StaticResource RubricTemplate}"
+						  HorizontalAlignment="Center" />
 
 				<ListBox Grid.Row="5"
-								 ItemsSource="{Binding Tracks, Mode=OneWay}"
-								 SelectedItem="{Binding SelectedTrack, Mode=TwoWay}"
-							   IsVisible="{Binding !IsTrackSourcesVisible}"
-							   ItemTemplate="{StaticResource TrackTemplate}"
-								 Tapped="Track_Tapped" />
+						 ItemsSource="{Binding Tracks, Mode=OneWay}"
+						 SelectedItem="{Binding SelectedTrack, Mode=TwoWay}"
+						 IsVisible="{Binding !IsTrackSourcesVisible}"
+						 ItemTemplate="{StaticResource TrackTemplate}"
+						 Tapped="Track_Tapped" />
 
 				<ListBox Grid.Row="5"
-								 ItemsSource="{Binding TrackSources, Mode=OneWay}"
-								 SelectedItem="{Binding SelectedTrackSource}"
-							   IsVisible="{Binding IsTrackSourcesVisible, Mode=OneWay}"
-							   ItemTemplate="{StaticResource TrackSourceTemplate}"
-								 Tapped="TrackSource_Tapped" />
+						 ItemsSource="{Binding TrackSources, Mode=OneWay}"
+						 SelectedItem="{Binding SelectedTrackSource}"
+						 IsVisible="{Binding IsTrackSourcesVisible, Mode=OneWay}"
+						 ItemTemplate="{StaticResource TrackSourceTemplate}"
+						 Tapped="TrackSource_Tapped" />
 			</Grid>
 		</ScrollViewer>
 

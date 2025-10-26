@@ -1,17 +1,17 @@
 <UserControl xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:svm="clr-namespace:Sunrise.ViewModels"
-             xmlns:sb="clr-namespace:Sunrise.Behaviors"
-             xmlns:scv="clr-namespace:Sunrise.Converters"
-             xmlns:su="clr-namespace:Sunrise.Utils"
-						 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
-						 Height="48"
-						 x:DataType="svm:TrackPlayDeviceViewModel"
-						 x:CompileBindings="False"
-             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
-             x:Class="Sunrise.Views.TrackPlayShortDeviceView">
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:svm="clr-namespace:Sunrise.ViewModels"
+			 xmlns:sb="clr-namespace:Sunrise.Behaviors"
+			 xmlns:scv="clr-namespace:Sunrise.Converters"
+			 xmlns:su="clr-namespace:Sunrise.Utils"
+			 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
+			 Height="48"
+			 x:DataType="svm:TrackPlayDeviceViewModel"
+			 x:CompileBindings="False"
+			 mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
+			 x:Class="Sunrise.Views.TrackPlayShortDeviceView">
 	<Design.DataContext>
 		<svm:TrackPlayDeviceViewModel />
 	</Design.DataContext>
@@ -33,9 +33,9 @@
 	</UserControl.Styles>
 
 	<Border Background="Gainsboro"
-					CornerRadius="10"
-					Margin="2" Padding="5"
-					Height="48">
+			CornerRadius="10"
+			Margin="2" Padding="5"
+			Height="48">
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="0.15*" />
@@ -45,15 +45,15 @@
 
 			<!--  Play  -->
 			<Button Grid.Column="0"
-							Classes="TrackBtn"
-							Command="{Binding PlayCommand, Mode=OneWay}">
+					Classes="TrackBtn"
+					Command="{Binding PlayCommand, Mode=OneWay}">
 				<Image Classes="ImageBtn"
-							 Source="{Binding PlayIcon, Mode=OneWay}" />
+					   Source="{Binding PlayIcon, Mode=OneWay}" />
 			</Button>
 
 			<!--  Track  -->
 			<Grid Grid.Column="1" Background="Transparent"
-						Tapped="Track_Tapped">
+				  Tapped="Track_Tapped">
 				<Grid.RowDefinitions>
 					<RowDefinition />
 					<RowDefinition Height="Auto" />
@@ -62,14 +62,14 @@
 
 				<!--  Название  -->
 				<TextBlock Grid.Row="0"
-									 VerticalAlignment="Center"
-									 FontSize="14"
-									 Text="{Binding CurrentTrack.Title, Mode=OneWay}" />
+						   VerticalAlignment="Center"
+						   FontSize="14"
+						   Text="{Binding CurrentTrack.Title, Mode=OneWay}" />
 
 				<!--  Артист  -->
 				<TextBlock Grid.Row="1"
-									 VerticalAlignment="Center"
-									 FontSize="12">
+						   VerticalAlignment="Center"
+						   FontSize="12">
 					<TextBlock.Text>
 						<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
 							<Binding Path="CurrentTrack.Artist" Mode="OneWay" />
@@ -80,9 +80,9 @@
 
 				<!--  Прогресс  -->
 				<ProgressBar Grid.Row="2"
-										 Name="progressBar"
-										 Classes="light"
-										 VerticalAlignment="Stretch">
+							 Name="progressBar"
+							 Classes="light"
+							 VerticalAlignment="Stretch">
 					<ProgressBar.Value>
 						<MultiBinding Converter="{x:Static scv:ProgressConverter.Instance}" Mode="OneWay">
 							<Binding Path="Position" Mode="OneWay" />
@@ -95,10 +95,10 @@
 
 			<!--  Menu  -->
 			<Button Grid.Column="2"
-							Classes="TrackBtn"
-							Command="{Binding NextListCommand, Mode=OneWay}">
+					Classes="TrackBtn"
+					Command="{Binding NextListCommand, Mode=OneWay}">
 				<Image Classes="ImageBtn"
-							 Source="{su:FromIcon Options}" />
+					   Source="{su:FromIcon Options}" />
 			</Button>
 
 		</Grid>

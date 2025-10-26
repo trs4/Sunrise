@@ -1,23 +1,23 @@
 <Window xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-				xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
-        xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
-        xmlns:sc="clr-namespace:Sunrise.Controls"
-        xmlns:svm="clr-namespace:Sunrise.ViewModels"
-        xmlns:sv="clr-namespace:Sunrise.Views"
-        xmlns:sb="clr-namespace:Sunrise.Behaviors"
-        xmlns:su="clr-namespace:Sunrise.Utils"
-				xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
-        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-        x:Class="Sunrise.Views.MainWindow"
-		    x:DataType="svm:MainDesktopViewModel"
-		    x:CompileBindings="False"
-		    Height="600" MinHeight="300"
-		    Width="1400" MinWidth="800"
-        Icon="/Assets/avalonia-logo.ico"
-        Title="Sunrise">
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+		xmlns:avalonia="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+		xmlns:sc="clr-namespace:Sunrise.Controls"
+		xmlns:svm="clr-namespace:Sunrise.ViewModels"
+		xmlns:sv="clr-namespace:Sunrise.Views"
+		xmlns:sb="clr-namespace:Sunrise.Behaviors"
+		xmlns:su="clr-namespace:Sunrise.Utils"
+		xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		x:Class="Sunrise.Views.MainWindow"
+		x:DataType="svm:MainDesktopViewModel"
+		x:CompileBindings="False"
+		Height="600" MinHeight="300"
+		Width="1400" MinWidth="800"
+		Icon="/Assets/avalonia-logo.ico"
+		Title="Sunrise">
 	<Design.DataContext>
 		<svm:MainDesktopViewModel />
 	</Design.DataContext>
@@ -88,13 +88,13 @@
 					<TextBlock Grid.Column="0" Text="{x:Static res:Texts.Tracks}" Classes="HeadText" />
 
 					<Button Grid.Column="1" Classes="AddBtn"
-									Command="{Binding AddFolderCommand, Mode=OneWay}" />
+							Command="{Binding AddFolderCommand, Mode=OneWay}" />
 				</Grid>
 
 				<ListBox Grid.Row="1"
-								 ItemsSource="{Binding Rubricks, Mode=OneWay}"
-								 SelectedValue="{Binding SelectedRubrick}"
-								 Tapped="Rubricks_Tapped">
+						 ItemsSource="{Binding Rubricks, Mode=OneWay}"
+						 SelectedValue="{Binding SelectedRubrick}"
+						 Tapped="Rubricks_Tapped">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<Grid>
@@ -118,37 +118,37 @@
 					</Grid.ColumnDefinitions>
 
 					<TextBlock Grid.Column="0" Text="{x:Static res:Texts.Playlists}" Classes="HeadText"
-										 Tapped="Playlists_Tapped" />
+							   Tapped="Playlists_Tapped" />
 
 					<Button Grid.Column="1" Classes="AddBtn"
-									Command="{Binding AddPlaylistCommand, Mode=OneWay}" />
+							Command="{Binding AddPlaylistCommand, Mode=OneWay}" />
 				</Grid>
 
 				<ListBox Grid.Row="3"
-								 ItemsSource="{Binding Playlists, Mode=OneWay}"
-								 IsVisible="{Binding IsPlaylistsVisible}"
-								 SelectionChanged="Playlist_SelectionChanged"
-								 Tapped="Playlist_Tapped"
-								 DoubleTapped="Playlist_DoubleTapped">
+						 ItemsSource="{Binding Playlists, Mode=OneWay}"
+						 IsVisible="{Binding IsPlaylistsVisible}"
+						 SelectionChanged="Playlist_SelectionChanged"
+						 Tapped="Playlist_Tapped"
+						 DoubleTapped="Playlist_DoubleTapped">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<Grid>
 								<TextBlock Text="{Binding Name}"
-													 IsVisible="{Binding !Editing}" />
+										   IsVisible="{Binding !Editing}" />
 								<TextBox Text="{Binding Name}"
-												 Height="14"
-												 AcceptsReturn="True"
-												 AcceptsTab="True"
-												 IsVisible="{Binding Editing}"
-												 KeyUp="Playlist_KeyUp"
-												 LostFocus="Playlist_LostFocus" />
+										 Height="14"
+										 AcceptsReturn="True"
+										 AcceptsTab="True"
+										 IsVisible="{Binding Editing}"
+										 KeyUp="Playlist_KeyUp"
+										 LostFocus="Playlist_LostFocus" />
 							</Grid>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
 					<ListBox.ContextMenu>
 						<ContextMenu>
 							<MenuItem Header="{x:Static res:Texts.Delete}"
-												Command="{Binding DeletePlaylistCommand, Mode=OneWay}" />
+									  Command="{Binding DeletePlaylistCommand, Mode=OneWay}" />
 						</ContextMenu>
 					</ListBox.ContextMenu>
 				</ListBox>
@@ -160,37 +160,37 @@
 					</Grid.ColumnDefinitions>
 
 					<TextBlock Grid.Column="0" Text="{x:Static res:Texts.Categories}" Classes="HeadText"
-										 Tapped="Categories_Tapped" />
+							   Tapped="Categories_Tapped" />
 
 					<Button Grid.Column="1" Classes="AddBtn"
-									Command="{Binding AddCategoryCommand, Mode=OneWay}" />
+							Command="{Binding AddCategoryCommand, Mode=OneWay}" />
 				</Grid>
 
 				<ListBox Grid.Row="5"
-								 ItemsSource="{Binding Categories, Mode=OneWay}"
-								 IsVisible="{Binding IsCategoriesVisible}"
-								 SelectionChanged="Category_SelectionChanged"
-								 Tapped="Category_Tapped"
-								 DoubleTapped="Category_DoubleTapped">
+						 ItemsSource="{Binding Categories, Mode=OneWay}"
+						 IsVisible="{Binding IsCategoriesVisible}"
+						 SelectionChanged="Category_SelectionChanged"
+						 Tapped="Category_Tapped"
+						 DoubleTapped="Category_DoubleTapped">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<Grid>
 								<TextBlock Text="{Binding Name}"
-													 IsVisible="{Binding !Editing}" />
+										   IsVisible="{Binding !Editing}" />
 								<TextBox Text="{Binding Name}"
-												 Height="14"
-												 AcceptsReturn="True"
-												 AcceptsTab="True"
-												 IsVisible="{Binding Editing}"
-												 KeyUp="Category_KeyUp"
-												 LostFocus="Category_LostFocus" />
+										 Height="14"
+										 AcceptsReturn="True"
+										 AcceptsTab="True"
+										 IsVisible="{Binding Editing}"
+										 KeyUp="Category_KeyUp"
+										 LostFocus="Category_LostFocus" />
 							</Grid>
 						</DataTemplate>
 					</ListBox.ItemTemplate>
 					<ListBox.ContextMenu>
 						<ContextMenu>
 							<MenuItem Header="{x:Static res:Texts.Delete}"
-												Command="{Binding DeleteCategoryCommand, Mode=OneWay}" />
+									  Command="{Binding DeleteCategoryCommand, Mode=OneWay}" />
 						</ContextMenu>
 					</ListBox.ContextMenu>
 				</ListBox>
@@ -199,23 +199,23 @@
 		</ScrollViewer>
 
 		<ListBox DockPanel.Dock="Left" MinWidth="150"
-						 ItemsSource="{Binding TrackSources, Mode=OneWay}"
-						 SelectedItem="{Binding SelectedTrackSource}"
-						 IsVisible="{Binding IsTrackSourcesVisible}"
-						 SelectionChanged="TrackSource_SelectionChanged"
-						 Tapped="TrackSource_Tapped"
-						 DoubleTapped="TrackSource_DoubleTapped" />
+				 ItemsSource="{Binding TrackSources, Mode=OneWay}"
+				 SelectedItem="{Binding SelectedTrackSource}"
+				 IsVisible="{Binding IsTrackSourcesVisible}"
+				 SelectionChanged="TrackSource_SelectionChanged"
+				 Tapped="TrackSource_Tapped"
+				 DoubleTapped="TrackSource_DoubleTapped" />
 
 		<DataGrid
-			Name="tracksGrid"
-			ItemsSource="{Binding Tracks, Mode=OneWay}"
-			CanUserReorderColumns="True"
-			CanUserResizeColumns="True"
-			GridLinesVisibility="All"
-			HorizontalScrollBarVisibility="Visible"
-			VerticalScrollBarVisibility="Visible"
-			BorderThickness="1" CornerRadius="0" BorderBrush="LightGray"
-			Margin="1">
+		Name="tracksGrid"
+		ItemsSource="{Binding Tracks, Mode=OneWay}"
+		CanUserReorderColumns="True"
+		CanUserResizeColumns="True"
+		GridLinesVisibility="All"
+		HorizontalScrollBarVisibility="Visible"
+		VerticalScrollBarVisibility="Visible"
+		BorderThickness="1" CornerRadius="0" BorderBrush="LightGray"
+		Margin="1">
 			<Interaction.Behaviors>
 				<BehaviorCollection>
 					<sb:ColumnsDataGridBehavior />
