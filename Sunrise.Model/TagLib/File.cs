@@ -11,12 +11,9 @@ public abstract class File : IDisposable
         Closed,
     }
 
-    public delegate File FileTypeResolver(IFileAbstraction abstraction, string mimetype, ReadStyle style);
-
     private Stream? _fileStream;
     protected IFileAbstraction _fileAbstraction;
     private const int _bufferSize = 1024;
-    private static readonly List<FileTypeResolver> _fileTypeResolvers = [];
     private List<string> _corruptionReasons;
 
     public static uint BufferSize => _bufferSize;
@@ -288,60 +285,42 @@ public abstract class File : IDisposable
 
     public void Seek(long offset) => Seek(offset, SeekOrigin.Begin);
 
-    public static File Create(string path) => Create(path, null, ReadStyle.Average);
+    public static File? Create(string path) => Create(path, null, ReadStyle.Average);
 
-    public static File Create(IFileAbstraction abstraction) => Create(abstraction, null, ReadStyle.Average);
+    public static File? Create(IFileAbstraction abstraction) => Create(abstraction, null, ReadStyle.Average);
 
-    public static File Create(string path, ReadStyle propertiesStyle) => Create(path, null, propertiesStyle);
+    public static File? Create(string path, ReadStyle propertiesStyle) => Create(path, null, propertiesStyle);
 
-    public static File Create(IFileAbstraction abstraction, ReadStyle propertiesStyle) => Create(abstraction, null, propertiesStyle);
+    public static File? Create(IFileAbstraction abstraction, ReadStyle propertiesStyle) => Create(abstraction, null, propertiesStyle);
 
-    public static File Create(string path, string? mimetype, ReadStyle propertiesStyle) => Create(new LocalFileAbstraction(path), mimetype, propertiesStyle);
+    public static File? Create(string path, string? mimeType, ReadStyle propertiesStyle) => Create(new LocalFileAbstraction(path), mimeType, propertiesStyle);
 
-    public static File Create(IFileAbstraction abstraction, string? mimetype, ReadStyle propertiesStyle)
+    public static File? Create(IFileAbstraction abstraction, string? mimeType, ReadStyle propertiesStyle)
     {
-        if (mimetype is null)
+        if (mimeType is null)
         {
-            string ext = string.Empty;
+            string extension = string.Empty;
             int index = abstraction.Name.LastIndexOf('.') + 1;
 
             if (index >= 1 && index < abstraction.Name.Length)
-                ext = abstraction.Name.Substring(index, abstraction.Name.Length - index);
+                extension = abstraction.Name.Substring(index, abstraction.Name.Length - index);
 
-            mimetype = "taglib/" + ext.ToLowerInvariant();
+            mimeType = "taglib/" + extension.ToLowerInvariant();
         }
 
-        foreach (var resolver in _fileTypeResolvers)
-        {
-            var file = resolver(abstraction, mimetype, propertiesStyle);
-
-            if (file is not null)
-                return file;
-        }
-
-        if (!FileTypes.AvailableTypes.TryGetValue(mimetype, out Type? value))
-            throw new UnsupportedFormatException(string.Format(CultureInfo.InvariantCulture, "{0} ({1})", abstraction.Name, mimetype));
-
-        var file_type = value;
+        if (!FileTypes.TryGetCreate(mimeType, out var create) || create is null)
+            throw new UnsupportedFormatException(string.Format(CultureInfo.InvariantCulture, "{0} ({1})", abstraction.Name, mimeType));
 
         try
         {
-            var file = (File)Activator.CreateInstance(file_type, new object[] { abstraction, propertiesStyle })
-                ?? throw new InvalidOperationException();
-
-            file.MimeType = mimetype;
+            var file = create(abstraction, propertiesStyle) ?? throw new InvalidOperationException();
+            file.MimeType = mimeType;
             return file;
         }
         catch (System.Reflection.TargetInvocationException e)
         {
             throw e.InnerException;
         }
-    }
-
-    public static void AddFileTypeResolver(FileTypeResolver resolver)
-    {
-        if (resolver is not null)
-            _fileTypeResolvers.Insert(0, resolver);
     }
 
     protected void PreSave()

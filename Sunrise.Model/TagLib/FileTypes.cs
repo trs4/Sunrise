@@ -1,12 +1,14 @@
-﻿namespace Sunrise.Model.TagLib;
+﻿using static Sunrise.Model.TagLib.File;
+
+namespace Sunrise.Model.TagLib;
 
 public static class FileTypes
 {
-    private static Dictionary<string, Type> _fileTypes;
+    private static Dictionary<string, Func<IFileAbstraction, ReadStyle, File>> _fileTypes;
 
-    private static readonly Type[] _staticFileTypes =
+    private static readonly (Type Type, Func<IFileAbstraction, ReadStyle, File> Create)[] _staticFileTypes =
         [
-            //typeof(Aac.File),
+            (typeof(Aac.File), (a, s) => new Aac.File(a, s)),
             //typeof(Aiff.File),
             //typeof(Ape.File),
             //typeof(Asf.File),
@@ -17,9 +19,9 @@ public static class FileTypes
             //typeof(Gif.File),
             //typeof(Image.NoMetadata.File),
             //typeof(Jpeg.File),
-            //typeof(Mpeg4.File),
-            typeof(Mpeg.AudioFile),
-            typeof(Mpeg.File),
+            (typeof(Mpeg4.File), (a, s) => new Mpeg4.File(a, s)),
+            (typeof(Mpeg.AudioFile), (a, s) => new Mpeg.AudioFile(a, s)),
+            (typeof(Mpeg.File), (a, s) => new Mpeg.File(a, s)),
             //typeof(MusePack.File),
             //typeof(Ogg.File),
             //typeof(Png.File),
@@ -37,7 +39,8 @@ public static class FileTypes
     static FileTypes()
         => Init();
 
-    public static IDictionary<string, Type> AvailableTypes => _fileTypes;
+    public static bool TryGetCreate(string mimeType, out Func<IFileAbstraction, ReadStyle, File>? create)
+        => _fileTypes.TryGetValue(mimeType, out create);
 
     internal static void Init()
     {
@@ -46,19 +49,19 @@ public static class FileTypes
 
         _fileTypes = [];
 
-        foreach (Type type in _staticFileTypes)
-            Register(type);
+        foreach (var (type, create) in _staticFileTypes)
+            Register(type, create);
     }
 
-    public static void Register(Type type)
+    public static void Register(Type type, Func<IFileAbstraction, ReadStyle, File> create)
     {
-        Attribute[] attrs = Attribute.GetCustomAttributes(type, typeof(SupportedMimeType), false);
+        var attributes = Attribute.GetCustomAttributes(type, typeof(SupportedMimeType), false);
 
-        if (attrs.Length == 0)
+        if (attributes.Length == 0)
             return;
 
-        foreach (var attr in attrs.OfType<SupportedMimeType>())
-            _fileTypes.Add(attr.MimeType, type);
+        foreach (var attribute in attributes.OfType<SupportedMimeType>())
+            _fileTypes.Add(attribute.MimeType, create);
     }
 
 }

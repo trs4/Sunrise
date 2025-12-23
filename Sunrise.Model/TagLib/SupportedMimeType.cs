@@ -3,30 +3,30 @@
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
 public sealed class SupportedMimeType : Attribute
 {
-    private static readonly List<SupportedMimeType> _mimetypes = [];
+    private static readonly List<SupportedMimeType> _mimeTypes = [];
 
     static SupportedMimeType()
         => FileTypes.Init();
 
-    public SupportedMimeType(string mimetype)
+    public SupportedMimeType(string mimeType)
     {
-        MimeType = mimetype;
-        _mimetypes.Add(this);
+        MimeType = mimeType;
+        _mimeTypes.Add(this);
     }
 
-    public SupportedMimeType(string mimetype, string extension)
-        : this(mimetype)
+    public SupportedMimeType(string mimeType, string extension)
+        : this(mimeType)
         => Extension = extension;
 
-    public string MimeType { get; private set; }
+    public string MimeType { get; }
 
-    public string Extension { get; private set; }
+    public string Extension { get; }
 
     public static IEnumerable<string> AllMimeTypes
     {
         get
         {
-            foreach (SupportedMimeType type in _mimetypes)
+            foreach (SupportedMimeType type in _mimeTypes)
                 yield return type.MimeType;
         }
     }
@@ -35,7 +35,7 @@ public sealed class SupportedMimeType : Attribute
     {
         get
         {
-            foreach (SupportedMimeType type in _mimetypes)
+            foreach (SupportedMimeType type in _mimeTypes)
             {
                 if (type.Extension is not null)
                     yield return type.Extension;

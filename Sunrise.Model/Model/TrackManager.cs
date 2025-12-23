@@ -1,32 +1,28 @@
-﻿using Sunrise.Model.TagLib.Mpeg;
-
-namespace Sunrise.Model;
+﻿namespace Sunrise.Model;
 
 internal sealed class TrackManager
 {
-    public static bool TryCreate(FileInfo file, DateTime added, out Track track)
+    public static bool TryCreate(FileInfo file, DateTime added, out Track? track)
     {
-        if (!".mp3".Equals(file.Extension, StringComparison.OrdinalIgnoreCase))
-        {
-            track = new();
-            return false; // %%TODO .m4a
-        }
-
         try
         {
             track = Create(file, added);
-            return true;
+            return track is not null;
         }
         catch
         {
-            track = new();
+            track = null;
             return false;
         }
     }
 
-    public static Track Create(FileInfo file, DateTime added)
+    public static Track? Create(FileInfo file, DateTime added)
     {
-        using var tfile = new AudioFile(file.FullName);
+        using var tfile = TagLib.File.Create(file.FullName);
+
+        if (tfile is null)
+            return null;
+
         var properties = tfile.Properties;
         var pictures = tfile.Tag.Pictures;
         int year = (int)tfile.Tag.Year;
