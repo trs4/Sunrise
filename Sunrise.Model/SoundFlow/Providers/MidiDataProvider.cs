@@ -1,5 +1,4 @@
-﻿using Sunrise.Model.SoundFlow.Editing;
-using Sunrise.Model.SoundFlow.Metadata.Midi;
+﻿using Sunrise.Model.SoundFlow.Metadata.Midi;
 using Sunrise.Model.SoundFlow.Metadata.Midi.Enums;
 using MidiTrack = Sunrise.Model.SoundFlow.Metadata.Midi.MidiTrack;
 
@@ -88,23 +87,6 @@ public sealed class MidiDataProvider
     /// <param name="stream">The stream containing the MIDI file data.</param>
     public MidiDataProvider(Stream stream) : this(MidiFileParser.Parse(stream))
     {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of the <see cref="MidiDataProvider"/> class from a mutable <see cref="MidiSequence"/>.
-    /// This acts as a read-only "view" for the playback engine.
-    /// </summary>
-    /// <param name="sequence">The MIDI sequence to create a provider from.</param>
-    public MidiDataProvider(MidiSequence sequence)
-    {
-        TicksPerQuarterNote = sequence.TicksPerQuarterNote;
-        Events = sequence.Events
-            .Select(absoluteEvent => new TimedMidiEvent(absoluteEvent.DeltaTimeTicks, absoluteEvent)).ToList()
-            .AsReadOnly();
-
-        BuildTempoMap();
-        LengthTicks = sequence.Events.Count > 0 ? sequence.Events.Max(e => e.DeltaTimeTicks) : 0;
-        Duration = GetTimeSpanForTick(LengthTicks);
     }
 
     /// <summary>
