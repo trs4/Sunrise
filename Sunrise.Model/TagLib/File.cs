@@ -118,7 +118,8 @@ public abstract class File : IDisposable
         ArgumentNullException.ThrowIfNull(_fileStream);
         Mode = AccessMode.Read;
         byte[] buffer = new byte[length];
-        int count = 0, read = 0, needed = length;
+        int read = 0, needed = length;
+        int count;
 
         do
         {
@@ -199,39 +200,38 @@ public abstract class File : IDisposable
             return -1;
 
         ByteVector buffer;
-        long original_position = _fileStream.Position;
-        long buffer_offset = Length - startPosition;
-        int read_size = _bufferSize;
-        read_size = (int)Math.Min(buffer_offset, _bufferSize);
-        buffer_offset -= read_size;
-        _fileStream.Position = buffer_offset;
+        long originalPosition = _fileStream.Position;
+        long bufferOffset = Length - startPosition;
+        int readSize = (int)Math.Min(bufferOffset, _bufferSize);
+        bufferOffset -= readSize;
+        _fileStream.Position = bufferOffset;
 
-        for (buffer = ReadBlock(read_size); buffer.Count > 0; buffer = ReadBlock(read_size))
+        for (buffer = ReadBlock(readSize); buffer.Count > 0; buffer = ReadBlock(readSize))
         {
             long location = buffer.RFind(pattern);
 
             if (location >= 0)
             {
-                _fileStream.Position = original_position;
-                return buffer_offset + location;
+                _fileStream.Position = originalPosition;
+                return bufferOffset + location;
             }
 
             if (after is not null && buffer.RFind(after) >= 0)
             {
-                _fileStream.Position = original_position;
+                _fileStream.Position = originalPosition;
                 return -1;
             }
 
-            read_size = (int)Math.Min(buffer_offset, _bufferSize);
-            buffer_offset -= read_size;
+            readSize = (int)Math.Min(bufferOffset, _bufferSize);
+            bufferOffset -= readSize;
 
-            if (read_size + pattern.Count > _bufferSize)
-                buffer_offset += pattern.Count;
+            if (readSize + pattern.Count > _bufferSize)
+                bufferOffset += pattern.Count;
 
-            _fileStream.Position = buffer_offset;
+            _fileStream.Position = bufferOffset;
         }
 
-        _fileStream.Position = original_position;
+        _fileStream.Position = originalPosition;
         return -1;
     }
 

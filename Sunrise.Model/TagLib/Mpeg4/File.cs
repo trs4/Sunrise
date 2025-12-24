@@ -94,9 +94,6 @@ public class File : TagLib.File
             InvariantStartPosition = parser.MdatStartPosition;
             InvariantEndPosition = parser.MdatEndPosition;
 
-            long size_change = 0;
-            long write_position = 0;
-
             // To avoid rewriting udta blocks which might not have been modified,
             // the code here will work correctly if:
             // 1. There is a single udta for the entire file
@@ -105,6 +102,8 @@ public class File : TagLib.File
             // We should be OK in the vast majority of cases
             var udtaBox = FindAppleTagUdta() ?? new IsoUserDataBox();
             ByteVector tag_data = udtaBox.Render();
+            long sizeChange;
+            long writePosition;
 
             // If we don't have a "udta" box to overwrite...
             if (udtaBox.ParentTree is null || udtaBox.ParentTree.Length == 0)
@@ -112,29 +111,29 @@ public class File : TagLib.File
 
                 // Stick the box at the end of the moov box
                 BoxHeader moov_header = parser.MoovTree![^1];
-                size_change = tag_data.Count;
-                write_position = moov_header.Position + moov_header.TotalBoxSize;
-                Insert(tag_data, write_position, 0);
+                sizeChange = tag_data.Count;
+                writePosition = moov_header.Position + moov_header.TotalBoxSize;
+                Insert(tag_data, writePosition, 0);
 
                 // Overwrite the parent box sizes
                 for (int i = parser.MoovTree.Length - 1; i >= 0; i--)
-                    size_change = parser.MoovTree[i].Overwrite(this, size_change);
+                    sizeChange = parser.MoovTree[i].Overwrite(this, sizeChange);
             }
             else
             {
                 // Overwrite the old box
-                BoxHeader udta_header = udtaBox.ParentTree[udtaBox.ParentTree.Length - 1];
-                size_change = tag_data.Count - udta_header.TotalBoxSize;
-                write_position = udta_header.Position;
-                Insert(tag_data, write_position, udta_header.TotalBoxSize);
+                BoxHeader udta_header = udtaBox.ParentTree[^1];
+                sizeChange = tag_data.Count - udta_header.TotalBoxSize;
+                writePosition = udta_header.Position;
+                Insert(tag_data, writePosition, udta_header.TotalBoxSize);
 
                 // Overwrite the parent box sizes
                 for (int i = udtaBox.ParentTree.Length - 2; i >= 0; i--)
-                    size_change = udtaBox.ParentTree[i].Overwrite(this, size_change);
+                    sizeChange = udtaBox.ParentTree[i].Overwrite(this, sizeChange);
             }
 
             // If we've had a size change, we may need to adjust chunk offsets
-            if (size_change != 0)
+            if (sizeChange != 0)
             {
                 // We may have moved the offset boxes, so we need to reread
                 parser.ParseChunkOffsets();
@@ -145,13 +144,13 @@ public class File : TagLib.File
                 {
                     if (box is IsoChunkLargeOffsetBox co64)
                     {
-                        co64.Overwrite(this, size_change, write_position);
+                        co64.Overwrite(this, sizeChange, writePosition);
                         continue;
                     }
 
                     if (box is IsoChunkOffsetBox stco)
                     {
-                        stco.Overwrite(this, size_change, write_position);
+                        stco.Overwrite(this, sizeChange, writePosition);
                         continue;
                     }
                 }
