@@ -26,7 +26,12 @@ public sealed class StreamDataProvider : ISoundDataProvider
     public static StreamDataProvider Create(AudioEngine engine, AudioFormat format, string filePath)
     {
         var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read);
-        string formatId = Path.GetExtension(filePath).Substring(1).ToLower();
+        string extension = Path.GetExtension(filePath);
+
+        if (string.IsNullOrEmpty(extension))
+            throw new InvalidOperationException(filePath);
+
+        string formatId = extension.Substring(1).ToLower();
         var decoder = engine.CreateDecoder(stream, formatId, format);
         return new(stream, decoder);
     }
