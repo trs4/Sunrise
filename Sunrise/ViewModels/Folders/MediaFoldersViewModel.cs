@@ -18,6 +18,8 @@ public sealed class MediaFoldersViewModel : ObservableObject
     private readonly Player _player;
     private MediaFolderViewModel _selectedFolder;
 
+    public MediaFoldersViewModel() { } // For designer
+
     public MediaFoldersViewModel(Player player)
     {
         _player = player ?? throw new ArgumentNullException(nameof(player));
