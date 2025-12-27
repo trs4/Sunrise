@@ -84,6 +84,7 @@ public sealed class Player
             .RunAsync(token);
 
         await connection.Schema.CreateTableWithParseQuery<Folders>().RunAsync(token);
+        await connection.Schema.CreateTableWithParseQuery<AppNames>().RunAsync(token);
 
         await connection.Schema.CreateTableWithParseQuery<Tracks>().RunAsync(token);
         await connection.Schema.CreateTableWithParseQuery<TrackPictures>().RunAsync(token);
@@ -94,7 +95,6 @@ public sealed class Player
         await connection.Schema.CreateTableWithParseQuery<PlaylistTracks>().RunAsync(token);
         await connection.Schema.CreateTableWithParseQuery<PlaylistCategories>().RunAsync(token);
 
-        await connection.Schema.CreateTableWithParseQuery<AppNames>().RunAsync(token);
         await connection.Schema.CreateTableWithParseQuery<TrackReproduceds>().RunAsync(token);
     }
 
@@ -1304,6 +1304,20 @@ public sealed class Player
             ids[i++] = track.Id;
 
         return ids;
+    }
+
+    public async Task DeleteAllMediaAsync(CancellationToken token = default)
+    {
+        await _connection.Delete.CreateQuery<Tracks>().RunAsync(token);
+        await _connection.Delete.CreateQuery<TrackPictures>().RunAsync(token);
+
+        await _connection.Delete.CreateQuery<Categories>().RunAsync(token);
+
+        await _connection.Delete.CreateQuery<Playlists>().RunAsync(token);
+        await _connection.Delete.CreateQuery<PlaylistTracks>().RunAsync(token);
+        await _connection.Delete.CreateQuery<PlaylistCategories>().RunAsync(token);
+
+        await _connection.Delete.CreateQuery<TrackReproduceds>().RunAsync(token);
     }
 
 }
