@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Build.targets" />
+    <File Path="Directory.Packages.props" />
+    <File Path="NuGet.Config" />
+    <File Path="RuleSet.ruleset" />
+  </Folder>
+  <Project Path="ServerAndroidTest/ServerAndroidTest.csproj" />
+  <Project Path="Sunrise.Android/Sunrise.Android.csproj">
+    <Deploy Solution="Debug|*" />
+  </Project>
+  <Project Path="Sunrise.Desktop/Sunrise.Desktop.csproj" />
+  <Project Path="Sunrise.Model/Sunrise.Model.csproj" />
+  <Project Path="Sunrise/Sunrise.csproj" />
+</Solution>
