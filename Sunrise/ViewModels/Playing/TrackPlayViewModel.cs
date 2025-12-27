@@ -24,7 +24,6 @@ public abstract class TrackPlayViewModel : ObservableObject
     private object _playIcon = _playIconSource;
 
     private TrackViewModel? _currentTrack;
-    private double _volume = 15d;
     private readonly DispatcherTimer _playerTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private TimeSpan _position;
     private bool _randomPlay;
@@ -41,7 +40,6 @@ public abstract class TrackPlayViewModel : ObservableObject
         Owner = owner ?? throw new ArgumentNullException(nameof(owner));
         Player = player ?? throw new ArgumentNullException(nameof(player));
         Strategy = TrackPlayStrategy.Create(owner, ownerRubric: owner.Songs);
-        Player.Media.Volume = _volume;
         player.Media.OnStopped = OnStopped;
         _playerTimer.Tick += OnTick;
 
@@ -77,12 +75,6 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         get => _currentTrack;
         set => SetProperty(ref _currentTrack, value);
-    }
-
-    public double Volume
-    {
-        get => _volume;
-        set => SetProperty(ref _volume, value);
     }
 
     public TimeSpan Position
@@ -152,9 +144,7 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         base.OnPropertyChanged(e);
 
-        if (e.PropertyName == nameof(Volume))
-            Player.Media.Volume = _volume;
-        else if (e.PropertyName is nameof(RandomPlay) or nameof(TrackPlayStrategy))
+        if (e.PropertyName is nameof(RandomPlay) or nameof(TrackPlayStrategy))
         {
             if (Strategy is not null && Strategy.Equals(_randomPlay, _ownerRubric, _ownerTrackSource))
                 return;
@@ -211,7 +201,7 @@ public abstract class TrackPlayViewModel : ObservableObject
         }
     }
 
-    private void Change(TrackViewModel trackViewModel)
+    private async Task ChangeAsync(TrackViewModel trackViewModel)
     {
         bool isPlaying = false;
         var currentTrack = _currentTrack;
@@ -240,6 +230,14 @@ public abstract class TrackPlayViewModel : ObservableObject
         }
 
         SetPicture(trackViewModel.Track);
+    }
+
+    public void Stop()
+    {
+        Position = default;
+        PlayIcon = _playIconSource;
+        _currentTrack?.IsPlaying = false;
+        _playerTimer.Stop();
     }
 
     public void ChangePosition(double position)
@@ -330,7 +328,7 @@ public abstract class TrackPlayViewModel : ObservableObject
             }
             else if (Owner.SelectedRubrick is not SongsRubricViewModel || track.Picked)
             {
-                Change(track);
+                await ChangeAsync(track);
                 break;
             }
         }
@@ -363,7 +361,7 @@ public abstract class TrackPlayViewModel : ObservableObject
                     track = await Strategy.GetFirstAsync();
 
                     if (track is not null)
-                        Change(track);
+                        await ChangeAsync(track);
                 }
                 else
                     Clear();
@@ -374,7 +372,7 @@ public abstract class TrackPlayViewModel : ObservableObject
                 track = nextTrack;
             else
             {
-                Change(nextTrack);
+                await ChangeAsync(nextTrack);
                 break;
             }
         }
@@ -415,11 +413,13 @@ public abstract class TrackPlayViewModel : ObservableObject
                 await PlayCoreAsync(currentTrack);
             }
             else
-                Clear();
+                OnTracksEnded();
         }
         else
             await PlayCoreAsync(nextTrack);
     }
+
+    protected abstract void OnTracksEnded();
 
     private Task OnNextListAsync() => Owner.OnNextListAsync();
 

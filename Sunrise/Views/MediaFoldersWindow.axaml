@@ -11,7 +11,6 @@
 		Height="300" MinHeight="300"
 		Width="500" MinWidth="500"
 		CanResize="False"
-		Icon="/Assets/avalonia-logo.ico"
 		Title="{x:Static res:Texts.MediaLibrary}">
 	<Design.DataContext>
 		<vm:MediaFoldersViewModel />
@@ -24,8 +23,10 @@
 		</Grid.RowDefinitions>
 
 		<Menu Grid.Row="0">
-			<MenuItem Header="{x:Static res:Texts.Add}"/>
-			<MenuItem Header="{x:Static res:Texts.Delete}"/>
+			<MenuItem Header="{x:Static res:Texts.Add}"
+					  Command="{Binding AddCommand, Mode=OneWay}" />
+			<MenuItem Header="{x:Static res:Texts.Delete}"
+					  Command="{Binding DeleteCommand, Mode=OneWay}" />
 		</Menu>
 
 		<DataGrid Grid.Row="1"

@@ -1,15 +1,13 @@
-﻿using Sunrise.Model.Audio;
-using Sunrise.Model.Audio.Wave;
+﻿using Sunrise.Model.SoundFlow.Components;
+using Sunrise.Model.SoundFlow.Enums;
 
 namespace Sunrise.Model;
 
 public sealed class MediaPlayer : IDisposable
 {
     private volatile bool _canOnStoppedRaised = true;
-    private WaveOutEvent? _wavePlayer;
+    private SoundPlayer? _wavePlayer;
     private string _filePath;
-    private WaveStream? _fileStream;
-    private VolumeWaveProvider16 _volumeProvider;
     private double _volume = 100d;
 
     internal MediaPlayer(Player player)
@@ -17,6 +15,7 @@ public sealed class MediaPlayer : IDisposable
 
     public Player Player { get; }
 
+    /// <summary>Громкость от 0 до 100</summary>
     public double Volume
     {
         get => _volume;
@@ -28,10 +27,10 @@ public sealed class MediaPlayer : IDisposable
                 value = 100d;
 
             _volume = value;
-            var volumeProvider = _volumeProvider;
+            var wavePlayer = _wavePlayer;
 
-            if (volumeProvider is not null)
-                volumeProvider.Volume = (float)(value / 100d);
+            if (wavePlayer is not null)
+                SetVolume(wavePlayer);
         }
     }
 
@@ -39,15 +38,18 @@ public sealed class MediaPlayer : IDisposable
     {
         get
         {
-            var fileStream = _fileStream;
-            return fileStream is null ? 0d : (double)fileStream.Position / fileStream.Length;
+            var wavePlayer = _wavePlayer;
+            return wavePlayer is null ? 0d : (double)wavePlayer.DataProvider.Position / wavePlayer.DataProvider.Length;
         }
         set
         {
-            var fileStream = _fileStream;
+            var wavePlayer = _wavePlayer;
 
-            if (fileStream is not null)
-                fileStream.Position = (long)(fileStream.Length * value);
+            if (wavePlayer is not null)
+            {
+                int sampleOffset = (int)(wavePlayer.DataProvider.Length * value);
+                wavePlayer.Seek(sampleOffset);
+            }
         }
     }
 
@@ -55,8 +57,8 @@ public sealed class MediaPlayer : IDisposable
     {
         get
         {
-            var fileStream = _fileStream;
-            return fileStream is not null && fileStream.Position >= fileStream.Length;
+            var wavePlayer = _wavePlayer;
+            return wavePlayer is not null && wavePlayer.DataProvider.Position >= wavePlayer.DataProvider.Length;
         }
     }
 
@@ -66,7 +68,7 @@ public sealed class MediaPlayer : IDisposable
     {
         ArgumentNullException.ThrowIfNull(track);
         string filePath = track.Path;
-        Stream prevFileStream = null;
+        SoundPlayer? prevWavePlayer = null;
         _canOnStoppedRaised = false;
 
         try
@@ -75,39 +77,48 @@ public sealed class MediaPlayer : IDisposable
 
             if (wavePlayer is null)
             {
-                _wavePlayer = wavePlayer = new WaveOutEvent { DesiredLatency = 200 };
-                wavePlayer.PlaybackStopped += OnPlaybackStopped;
+                _filePath = filePath;
+                _wavePlayer = wavePlayer = CreateWavePlayer(filePath);
             }
-            else if (wavePlayer.PlaybackState != PlaybackState.Paused)
+            else if (wavePlayer.State == PlaybackState.Playing)
                 wavePlayer.Stop();
 
             if (_filePath != filePath)
             {
-                prevFileStream = _fileStream;
-                _fileStream = new Mp3FileReader(filePath);
-                _volumeProvider = new VolumeWaveProvider16(_fileStream) { Volume = (float)(_volume / 100d) };
+                prevWavePlayer = wavePlayer;
                 _filePath = filePath;
 
-                if (wavePlayer.PlaybackState != PlaybackState.Stopped)
+                if (wavePlayer.State != PlaybackState.Stopped)
                     wavePlayer.Stop();
 
-                wavePlayer.Init(_volumeProvider);
+                _wavePlayer = wavePlayer = CreateWavePlayer(filePath);
             }
-            else if (wavePlayer.PlaybackState != PlaybackState.Paused)
-                _fileStream?.Seek(0, SeekOrigin.Begin);
+            else if (wavePlayer.State == PlaybackState.Playing)
+                wavePlayer.Seek(0);
 
             wavePlayer.Play();
         }
         finally
         {
-            prevFileStream?.Dispose();
+            prevWavePlayer?.Dispose();
             _canOnStoppedRaised = true;
         }
     }
 
-    private async void OnPlaybackStopped(object? sender, StoppedEventArgs e)
+    private SoundPlayer CreateWavePlayer(string filePath)
     {
-        if (_canOnStoppedRaised && _wavePlayer?.PlaybackState == PlaybackState.Stopped && OnStopped is not null)
+        var wavePlayer = WavePlayer.Create(filePath);
+        SetVolume(wavePlayer);
+        wavePlayer.PlaybackEnded += OnPlaybackEnded;
+        return wavePlayer;
+    }
+
+    private void SetVolume(SoundPlayer wavePlayer)
+        => wavePlayer.Volume = (float)(_volume / 100d);
+
+    private async void OnPlaybackEnded(object? sender, EventArgs e)
+    {
+        if (_canOnStoppedRaised && _wavePlayer?.State == PlaybackState.Stopped && OnStopped is not null)
             await OnStopped();
     }
 
@@ -121,13 +132,10 @@ public sealed class MediaPlayer : IDisposable
 
         if (wavePlayer is not null)
         {
-            wavePlayer.PlaybackStopped -= OnPlaybackStopped;
+            wavePlayer.PlaybackEnded -= OnPlaybackEnded;
             wavePlayer.Dispose();
             _wavePlayer = null;
         }
-
-        _fileStream?.Dispose();
-        _fileStream = null;
 
         GC.SuppressFinalize(this);
     }

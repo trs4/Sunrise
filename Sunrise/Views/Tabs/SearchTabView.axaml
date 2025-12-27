@@ -28,7 +28,7 @@
 				 Theme="{StaticResource SoloTextBox}"
 				 UseFloatingWatermark="False"
 				 Watermark="{x:Static res:Texts.Search}"
-				 Margin="10 0"
+				 Margin="10 5 10 0"
 				 Text="{Binding SearchText, Delay=250}">
 			<TextBox.InnerRightContent>
 				<Button Classes="Flat" Padding="4"

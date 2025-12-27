@@ -20,6 +20,9 @@
 			<Setter Property="OpacityMask" Value="Gray" />
 			<Setter Property="Opacity" Value="0.4" />
 		</Style>
+		<Style Selector="StackPanel.TabButton" >
+			<Setter Property="Margin" Value="0 5" />
+		</Style>
 	</UserControl.Styles>
 
 	<Grid>
@@ -59,7 +62,7 @@
 
 				<TabItem>
 					<TabItem.Header>
-						<StackPanel>
+						<StackPanel Classes="TabButton">
 							<Image Classes="TabImage" Source="{su:FromIcon Track}" />
 							<TextBlock Text="{x:Static res:Texts.Tracks}" />
 						</StackPanel>
@@ -70,7 +73,7 @@
 
 				<TabItem>
 					<TabItem.Header>
-						<StackPanel>
+						<StackPanel Classes="TabButton">
 							<Image Classes="TabImage" Source="{su:FromIcon Playlist}" />
 							<TextBlock Text="{x:Static res:Texts.Playlists}" />
 						</StackPanel>
@@ -81,7 +84,7 @@
 
 				<TabItem>
 					<TabItem.Header>
-						<StackPanel>
+						<StackPanel Classes="TabButton">
 							<Image Classes="TabImage" Source="{su:FromIcon Categories}" />
 							<TextBlock Text="{x:Static res:Texts.Categories}" />
 						</StackPanel>
@@ -92,7 +95,7 @@
 
 				<TabItem>
 					<TabItem.Header>
-						<StackPanel>
+						<StackPanel Classes="TabButton">
 							<Image Classes="TabImage" Source="{su:FromIcon Search}" />
 							<TextBlock Text="{x:Static res:Texts.Search}" />
 						</StackPanel>

@@ -13,7 +13,7 @@
 		<svm:MainDeviceViewModel />
 	</Design.DataContext>
 
-	<ScrollViewer>
+	<ScrollViewer Margin="0 5 0 0">
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto" />

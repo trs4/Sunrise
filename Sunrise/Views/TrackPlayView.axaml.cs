@@ -13,7 +13,7 @@ public partial class TrackPlayView : UserControl
 
     private void Volume_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is not TrackPlayViewModel viewModel)
+        if (DataContext is not TrackPlayDesktopViewModel viewModel)
             return;
 
         double position = e.GetPosition(volumeSlider).X / volumeSlider.Bounds.Width;

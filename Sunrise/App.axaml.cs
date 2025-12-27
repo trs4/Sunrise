@@ -1,12 +1,16 @@
-﻿using Avalonia;
+﻿using System;
+using System.Globalization;
+using System.Linq;
+using System.Threading;
+using Avalonia;
+using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
 using Sunrise.Model;
+using Sunrise.Services;
 using Sunrise.ViewModels;
 using Sunrise.Views;
-using System.Globalization;
-using System.Threading;
 
 namespace Sunrise;
 
@@ -18,30 +22,52 @@ public partial class App : Application
     public override async void OnFrameworkInitializationCompleted()
     {
         SetCurrentCulture();
-        BindingPlugins.DataValidators.RemoveAt(0);
         var player = await Player.InitAsync();
-        MainViewModel viewModel = null;
-
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop) // Windows
-        {
-            //desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
-            //viewModel = new MainDesktopViewModel(player);
-            //desktop.MainWindow = ((MainDesktopViewModel)viewModel).Owner = new MainWindow { DataContext = viewModel };
-
-            viewModel = new MainDeviceViewModel(player);
-            desktop.MainWindow = new MainDeviceWindow { DataContext = viewModel };
-        }
-        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform) // Android
-        {
-            viewModel = new MainDeviceViewModel(player);
-            singleViewPlatform.MainView = new MainDeviceView { DataContext = viewModel };
-        }
-
-        if (viewModel is not null)
-            await viewModel.ReloadTracksAsync();
-
+        var viewModel = InitApplication(player);
+        await viewModel.ReloadTracksAsync();
         base.OnFrameworkInitializationCompleted();
     }
+
+    private MainViewModel InitApplication(Player player)
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            return InitWindows(player, desktop);
+        else if (ApplicationLifetime is ISingleViewApplicationLifetime singleViewPlatform)
+            return InitAndroid(player, singleViewPlatform);
+
+        throw new NotSupportedException(ApplicationLifetime?.GetType().FullName);
+    }
+
+    private static MainDesktopViewModel InitWindows(Player player, IClassicDesktopStyleApplicationLifetime application)
+    {
+        DisableAvaloniaDataAnnotationValidation();
+
+        application.ShutdownMode = ShutdownMode.OnMainWindowClose;
+        var viewModel = new MainDesktopViewModel(player);
+        application.MainWindow = viewModel.Owner = new MainWindow { DataContext = viewModel };
+        AppServices.Get<IAppSyncService>().Start(viewModel.Dispatcher);
+        application.ShutdownRequested += Desktop_ShutdownRequested;
+        return viewModel;
+    }
+
+    //private static MainDeviceViewModel InitWindows(Player player, IClassicDesktopStyleApplicationLifetime application)
+    //{
+    //    DisableAvaloniaDataAnnotationValidation();
+
+    //    var viewModel = new MainDeviceViewModel(player);
+    //    application.MainWindow = new MainDeviceWindow { DataContext = viewModel };
+    //    return viewModel;
+    //}
+
+    private static MainDeviceViewModel InitAndroid(Player player, ISingleViewApplicationLifetime application)
+    {
+        var viewModel = new MainDeviceViewModel(player);
+        application.MainView = new MainDeviceView { DataContext = viewModel };
+        return viewModel;
+    }
+
+    private static async void Desktop_ShutdownRequested(object? sender, ShutdownRequestedEventArgs e)
+        => await AppServices.Get<IAppSyncService>().ShutdownAsync();
 
     private static void SetCurrentCulture()
     {
@@ -56,6 +82,14 @@ public partial class App : Application
 
         Thread.CurrentThread.CurrentCulture = cultureInfo;
         Thread.CurrentThread.CurrentUICulture = cultureInfo;
+    }
+
+    private static void DisableAvaloniaDataAnnotationValidation()
+    {
+        var dataValidationPluginsToRemove = BindingPlugins.DataValidators.OfType<DataAnnotationsValidationPlugin>().ToArray();
+
+        foreach (var plugin in dataValidationPluginsToRemove)
+            BindingPlugins.DataValidators.Remove(plugin);
     }
 
 }

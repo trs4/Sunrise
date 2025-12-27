@@ -2,6 +2,7 @@
 
 public sealed class TracksScreenshot
 {
+    private Dictionary<Guid, Track>? _tracksByGuid;
     private Dictionary<string, Track>? _tracksByPath;
     private Dictionary<string, Dictionary<string, List<Track>>>? _tracksByArtist;
     private Dictionary<string, List<Track>>? _tracksByGenre;
@@ -21,14 +22,23 @@ public sealed class TracksScreenshot
 
     public Dictionary<int, Track> TracksById { get; }
 
-    public Dictionary<string, Track> TracksByPath
-        => _tracksByPath ??= CreateTracksByPath();
+    public Dictionary<Guid, Track> TracksByGuid => _tracksByGuid ??= CreateTracksByGuid();
 
-    public Dictionary<string, Dictionary<string, List<Track>>> TracksByArtist
-        => _tracksByArtist ??= CreateTracksByArtist();
+    public Dictionary<string, Track> TracksByPath => _tracksByPath ??= CreateTracksByPath();
 
-    public Dictionary<string, List<Track>> TracksByGenre
-        => _tracksByGenre ??= CreateTracksByGenre();
+    public Dictionary<string, Dictionary<string, List<Track>>> TracksByArtist => _tracksByArtist ??= CreateTracksByArtist();
+
+    public Dictionary<string, List<Track>> TracksByGenre => _tracksByGenre ??= CreateTracksByGenre();
+
+    private Dictionary<Guid, Track> CreateTracksByGuid()
+    {
+        var tracksByGuid = new Dictionary<Guid, Track>(Tracks.Count);
+
+        foreach (var track in Tracks)
+            tracksByGuid[track.Guid] = track;
+
+        return tracksByGuid;
+    }
 
     private Dictionary<string, Track> CreateTracksByPath()
     {
@@ -108,8 +118,31 @@ public sealed class TracksScreenshot
         ClearCache();
     }
 
+    public void Remove(IReadOnlyCollection<int>? trackIds)
+    {
+        if (trackIds is null || trackIds.Count == 0)
+            return;
+
+        var ids = (trackIds as HashSet<int>) ?? [.. trackIds];
+
+        for (int i = Tracks.Count - 1; i >= 0; i--)
+        {
+            if (ids.Contains(Tracks[i].Id))
+            {
+                Tracks.RemoveAt(i);
+                break;
+            }
+        }
+
+        foreach (int trackId in ids)
+            TracksById.Remove(trackId);
+
+        ClearCache();
+    }
+
     public void ClearCache()
     {
+        _tracksByGuid = null;
         _tracksByPath = null;
         _tracksByArtist = null;
         _tracksByGenre = null;

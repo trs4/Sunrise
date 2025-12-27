@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
@@ -9,13 +10,32 @@ namespace Sunrise.ViewModels;
 
 public sealed class TrackPlayDesktopViewModel : TrackPlayViewModel
 {
+    private double _volume = 15d;
+
     public TrackPlayDesktopViewModel() { } // For designer
 
     public TrackPlayDesktopViewModel(MainViewModel owner, Player player)
         : base(owner, player)
-        => ImportFromITunesCommand = new AsyncRelayCommand(OnImportFromITunesAsync);
+    {
+        ImportFromITunesCommand = new AsyncRelayCommand(OnImportFromITunesAsync);
+        Player.Media.Volume = _volume;
+    }
 
     public IRelayCommand ImportFromITunesCommand { get; }
+
+    public double Volume
+    {
+        get => _volume;
+        set => SetProperty(ref _volume, value);
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        if (e.PropertyName == nameof(Volume))
+            Player.Media.Volume = _volume;
+    }
 
     private async Task OnImportFromITunesAsync(CancellationToken token)
     {
@@ -30,4 +50,5 @@ public sealed class TrackPlayDesktopViewModel : TrackPlayViewModel
         await Owner.ReloadTracksAsync(token);
     }
 
+    protected override void OnTracksEnded() => Clear();
 }

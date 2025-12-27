@@ -107,4 +107,5 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         await Owner.RemoveAsync(currentTrack.Track);
     }
 
+    protected override void OnTracksEnded() => Stop();
 }

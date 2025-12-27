@@ -122,6 +122,7 @@
 
 		<!--  Track  -->
 		<Grid Grid.Row="2" Background="Transparent"
+			  Margin="20 0"
 			  Tapped="Track_Tapped">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition MinWidth="36" />
@@ -137,6 +138,7 @@
 			<ProgressBar Grid.Row="0" Grid.ColumnSpan="9"
 						 Name="progressBar"
 						 Classes="light"
+						 CornerRadius="3"
 						 VerticalAlignment="Stretch">
 				<ProgressBar.Value>
 					<MultiBinding Converter="{x:Static scv:ProgressConverter.Instance}" Mode="OneWay">
@@ -239,16 +241,6 @@
 					   Source="{su:FromIcon Options}" />
 			</Button>
 
-		</Grid>
-
-		<!--  Volume  -->
-		<Grid Grid.Row="6" Background="Transparent"
-			  Margin="45 0"
-			  Tapped="Volume_Tapped">
-			<Slider Name="volumeSlider"
-					Classes="Modern"
-					VerticalAlignment="Center"
-					Value="{Binding Volume}" />
 		</Grid>
 
 		<Grid Grid.Row="7">

@@ -63,7 +63,7 @@ public static class ImportFromITunes
         Parallel.ForEach(elementPairs, options, p => ProcessTrack(p.KeyElement, p.TrackElement, tracks, appName, now));
 
         if (!tracks.IsEmpty)
-            await player.AddAsync((IReadOnlyCollection<Track>)tracks.Values, progressOwner, appName, token);
+            await player.AddAsync((IReadOnlyCollection<Track>)tracks.Values, progressOwner: progressOwner, withAppName: appName, token: token);
     }
 
     private static void ProcessTrack(XElement keyElement, XElement trackElement,
@@ -120,7 +120,7 @@ public static class ImportFromITunes
         if (file is null || !file.Exists)
             return;
 
-        if (!TrackManager.TryCreate(file, added, out var track))
+        if (!TrackManager.TryCreate(file, added, out var track) || track is null)
             return;
 
         track.LastPlay = lastPlay;
@@ -179,7 +179,7 @@ public static class ImportFromITunes
         }
 
         if (playlists.Count > 0)
-            await player.AddAsync(playlists, progressOwner, token);
+            await player.AddAsync(playlists, progressOwner: progressOwner, token: token);
     }
 
 }

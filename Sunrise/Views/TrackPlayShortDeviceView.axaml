@@ -82,6 +82,7 @@
 				<ProgressBar Grid.Row="2"
 							 Name="progressBar"
 							 Classes="light"
+							 CornerRadius="3"
 							 VerticalAlignment="Stretch">
 					<ProgressBar.Value>
 						<MultiBinding Converter="{x:Static scv:ProgressConverter.Instance}" Mode="OneWay">

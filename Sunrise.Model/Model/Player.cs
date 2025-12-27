@@ -4,6 +4,7 @@ using RedLight;
 using RedLight.SQLite;
 using Sunrise.Model.Resources;
 using Sunrise.Model.Schemes;
+using Sunrise.Model.TagLib;
 
 namespace Sunrise.Model;
 
@@ -14,45 +15,62 @@ public sealed class Player
         nameof(Tracks.Picked)
     };
 
-    private static readonly HashSet<string> _updateExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly HashSet<string> _updateTracksExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         nameof(Tracks.Guid), nameof(Tracks.Path), nameof(Tracks.Picked), nameof(Tracks.Rating), nameof(Tracks.Reproduced),
         nameof(Tracks.Added), nameof(Tracks.RootFolder), nameof(Tracks.RelationFolder), nameof(Tracks.OriginalText),
         nameof(Tracks.TranslateText), nameof(Tracks.Language)
     };
 
-    private readonly string _folderPath;
+    private static readonly HashSet<string> _updatePlaylistsExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        nameof(Playlists.Guid)
+    };
+
+    private static readonly HashSet<string> _updateCategoriesExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
+    {
+        nameof(Categories.Guid)
+    };
+
     private readonly DatabaseConnection _connection;
 
     static Player()
         => Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-    private Player(string folderPath, DatabaseConnection connection)
+    private Player(string folderPath, string tracksPath, DatabaseConnection connection)
     {
-        _folderPath = folderPath ?? throw new ArgumentNullException(nameof(folderPath));
+        FolderPath = folderPath ?? throw new ArgumentNullException(nameof(folderPath));
+        TracksPath = tracksPath ?? throw new ArgumentNullException(nameof(tracksPath));
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         Media = new(this);
     }
 
     public MediaPlayer Media { get; }
 
-    public static async Task<Player> InitAsync(CancellationToken token = default)
+    public string FolderPath { get; }
+
+    public string TracksPath { get; }
+
+    public static async Task<Player> InitAsync(string? rootFolder = null, CancellationToken token = default)
     {
-        string rootFolder = OperatingSystem.IsAndroid()
+        rootFolder ??= OperatingSystem.IsAndroid()
             ? Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
             : Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
 
         string folderPath = Path.Combine(rootFolder, "Sunrise");
         Directory.CreateDirectory(folderPath);
 
+        string tracksPath = Path.Combine(folderPath, "Tracks");
+        Directory.CreateDirectory(tracksPath);
+
         string databaseFilePath = Path.Combine(folderPath, "MediaLibrary.db");
         string connectionString = $@"Provider=SQLite;Data Source='{databaseFilePath}'";
         var connection = SQLiteDatabaseConnection.Create(connectionString);
 
-        if (!File.Exists(databaseFilePath))
+        if (!System.IO.File.Exists(databaseFilePath))
             await CreateDatabaseAsync(connection, token);
 
-        return new Player(folderPath, connection);
+        return new Player(folderPath, tracksPath, connection);
     }
 
     private static async Task CreateDatabaseAsync(DatabaseConnection connection, CancellationToken token)
@@ -157,6 +175,64 @@ public sealed class Player
         return category;
     }
 
+    public async ValueTask AddAsync(IReadOnlyCollection<Category> categories,
+        bool sync = false, IProgress? progressOwner = null, CancellationToken token = default)
+    {
+        if (categories is null || categories.Count == 0)
+            return;
+
+        progressOwner?.Show(Texts.LoadCategories);
+        var existingCategories = await GetCategoriesAsync(token);
+        double progress = 0d;
+        double step = 100d / categories.Count;
+        const int categoriesInPacket = 1_000;
+        var addCategories = new List<Category>(categoriesInPacket);
+        var updateCategories = new List<Category>(categoriesInPacket);
+
+        foreach (var category in categories)
+        {
+            if (progressOwner is not null)
+            {
+                progress += step;
+                progressOwner.Next(progress, category.Name);
+            }
+
+            if (sync)
+            {
+                if (existingCategories.CategoriesByGuid.TryGetValue(category.Guid, out var existingCategory))
+                {
+                    if (category.Name != existingCategory.Name)
+                    {
+                        category.Name = existingCategory.Name;
+                        updateCategories.Add(category);
+                    }
+                }
+                else
+                    addCategories.Add(category);
+            }
+            else
+            {
+                if (existingCategories.CategoriesByName.TryGetValue(category.Name, out var existingCategory))
+                {
+                    category.Id = existingCategory.Id;
+                    category.Guid = existingCategory.Guid;
+                    updateCategories.Add(category);
+                }
+                else
+                    addCategories.Add(category);
+            }
+        }
+
+        if (addCategories.Count > 0)
+            await _connection.Insert.CreateWithParseMultiQuery<Category, Categories>(addCategories).FillAsync(token);
+
+        if (updateCategories.Count > 0)
+            await _connection.Update.CreateWithParseMultiQuery<Category, Categories>(updateCategories, _updateCategoriesExcludedColumns).RunAsync(token);
+
+        ClearCategories();
+        progressOwner?.Hide();
+    }
+
     private static string FindNewCategoryName(CategoriesScreenshot screenshot)
     {
         string name = Texts.Category;
@@ -215,6 +291,23 @@ public sealed class Player
         return await _connection.Delete.CreateQuery<Categories>()
             .WithTerm(Categories.Id, category.Id)
             .RunAsync(token) > 0;
+    }
+
+    public async Task DeleteCategoriesAsync(IReadOnlyList<Guid>? categories, CancellationToken token = default)
+    {
+        if (categories is null || categories.Count == 0)
+            return;
+
+        var categoryIds = await _connection.Select.CreateQuery<Categories>()
+            .WithValuesTerm(Categories.Guid, categories)
+            .GetAsync<HashSet<int>>(token);
+
+        lock (_categoriesSync)
+            _categories?.Remove(categoryIds);
+
+        await _connection.Delete.CreateQuery<Categories>()
+            .WithValuesTerm(Categories.Id, categoryIds)
+            .RunAsync(token);
     }
 
     public void ClearCategories()
@@ -359,7 +452,7 @@ public sealed class Player
             .WithTerm(nameof(PlaylistCategories.PlaylistId), playlist.Id)
             .WithTerm(nameof(PlaylistCategories.CategoryId), category.Id)
             .RunAsync(token);
-        
+
         playlist.Categories.Remove(category);
     }
 
@@ -428,12 +521,12 @@ public sealed class Player
             {
                 foreach (var playlist in playlistsByName.Values)
                 {
-                    var tracks = playlist.Tracks;
+                    var playlistTracks = playlist.Tracks;
 
-                    for (int i = tracks.Count - 1; i >= 0; i--)
+                    for (int i = playlistTracks.Count - 1; i >= 0; i--)
                     {
-                        if (tracks[i].Id == trackId)
-                            tracks.RemoveAt(i);
+                        if (playlistTracks[i].Id == trackId)
+                            playlistTracks.RemoveAt(i);
                     }
                 }
             }
@@ -451,6 +544,49 @@ public sealed class Player
             .RunAsync(token);
 
         return true;
+    }
+
+    public async Task DeleteTracksAsync(IReadOnlyList<Guid>? tracks, CancellationToken token = default)
+    {
+        if (tracks is null || tracks.Count == 0)
+            return;
+
+        var trackIds = await _connection.Select.CreateQuery<Tracks>()
+            .WithValuesTerm(Tracks.Guid, tracks)
+            .GetAsync<HashSet<int>>(token);
+
+        lock (_tracksSync)
+            _tracks?.Remove(trackIds);
+
+        lock (_playlistsSync)
+        {
+            var playlistsByName = _playlistsByName;
+
+            if (playlistsByName is not null)
+            {
+                foreach (var playlist in playlistsByName.Values)
+                {
+                    var playlistTracks = playlist.Tracks;
+
+                    for (int i = playlistTracks.Count - 1; i >= 0; i--)
+                    {
+                        if (trackIds.Contains(playlistTracks[i].Id))
+                            playlistTracks.RemoveAt(i);
+                    }
+                }
+            }
+        }
+
+        bool result = await _connection.Delete.CreateQuery<Tracks>()
+            .WithValuesTerm(Tracks.Id, trackIds)
+            .RunAsync(token) > 0;
+
+        if (!result)
+            return;
+
+        await _connection.Delete.CreateQuery<PlaylistTracks>()
+            .WithValuesTerm(PlaylistTracks.TrackId, trackIds)
+            .RunAsync(token);
     }
 
     public async Task<bool> DeletePlaylistAsync(Playlist? playlist, CancellationToken token = default)
@@ -473,6 +609,40 @@ public sealed class Player
             .RunAsync(token);
 
         return true;
+    }
+
+    public async Task DeletePlaylistsAsync(IReadOnlyList<Guid>? playlists, CancellationToken token = default)
+    {
+        if (playlists is null || playlists.Count == 0)
+            return;
+
+        var playlistIds = await _connection.Select.CreateQuery<Playlists>()
+            .WithValuesTerm(Playlists.Guid, playlists)
+            .GetAsync<HashSet<int>>(token);
+
+        lock (_playlistsSync)
+        {
+            var playlistsByName = _playlistsByName;
+
+            if (playlistsByName is not null)
+            {
+                var names = playlistsByName.Values.Where(p => playlistIds.Contains(p.Id)).Select(p => p.Name).ToList();
+
+                foreach (string name in names)
+                    playlistsByName.Remove(name);
+            }
+        }
+
+        bool result = await _connection.Delete.CreateQuery<Playlists>()
+            .WithValuesTerm(Playlists.Id, playlistIds)
+            .RunAsync(token) > 0;
+
+        if (!result)
+            return;
+
+        await _connection.Delete.CreateQuery<PlaylistTracks>()
+            .WithValuesTerm(PlaylistTracks.PlaylistId, playlistIds)
+            .RunAsync(token);
     }
 
     public void ClearPlaylists()
@@ -588,6 +758,7 @@ public sealed class Player
             .AddColumn(Folders.Path, folderPath)
             .RunAsync(token);
 
+        string searchPattern = String.Join("|", SupportedMimeType.AllExtensions.Select(e => $"*.{e}"));
         var files = directoryInfo.GetFiles("*.mp3", SearchOption.AllDirectories);
         await AddAsync(files, progressOwner, token);
         return true;
@@ -653,8 +824,8 @@ public sealed class Player
         progressOwner?.Hide();
     }
 
-    public async ValueTask AddAsync(IReadOnlyCollection<Track> tracks, IProgress? progressOwner = null, string? withAppName = null,
-        CancellationToken token = default)
+    public async ValueTask AddAsync(IReadOnlyCollection<Track> tracks,
+        bool sync = false, IProgress? progressOwner = null, string? withAppName = null, CancellationToken token = default)
     {
         if (tracks is null || tracks.Count == 0)
             return;
@@ -709,7 +880,8 @@ public sealed class Player
                 progressOwner.Next(progress, fileName);
             }
 
-            if (tracksScreenshot.TracksByPath.TryGetValue(track.Path, out var existingTrack))
+            if (sync ? tracksScreenshot.TracksByGuid.TryGetValue(track.Guid, out Track existingTrack)
+                : tracksScreenshot.TracksByPath.TryGetValue(track.Path, out existingTrack))
             {
                 UpdateIdProperties(track, existingTrack);
 
@@ -734,7 +906,7 @@ public sealed class Player
             if (track.LastPlay.HasValue && track.LastPlay.Value > now)
                 track.LastPlay = now;
 
-            FillReprodused(track, addReproduceds, updateReproduceds, withAppName, withAppNameId, trackReproducedsMap);
+            FillReproduced(track, addReproduceds, updateReproduceds, withAppName, withAppNameId, trackReproducedsMap);
 
             if (addTracks.Count == tracksInPacket || addReproduceds.Count == tracksInPacket)
             {
@@ -828,7 +1000,7 @@ public sealed class Player
             removePictureIds.Clear();
         }
 
-        await _connection.Update.CreateWithParseMultiQuery<Track, Tracks>(tracks, _updateExcludedColumns).RunAsync(token);
+        await _connection.Update.CreateWithParseMultiQuery<Track, Tracks>(tracks, _updateTracksExcludedColumns).RunAsync(token);
         pictures.Clear();
 
         foreach (var track in tracks)
@@ -848,7 +1020,7 @@ public sealed class Player
         tracks.Clear();
     }
 
-    private static void FillReprodused(Track track, List<(Track, int)> addReproduceds, List<TrackReproduced> updateReproduceds,
+    private static void FillReproduced(Track track, List<(Track, int)> addReproduceds, List<TrackReproduced> updateReproduceds,
         string? withAppName, int? withAppNameId, Dictionary<int, Dictionary<int, int>> trackReproducedsMap)
     {
         track.Reproduced = track.SelfReproduced;
@@ -907,18 +1079,21 @@ public sealed class Player
         reproduceds.Clear();
     }
 
-    public async ValueTask AddAsync(IReadOnlyCollection<Playlist> playlists, IProgress? progressOwner = null, CancellationToken token = default)
+    public async ValueTask AddAsync(IReadOnlyCollection<Playlist> playlists,
+        bool sync = false, IProgress? progressOwner = null, CancellationToken token = default)
     {
         if (playlists is null || playlists.Count == 0)
             return;
 
         progressOwner?.Show(Texts.LoadPlaylists);
         var existingPlaylists = await GetPlaylistsAsync(token);
+        var existingPlaylistsByGuid = sync ? existingPlaylists.Values.ToDictionary(p => p.Guid) : null;
         double progress = 0d;
         double step = 100d / playlists.Count;
         const int playlistsInPacket = 1_000;
         var addPlaylists = new List<Playlist>(playlistsInPacket);
-        var updatePlaylists = new List<(Playlist Playlist, Playlist ExistingPlaylist)>(playlistsInPacket);
+        var updatePlaylists = new List<Playlist>(playlistsInPacket);
+        var updatePlaylistTracks = new List<(Playlist Playlist, Playlist ExistingPlaylist)>(playlistsInPacket);
 
         var removePlaylistTracks = new DataTable();
         var removePlaylistIdColumn = removePlaylistTracks.AddInt32Column(nameof(PlaylistTracks.PlaylistId));
@@ -937,14 +1112,23 @@ public sealed class Player
                 progressOwner.Next(progress, playlist.Name);
             }
 
-            if (existingPlaylists.TryGetValue(playlist.Name, out var existingPlaylist))
+            if (sync ? existingPlaylistsByGuid!.TryGetValue(playlist.Guid, out var existingPlaylist)
+                : existingPlaylists.TryGetValue(playlist.Name, out existingPlaylist))
             {
-                playlist.Id = existingPlaylist.Id;
-                playlist.Guid = existingPlaylist.Guid;
+                updatePlaylists.Add(playlist);
+
+                if (sync)
+                    playlist.Name = existingPlaylist.Name;
+                else
+                {
+                    playlist.Id = existingPlaylist.Id;
+                    playlist.Guid = existingPlaylist.Guid;
+                }
+
                 playlist.Created = existingPlaylist.Created;
 
                 if (NeedUpdatePlaylist(playlist, existingPlaylist))
-                    updatePlaylists.Add((playlist, existingPlaylist));
+                    updatePlaylistTracks.Add((playlist, existingPlaylist));
             }
             else
                 addPlaylists.Add(playlist);
@@ -969,8 +1153,11 @@ public sealed class Player
         }
 
         if (updatePlaylists.Count > 0)
+            await _connection.Update.CreateWithParseMultiQuery<Playlist, Playlists>(updatePlaylists, _updatePlaylistsExcludedColumns).RunAsync(token);
+
+        if (updatePlaylistTracks.Count > 0)
         {
-            foreach (var (playlist, existingPlaylist) in updatePlaylists)
+            foreach (var (playlist, existingPlaylist) in updatePlaylistTracks)
             {
                 int position = 0;
                 var existingTrackIds = new List<int>(existingPlaylist.Tracks.Count);
@@ -1103,4 +1290,20 @@ public sealed class Player
 
     public async Task<TrackPicture?> LoadPictureAsync(Track track, CancellationToken token = default)
         => track.Picture = await _connection.Select.CreateWithParseQuery<TrackPicture, TrackPictures>().GetOneAsync(TrackPictures.Id, track.Id, token);
+
+    public Task<List<TrackPicture>> LoadPicturesAsync(IReadOnlyCollection<Track> tracks, CancellationToken token = default)
+        => _connection.Select.CreateWithParseQuery<TrackPicture, TrackPictures>()
+            .WithValuesTerm(TrackPictures.Id, GetIds(tracks)).GetAsync(token);
+
+    private static int[] GetIds(IReadOnlyCollection<Track> tracks)
+    {
+        var ids = new int[tracks.Count];
+        int i = 0;
+
+        foreach (var track in tracks)
+            ids[i++] = track.Id;
+
+        return ids;
+    }
+
 }

@@ -249,4 +249,7 @@
   <data name="Apply" xml:space="preserve">
     <value>Готово</value>
   </data>
+  <data name="LoadCategories" xml:space="preserve">
+    <value>Загрузка категорий</value>
+  </data>
 </root>
