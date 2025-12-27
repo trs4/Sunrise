@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Avalonia.Controls;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Sunrise.Utils;
 
 namespace Sunrise.Views;
 
@@ -69,7 +70,7 @@ internal static class DataGridRowsManager
 
     private static IList? GetDataSource(Window window)
     {
-        var dataGrid = window.FindControl<DataGrid>("tracksGrid");
+        var dataGrid = UIDispatcher.Run(() => window.FindControl<DataGrid>("tracksGrid"));
 
         if (dataGrid is null)
             return null;
