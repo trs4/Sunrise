@@ -1,5 +1,4 @@
 using Sunrise.Model.SoundFlow.Enums;
-using Sunrise.Model.SoundFlow.Metadata.Models;
 
 namespace Sunrise.Model.SoundFlow.Interfaces;
 
@@ -39,12 +38,6 @@ public interface ISoundDataProvider : IDisposable
     /// </summary>
     bool IsDisposed { get; }
     
-    /// <summary>
-    /// Gets the detailed format and tag information read from the source file.
-    /// This will be null if the provider is not sourced from a file with metadata (e.g., raw data, microphone).
-    /// </summary>
-    SoundFormatInfo? FormatInfo { get; }
-
     /// <summary>
     ///     Reads the specified number of audio bytes into the given buffer asynchronously.
     /// </summary>

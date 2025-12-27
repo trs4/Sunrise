@@ -1,7 +1,4 @@
 using Sunrise.Model.SoundFlow.Interfaces;
-using Sunrise.Model.SoundFlow.Midi.Interfaces;
-using Sunrise.Model.SoundFlow.Midi.Structs;
-using Sunrise.Model.SoundFlow.Structs;
 
 namespace Sunrise.Model.SoundFlow.Abstracts;
 
@@ -9,7 +6,7 @@ namespace Sunrise.Model.SoundFlow.Abstracts;
 /// An abstract representation of a sound modifier.
 /// Implementations of this class alter audio data to apply various effects.
 /// </summary>
-public abstract class SoundModifier : IMidiMappable, IMidiControllable
+public abstract class SoundModifier : IMidiMappable
 {
     /// <inheritdoc />
     public Guid Id { get; } = Guid.NewGuid();
@@ -24,9 +21,6 @@ public abstract class SoundModifier : IMidiMappable, IMidiControllable
     /// </summary>
     public bool Enabled { get; set; } = true;
 
-    /// <inheritdoc />
-    public virtual void ProcessMidiMessage(MidiMessage message) { }
-    
     /// <summary>
     /// Applies the modifier to a buffer of audio samples.
     /// </summary>
