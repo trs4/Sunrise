@@ -24,10 +24,21 @@
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
 				<RowDefinition Height="Auto" />
+				<RowDefinition Height="Auto" />
+				<RowDefinition />
 				<RowDefinition />
 			</Grid.RowDefinitions>
 
-			<Button Grid.Row="0" Grid.Column="0"
+			<Button Grid.Row="0" Grid.ColumnSpan="9"
+					Theme="{StaticResource MaterialFlatButton}"
+					Command="{Binding SettingsCommand, Mode=OneWay}"
+					Height="32"
+					HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
+				<TextBlock Text="{x:Static res:Texts.Settings}"
+						   FontSize="11" />
+			</Button>
+
+			<Button Grid.Row="1" Grid.Column="0"
 					Theme="{StaticResource MaterialFlatButton}"
 					Command="{Binding AddCategoryCommand, Mode=OneWay}"
 					Height="48"
@@ -44,7 +55,7 @@
 				</StackPanel>
 			</Button>
 
-			<Button Grid.Column="2"
+			<Button Grid.Row="1" Grid.Column="2"
 					Theme="{StaticResource MaterialFlatButton}"
 					Command="{Binding ApplyCategoryCommand, Mode=OneWay}"
 					IsVisible="{Binding IsCategoryChanging}"
@@ -56,7 +67,7 @@
 						   FontSize="11" />
 			</Button>
 
-			<Button Grid.Column="3"
+			<Button Grid.Row="1" Grid.Column="3"
 					Theme="{StaticResource MaterialFlatButton}"
 					Height="32" Width="32"
 					IsVisible="{Binding IsCategoryChanging}"
@@ -69,7 +80,7 @@
 					   OpacityMask="Gray" Opacity="0.2" />
 			</Button>
 
-			<Button Grid.Column="4"
+			<Button Grid.Row="1" Grid.Column="4"
 					Theme="{StaticResource MaterialFlatButton}"
 					Command="{Binding ChangeCategoryCommand, Mode=OneWay}"
 					Height="32"
@@ -79,7 +90,7 @@
 						   FontSize="11" />
 			</Button>
 
-			<ListBox Grid.ColumnSpan="9" Grid.Row="1"
+			<ListBox Grid.Row="2" Grid.ColumnSpan="9"
 					 ItemsSource="{Binding Categories, Mode=OneWay}"
 					 SelectedItem="{Binding SelectedCategory, Mode=TwoWay}">
 				<ListBox.ItemTemplate>
@@ -99,6 +110,15 @@
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
+
+			<TextBox Grid.Row="3" Grid.ColumnSpan="9"
+					 Text="{Binding Info, Mode=OneWay}"
+					 IsVisible="{Binding SettingsDisplayed}"
+					 IsReadOnly="True"
+					 Margin="0 0 0 5"
+					 ScrollViewer.HorizontalScrollBarVisibility="Auto"
+					 ScrollViewer.VerticalScrollBarVisibility="Auto"
+					 HorizontalAlignment="Left" VerticalAlignment="Bottom" />
 
 		</Grid>
 	</ScrollViewer>

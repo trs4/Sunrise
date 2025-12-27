@@ -252,4 +252,7 @@
   <data name="LoadCategories" xml:space="preserve">
     <value>Загрузка категорий</value>
   </data>
+  <data name="Settings" xml:space="preserve">
+    <value>Настройки</value>
+  </data>
 </root>

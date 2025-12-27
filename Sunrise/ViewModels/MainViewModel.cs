@@ -21,6 +21,7 @@ public abstract class MainViewModel : ObservableObject
     private TrackViewModel? _selectedTrack;
     private readonly Dictionary<int, TrackViewModel> _trackMap = [];
     private string? _searchText;
+    private string? _info;
 
     protected MainViewModel() { } // For designer
 
@@ -138,10 +139,17 @@ public abstract class MainViewModel : ObservableObject
         get => _isReadOnlyTracks;
         set => SetProperty(ref _isReadOnlyTracks, value);
     }
+
     public string? SearchText
     {
         get => _searchText;
         set => SetProperty(ref _searchText, value);
+    }
+
+    public string? Info
+    {
+        get => _info;
+        set => SetProperty(ref _info, value);
     }
 
     protected abstract TrackPlayViewModel CreateTrackPlay(Player player);

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -6,12 +7,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
+using Sunrise.Model.Common;
+using Sunrise.Model.Communication;
+using Sunrise.Model.Discovery;
 using Sunrise.Model.Resources;
 
 namespace Sunrise.ViewModels;
 
-public sealed class MainDeviceViewModel : MainViewModel
+public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 {
+    private readonly DiscoveryServer _discoveryServer;
     private const int _recentlyAddedTracksCount = 10;
     private const int _recentlyAddedPlaylistsCount = 10;
     private int _selectedTabIndex;
@@ -26,9 +31,13 @@ public sealed class MainDeviceViewModel : MainViewModel
     private bool _isPlaylistCaptionVisible;
     private bool _isPlaylistChanging;
     private string _changingPlaylistText = Texts.Change;
+    private bool _settingsDisplayed;
     private bool _isCategoryChanging;
     private string _changingCategoryText = Texts.Change;
     private bool[] _selectedCategories;
+#pragma warning disable CA2213 // Disposable fields should be disposed
+    private SyncClient? _client;
+#pragma warning restore CA2213 // Disposable fields should be disposed
 
     public MainDeviceViewModel() { } // For designer
 
@@ -41,8 +50,39 @@ public sealed class MainDeviceViewModel : MainViewModel
         RecentlyAddedPlaylistsCommand = new AsyncRelayCommand(OnRecentlyAddedPlaylistsAsync);
         ChangePlaylistCommand = new RelayCommand(OnChangePlaylist);
         ApplyPlaylistCommand = new AsyncRelayCommand(OnApplyPlaylistAsync);
+        SettingsCommand = new RelayCommand(OnSettings);
         ApplyCategoryCommand = new AsyncRelayCommand(OnApplyCategoryAsync);
         ChangeCategoryCommand = new RelayCommand(OnChangeCategory);
+
+        _discoveryServer = new DiscoveryServer("Android", OnDeviceDetected);
+        _discoveryServer.Start();
+    }
+
+    private void OnDeviceDetected(DiscoveryDeviceInfo deviceInfo)
+    {
+        bool settingsDisplayed = _settingsDisplayed;
+
+        if (settingsDisplayed)
+        {
+            InitInfo();
+            Info += Environment.NewLine + $"DeviceDetected {deviceInfo.DeviceName} - {deviceInfo.IPAddress}:{deviceInfo.Port}";
+        }
+
+        try
+        {
+            _client?.Dispose();
+            _client = null;
+            var client = _client = SyncClient.Create("Android", TrackPlay.Player, deviceInfo.IPAddress, deviceInfo.Port, ReloadTracksAsync);
+            client.Connect();
+
+            if (settingsDisplayed)
+                Info += Environment.NewLine + "Connected";
+        }
+        catch (Exception e)
+        {
+            if (settingsDisplayed)
+                Info += Environment.NewLine + e.ToString();
+        }
     }
 
     public new TrackPlayDeviceViewModel TrackPlay => (TrackPlayDeviceViewModel)base.TrackPlay;
@@ -127,9 +167,17 @@ public sealed class MainDeviceViewModel : MainViewModel
         set => SetProperty(ref _changingPlaylistText, value);
     }
 
+    public IRelayCommand SettingsCommand { get; }
+
     public IRelayCommand ApplyCategoryCommand { get; }
 
     public IRelayCommand ChangeCategoryCommand { get; }
+
+    public bool SettingsDisplayed
+    {
+        get => _settingsDisplayed;
+        set => SetProperty(ref _settingsDisplayed, value);
+    }
 
     public bool IsCategoryChanging
     {
@@ -662,6 +710,20 @@ public sealed class MainDeviceViewModel : MainViewModel
         CancelChangeCategory();
     }
 
+    private void OnSettings()
+    {
+        InitInfo();
+        SettingsDisplayed = !_settingsDisplayed;
+    }
+
+    private void InitInfo()
+        => Info ??= BuildInfo();
+
+    private static string BuildInfo()
+        => $"MachineIP: {Network.GetMachineIPAddress()}" + Environment.NewLine + Environment.NewLine
+        + string.Join(Environment.NewLine, Network.GetAvailableIPAddresses()
+            .Select(p => $"{p.IPAddress} {p.NetworkInterface.Name} {p.NetworkInterface.Description}"));
+
     private void OnChangeCategory()
     {
         var selectedCategory = SelectedCategory;
@@ -690,5 +752,23 @@ public sealed class MainDeviceViewModel : MainViewModel
             category.Editing = false;
     }
 
-    public override void OnExit() => HideTrackPage();
+    public override void OnExit()
+    {
+        _discoveryServer.Dispose();
+        HideTrackPage();
+    }
+
+    public void Dispose()
+    {
+        _discoveryServer.Dispose();
+
+        Tasks.StartOnDefaultScheduler(() =>
+        {
+            _client?.Dispose();
+            _client = null;
+        });
+
+        GC.SuppressFinalize(this);
+    }
+
 }

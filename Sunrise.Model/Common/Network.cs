@@ -11,6 +11,25 @@ public static class Network
 
     public static IPAddress GetMachineIPAddress() => _machineIPAddress ??= FindMachineIPAddress();
 
+    public static List<(IPAddress IPAddress, NetworkInterface NetworkInterface)> GetAvailableIPAddresses()
+    {
+        var networkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+        var result = new List<(IPAddress IPAddress, NetworkInterface NetworkInterface)>(networkInterfaces.Length);
+
+        foreach (var ni in networkInterfaces)
+        {
+            if (!(ni.NetworkInterfaceType != NetworkInterfaceType.Loopback && ni.OperationalStatus == OperationalStatus.Up))
+                continue;
+
+            var a = ni.GetIPProperties().UnicastAddresses.Select(c => c.Address)
+                .Where(a => a.AddressFamily == AddressFamily.InterNetwork).FirstOrDefault() ?? IPAddress.None;
+
+            result.Add((a, ni));
+        }
+
+        return result;
+    }
+
     private static IPAddress FindMachineIPAddress()
         => GetNetworkInterface()?.GetIPProperties().UnicastAddresses
         .Select(c => c.Address).Where(a => a.AddressFamily == AddressFamily.InterNetwork).FirstOrDefault() ?? IPAddress.None;
