@@ -95,10 +95,10 @@ public struct AudioHeader : IAudioCodec
         get
         {
             if (_xingHeader.TotalSize > 0 && _xingHeader.TotalFrames > 0 && Duration > TimeSpan.Zero)
-                return (int)Math.Round((((XingHeader.TotalSize * 8L) / Duration.TotalSeconds) / 1000.0));
+                return (int)Math.Round((XingHeader.TotalSize * 8L / Duration.TotalSeconds / 1000.0));
 
             if (VBRIHeader.TotalSize > 0 && VBRIHeader.TotalFrames > 0 && Duration > TimeSpan.Zero)
-                return (int)Math.Round((((VBRIHeader.TotalSize * 8L) / Duration.TotalSeconds) / 1000.0));
+                return (int)Math.Round(VBRIHeader.TotalSize * 8L / Duration.TotalSeconds / 1000.0);
 
             return _bitrates[
                 Version == Version.Version1 ? 0 : 1,
@@ -109,7 +109,7 @@ public struct AudioHeader : IAudioCodec
 
     public readonly int AudioSampleRate => _sampleRates[(int)Version, (int)(_flags >> 10) & 0x03];
 
-    public int AudioChannels => ChannelMode == ChannelMode.SingleChannel ? 1 : 2;
+    public readonly int AudioChannels => ChannelMode == ChannelMode.SingleChannel ? 1 : 2;
 
     public int AudioFrameLength
     {
@@ -169,10 +169,10 @@ public struct AudioHeader : IAudioCodec
             switch (Version)
             {
                 case Version.Version1:
-                    builder.Append("1");
+                    builder.Append('1');
                     break;
                 case Version.Version2:
-                    builder.Append("2");
+                    builder.Append('2');
                     break;
                 case Version.Version25:
                     builder.Append("2.5");
