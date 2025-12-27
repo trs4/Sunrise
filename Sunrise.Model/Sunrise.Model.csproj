@@ -7,12 +7,16 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="IcyRain" />
+    <PackageReference Include="IcyRain.Grpc.Client" />
+    <PackageReference Include="IcyRain.Grpc.Tools" PrivateAssets="all" />
     <PackageReference Include="IcyRain.Tables" />
     <PackageReference Include="RedLight.SQLite" />
   </ItemGroup>
 
   <ItemGroup>
     <AvaloniaResource Include="Resources\**" />
+    <AdditionalFiles Include="Communication\SyncService.irs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -34,5 +38,44 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Texts.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="SoundFlow\Backends\MiniAudio\runtimes\**\*.*">
+      <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
+      <PackagePath>runtimes</PackagePath>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <Pack>true</Pack>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Windows Runtimes -->
+    <RuntimeTargets Include="$(MSBuildThisFileDirectory)..\runtimes\win-x64\native\libminiaudio.dll" AssetKind="Native">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+      <OutputPath>miniaudio.dll</OutputPath>
+    </RuntimeTargets>
+    <RuntimeTargets Include="$(MSBuildThisFileDirectory)..\runtimes\win-x86\native\libminiaudio.dll" AssetKind="Native">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <RuntimeIdentifier>win-x86</RuntimeIdentifier>
+      <OutputPath>miniaudio.dll</OutputPath>
+    </RuntimeTargets>
+
+    <!-- Android Runtimes -->
+    <RuntimeTargets Include="$(MSBuildThisFileDirectory)..\runtimes\android-arm\native\libminiaudio.so" AssetKind="Native">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <RuntimeIdentifier>android-arm</RuntimeIdentifier>
+      <OutputPath>libminiaudio.so</OutputPath>
+    </RuntimeTargets>
+    <RuntimeTargets Include="$(MSBuildThisFileDirectory)..\runtimes\android-arm64\native\libminiaudio.so" AssetKind="Native">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <RuntimeIdentifier>android-arm64</RuntimeIdentifier>
+      <OutputPath>libminiaudio.so</OutputPath>
+    </RuntimeTargets>
+    <RuntimeTargets Include="$(MSBuildThisFileDirectory)..\runtimes\android-x64\native\libminiaudio.so" AssetKind="Native">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <RuntimeIdentifier>android-x64</RuntimeIdentifier>
+      <OutputPath>libminiaudio.so</OutputPath>
+    </RuntimeTargets>
   </ItemGroup>
 </Project>
