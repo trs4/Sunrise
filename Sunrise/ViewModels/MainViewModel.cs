@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
+using Sunrise.Model.Common;
 using Sunrise.Utils;
 
 namespace Sunrise.ViewModels;
@@ -21,6 +22,7 @@ public abstract class MainViewModel : ObservableObject
     private TrackViewModel? _selectedTrack;
     private readonly Dictionary<int, TrackViewModel> _trackMap = [];
     private string? _searchText;
+    private bool _settingsDisplayed;
     private string? _info;
 
     protected MainViewModel() { } // For designer
@@ -34,6 +36,7 @@ public abstract class MainViewModel : ObservableObject
 
         TrackPlay = CreateTrackPlay(player);
 
+        SettingsCommand = new RelayCommand(OnSettings);
         AddCategoryCommand = new AsyncRelayCommand(AddCategoryAsync);
         DeleteCategoryCommand = new AsyncRelayCommand(DeleteCategoryAsync);
         AddPlaylistCommand = new AsyncRelayCommand(AddPlaylistAsync);
@@ -98,6 +101,8 @@ public abstract class MainViewModel : ObservableObject
         set => SetProperty(ref _selectedCategory, value);
     }
 
+    public IRelayCommand SettingsCommand { get; }
+
     public IRelayCommand AddCategoryCommand { get; }
 
     public IRelayCommand DeleteCategoryCommand { get; }
@@ -144,6 +149,12 @@ public abstract class MainViewModel : ObservableObject
     {
         get => _searchText;
         set => SetProperty(ref _searchText, value);
+    }
+
+    public bool SettingsDisplayed
+    {
+        get => _settingsDisplayed;
+        set => SetProperty(ref _settingsDisplayed, value);
     }
 
     public string? Info
@@ -339,6 +350,21 @@ public abstract class MainViewModel : ObservableObject
     protected virtual ValueTask OnRemovePlaylistAsync(int playlistId, CancellationToken token) => default;
 
     public abstract Task OnNextListAsync();
+
+    private void OnSettings()
+    {
+        InitInfo();
+        SettingsDisplayed = !SettingsDisplayed;
+    }
+
+    protected void InitInfo()
+        => Info ??= BuildInfo();
+
+    private static string BuildInfo()
+        => Environments.GetPlatformName() + Environment.NewLine
+        + $"MachineIP: {Network.GetMachineIPAddress()}" + Environment.NewLine + Environment.NewLine
+        + string.Join(Environment.NewLine, Network.GetAvailableIPAddresses()
+            .Select(p => $"{p.IPAddress} {p.NetworkInterface.Name} {p.NetworkInterface.Description}"));
 
     public abstract void OnExit();
 }

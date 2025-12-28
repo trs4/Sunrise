@@ -214,6 +214,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Очистить.
+        /// </summary>
+        public static string Clear {
+            get {
+                return ResourceManager.GetString("Clear", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Создано.
         /// </summary>
         public static string Created {
@@ -228,6 +237,24 @@ namespace Sunrise.Model.Resources {
         public static string Delete {
             get {
                 return ResourceManager.GetString("Delete", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Устройства.
+        /// </summary>
+        public static string Devices {
+            get {
+                return ResourceManager.GetString("Devices", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Отключить.
+        /// </summary>
+        public static string Disconnect {
+            get {
+                return ResourceManager.GetString("Disconnect", resourceCulture);
             }
         }
         
@@ -273,6 +300,15 @@ namespace Sunrise.Model.Resources {
         public static string ImportFromITunes {
             get {
                 return ResourceManager.GetString("ImportFromITunes", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Информация.
+        /// </summary>
+        public static string Info {
+            get {
+                return ResourceManager.GetString("Info", resourceCulture);
             }
         }
         
@@ -444,6 +480,15 @@ namespace Sunrise.Model.Resources {
         public static string SongsFormat {
             get {
                 return ResourceManager.GetString("SongsFormat", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Синхронизировать.
+        /// </summary>
+        public static string Synchronize {
+            get {
+                return ResourceManager.GetString("Synchronize", resourceCulture);
             }
         }
         

@@ -31,7 +31,6 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     private bool _isPlaylistCaptionVisible;
     private bool _isPlaylistChanging;
     private string _changingPlaylistText = Texts.Change;
-    private bool _settingsDisplayed;
     private bool _isCategoryChanging;
     private string _changingCategoryText = Texts.Change;
     private bool[] _selectedCategories;
@@ -50,7 +49,6 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         RecentlyAddedPlaylistsCommand = new AsyncRelayCommand(OnRecentlyAddedPlaylistsAsync);
         ChangePlaylistCommand = new RelayCommand(OnChangePlaylist);
         ApplyPlaylistCommand = new AsyncRelayCommand(OnApplyPlaylistAsync);
-        SettingsCommand = new RelayCommand(OnSettings);
         ApplyCategoryCommand = new AsyncRelayCommand(OnApplyCategoryAsync);
         ChangeCategoryCommand = new RelayCommand(OnChangeCategory);
 
@@ -60,7 +58,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     private void OnDeviceDetected(DiscoveryDeviceInfo deviceInfo)
     {
-        bool settingsDisplayed = _settingsDisplayed;
+        bool settingsDisplayed = SettingsDisplayed;
 
         if (settingsDisplayed)
         {
@@ -167,17 +165,9 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         set => SetProperty(ref _changingPlaylistText, value);
     }
 
-    public IRelayCommand SettingsCommand { get; }
-
     public IRelayCommand ApplyCategoryCommand { get; }
 
     public IRelayCommand ChangeCategoryCommand { get; }
-
-    public bool SettingsDisplayed
-    {
-        get => _settingsDisplayed;
-        set => SetProperty(ref _settingsDisplayed, value);
-    }
 
     public bool IsCategoryChanging
     {
@@ -709,20 +699,6 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         SelectedChangedCategory = null;
         CancelChangeCategory();
     }
-
-    private void OnSettings()
-    {
-        InitInfo();
-        SettingsDisplayed = !_settingsDisplayed;
-    }
-
-    private void InitInfo()
-        => Info ??= BuildInfo();
-
-    private static string BuildInfo()
-        => $"MachineIP: {Network.GetMachineIPAddress()}" + Environment.NewLine + Environment.NewLine
-        + string.Join(Environment.NewLine, Network.GetAvailableIPAddresses()
-            .Select(p => $"{p.IPAddress} {p.NetworkInterface.Name} {p.NetworkInterface.Description}"));
 
     private void OnChangeCategory()
     {

@@ -221,6 +221,8 @@
 				<MenuItem Header="{x:Static res:Texts.ImportFromITunes}"
 						  Command="{Binding ImportFromITunesCommand, Mode=OneWay}" />
 				<Separator/>
+				<MenuItem Header="{x:Static res:Texts.Settings}"
+						  Command="{Binding Owner.SettingsCommand, Mode=OneWay}" />
 				<MenuItem Header="{x:Static res:Texts.Exit}"
 						  Command="{Binding ExitCommand, Mode=OneWay}" />
 			</MenuItem>

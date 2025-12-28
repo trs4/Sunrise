@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,6 +7,8 @@ using Avalonia.Controls;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Converters;
 using Sunrise.Model;
+using Sunrise.Model.Communication;
+using Sunrise.Model.Discovery;
 using Sunrise.Model.Resources;
 using Sunrise.ViewModels.Columns;
 
@@ -13,23 +16,108 @@ namespace Sunrise.ViewModels;
 
 public sealed class MainDesktopViewModel : MainViewModel
 {
+    private IDisposable? _discoveryClient;
+    private DiscoveryDeviceInfo _deviceInfo;
+    private string _device;
+    private bool _deviceLocked;
+    private string _deviceStatus;
+
     public MainDesktopViewModel() { } // For designer
 
     public MainDesktopViewModel(Player player)
         : base(player)
     {
+        Dispatcher = new(player);
         AddFolderCommand = new AsyncRelayCommand(AddFolderAsync);
-        DoubleClickCommand = new RelayCommand<TrackViewModel>(OnDoubleClick);
+        DoubleClickCommand = new AsyncRelayCommand<TrackViewModel>(OnDoubleClickAsync);
+        DisconnectDeviceCommand = new AsyncRelayCommand(OnDisconnectDeviceAsync);
+        SynchronizeDeviceCommand = new AsyncRelayCommand(OnSynchronizeDeviceAsync);
+        ClearDeviceCommand = new AsyncRelayCommand(OnClearDeviceAsync);
         InitTracksColumns();
+
+        _discoveryClient = DiscoveryClient.Search(OnDeviceDetected);
     }
 
     public Window Owner { get; internal set; }
+
+    public SyncDispatcher Dispatcher { get; }
 
     public IRelayCommand AddFolderCommand { get; }
 
     public IRelayCommand DoubleClickCommand { get; }
 
     public ObservableCollection<ColumnViewModel> TracksColumns { get; } = [];
+
+    public string Device
+    {
+        get => _device;
+        set => SetProperty(ref _device, value);
+    }
+
+    public bool DeviceLocked
+    {
+        get => _deviceLocked;
+        set => SetProperty(ref _deviceLocked, value);
+    }
+
+    public string DeviceStatus
+    {
+        get => _deviceStatus;
+        set => SetProperty(ref _deviceStatus, value);
+    }
+
+    public IRelayCommand DisconnectDeviceCommand { get; }
+
+    public IRelayCommand SynchronizeDeviceCommand { get; }
+
+    public IRelayCommand ClearDeviceCommand { get; }
+
+    private void OnDeviceDetected(DiscoveryDeviceInfo deviceInfo)
+    {
+        var discoveryClient = _discoveryClient;
+
+        if (discoveryClient is not null)
+        {
+            discoveryClient.Dispose();
+            _discoveryClient = null;
+        }
+
+        _deviceInfo = deviceInfo;
+        Device = deviceInfo.DeviceName;
+
+        bool settingsDisplayed = SettingsDisplayed;
+
+        if (settingsDisplayed)
+        {
+            InitInfo();
+            Info += Environment.NewLine + $"DeviceDetected {deviceInfo.IPAddress} {deviceInfo.Port}";
+        }
+    }
+
+    private async Task OnDisconnectDeviceAsync(CancellationToken token)
+    {
+        if (_deviceInfo is null)
+            return;
+
+        //await Dispatcher.ClearAsync(token);
+        await Task.Delay(1, token);
+    }
+
+    private async Task OnSynchronizeDeviceAsync(CancellationToken token)
+    {
+        if (_deviceInfo is null)
+            return;
+
+        await Dispatcher.SynchronizeAsync(token);
+    }
+
+    private async Task OnClearDeviceAsync(CancellationToken token)
+    {
+        if (_deviceInfo is null)
+            return;
+
+        await Dispatcher.ClearAsync(token);
+    }
 
     protected override TrackPlayViewModel CreateTrackPlay(Player player) => new TrackPlayDesktopViewModel(this, player);
 
@@ -51,7 +139,7 @@ public sealed class MainDesktopViewModel : MainViewModel
         await ReloadTracksAsync(token);
     }
 
-    private async void OnDoubleClick(TrackViewModel? trackViewModel)
+    private async Task OnDoubleClickAsync(TrackViewModel? trackViewModel)
     {
         if (trackViewModel is not null)
             await TrackPlay.PlayItBeginAsync(trackViewModel);
@@ -159,5 +247,10 @@ public sealed class MainDesktopViewModel : MainViewModel
 
     public override Task OnNextListAsync() => Task.CompletedTask;
 
-    public override void OnExit() => Owner.Close();
+    public override void OnExit()
+    {
+        _discoveryClient?.Dispose();
+        Owner.Close();
+    }
+
 }
