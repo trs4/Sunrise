@@ -9,7 +9,10 @@
   <ItemGroup>
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Controls.DataGrid" />
-    <PackageReference Include="Avalonia.Diagnostics" Condition="'$(Configuration)' == 'Debug'" />
+    <PackageReference Include="Avalonia.Diagnostics">
+      <IncludeAssets Condition="'$(Configuration)' != 'Debug'">None</IncludeAssets>
+      <PrivateAssets Condition="'$(Configuration)' != 'Debug'">All</PrivateAssets>
+    </PackageReference>
     <PackageReference Include="Avalonia.Fonts.Inter" />
     <PackageReference Include="Avalonia.Themes.Simple" />
     <PackageReference Include="Material.Avalonia" />
@@ -26,12 +29,5 @@
 
   <ItemGroup>
     <RuntimeHostConfigurationOption Include="MaterialThemeIncludeDataGrid" Value="true" />
-    <AvaloniaResource Include="Assets\**" />
   </ItemGroup>
-  
-  
-  <!--<ItemGroup>
-    <PackageReference Include="System.Text.Encoding.CodePages" />
-    <FunctionsPreservedDependencies Include="System.Text.Encoding.CodePages.dll" />
-  </ItemGroup>-->
 </Project>

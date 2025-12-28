@@ -7,7 +7,6 @@
     <File Path="NuGet.Config" />
     <File Path="RuleSet.ruleset" />
   </Folder>
-  <Project Path="ServerAndroidTest/ServerAndroidTest.csproj" />
   <Project Path="Sunrise.Android/Sunrise.Android.csproj">
     <Deploy Solution="Debug|*" />
   </Project>

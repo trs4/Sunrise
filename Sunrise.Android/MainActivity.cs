@@ -1,13 +1,12 @@
 ﻿using Android.App;
 using Android.Content.PM;
-
 using Avalonia;
 using Avalonia.Android;
 
 namespace Sunrise.Android;
 
 [Activity(
-    Label = "Sunrise.Android",
+    Label = "Музыка",
     Theme = "@style/MyTheme.NoActionBar",
     Icon = "@drawable/icon",
     MainLauncher = true,
@@ -15,8 +14,6 @@ namespace Sunrise.Android;
 public class MainActivity : AvaloniaMainActivity<App>
 {
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
-    {
-        return base.CustomizeAppBuilder(builder)
-            .WithInterFont();
-    }
+        => base.CustomizeAppBuilder(builder)
+        .WithInterFont();
 }
