@@ -76,11 +76,14 @@ public sealed class Player
 
     private static async Task CreateDatabaseAsync(DatabaseConnection connection, CancellationToken token)
     {
+        bool isDevice = OperatingSystem.IsAndroid();
+        string deviceName = isDevice ? "Android" : Environment.MachineName;
+
         await connection.Schema.CreateTableWithParseQuery<Devices>().RunAsync(token);
 
         await connection.Insert.CreateQuery<Devices>() // Текущее устройство
             .AddColumn(Devices.Guid, Guid.NewGuid())
-            .AddColumn(Devices.Name, Environment.MachineName)
+            .AddColumn(Devices.Name, deviceName)
             .AddColumn(Devices.IsMain, true)
             .RunAsync(token);
 
