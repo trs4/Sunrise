@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -218,6 +219,13 @@ public sealed class MainDesktopViewModel : MainViewModel
         {
             Caption = Texts.Size,
             Width = 100,
+            IsVisible = false,
+        });
+
+        TracksColumns.Add(new TextColumnViewModel<TrackViewModel, string>(nameof(FileInfo.Extension), t => t.Extension)
+        {
+            Caption = Texts.Extension,
+            Width = 50,
             IsVisible = false,
         });
     }

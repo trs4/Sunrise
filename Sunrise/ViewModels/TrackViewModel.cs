@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Sunrise.Model;
 using Track = Sunrise.Model.Track;
@@ -24,6 +25,7 @@ public class TrackViewModel : ObservableObject
     private DateTime _added;
     private double _bitrate;
     private long _size;
+    private string? _extension;
 
     public TrackViewModel(Track track, Player player)
     {
@@ -164,6 +166,13 @@ public class TrackViewModel : ObservableObject
     {
         get => _size;
         set => SetProperty(ref _size, value);
+    }
+
+    /// <summary>Расширение</summary>
+    public string Extension
+    {
+        get => _extension ??= Path.GetExtension(Track.Path).Substring(1);
+        set => SetProperty(ref _extension, value);
     }
 
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
