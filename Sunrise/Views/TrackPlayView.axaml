@@ -108,9 +108,9 @@
 					  Background="White"
 					  Tapped="Track_Tapped">
 					<Grid.ColumnDefinitions>
-						<ColumnDefinition MinWidth="36" />
+						<ColumnDefinition MinWidth="36" Width="Auto" />
 						<ColumnDefinition />
-						<ColumnDefinition MinWidth="36" />
+						<ColumnDefinition MinWidth="36" Width="Auto" />
 					</Grid.ColumnDefinitions>
 					<Grid.RowDefinitions>
 						<RowDefinition />
