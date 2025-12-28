@@ -3,7 +3,6 @@ using Sunrise.Model.SoundFlow.Abstracts.Devices;
 using Sunrise.Model.SoundFlow.Backends.MiniAudio;
 using Sunrise.Model.SoundFlow.Backends.MiniAudio.Devices;
 using Sunrise.Model.SoundFlow.Backends.MiniAudio.Enums;
-using Sunrise.Model.SoundFlow.Components;
 using Sunrise.Model.SoundFlow.Providers;
 using Sunrise.Model.SoundFlow.Structs;
 

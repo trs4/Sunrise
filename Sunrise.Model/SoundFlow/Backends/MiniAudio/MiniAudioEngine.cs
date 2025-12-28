@@ -1,19 +1,17 @@
-using Sunrise.Model.SoundFlow.Abstracts;
-using Sunrise.Model.SoundFlow.Structs;
-using Sunrise.Model.SoundFlow.Utils;
 using System.Collections.Concurrent;
 using System.Runtime.InteropServices;
 using System.Text;
+using Sunrise.Model.SoundFlow.Abstracts;
 using Sunrise.Model.SoundFlow.Abstracts.Devices;
 using Sunrise.Model.SoundFlow.Backends.MiniAudio.Devices;
 using Sunrise.Model.SoundFlow.Backends.MiniAudio.Enums;
 using Sunrise.Model.SoundFlow.Backends.MiniAudio.Structs;
+using Sunrise.Model.SoundFlow.Structs;
+using Sunrise.Model.SoundFlow.Utils;
 
 namespace Sunrise.Model.SoundFlow.Backends.MiniAudio;
 
-/// <summary>
-/// An audio engine based on the MiniAudio library.
-/// </summary>
+/// <summary>An audio engine based on the MiniAudio library</summary>
 public class MiniAudioEngine : AudioEngine
 {
     private nint _context;
@@ -177,7 +175,7 @@ public class MiniAudioEngine : AudioEngine
 
         UpdateAudioDevicesInfo();
 
-        // Register the built-in codec factory for formats supported by MiniAudio.
+        // Register the built-in codec factory for formats supported by MiniAudio
         RegisterCodecFactory(new MiniAudioCodecFactory());
     }
 
@@ -275,7 +273,8 @@ public class MiniAudioEngine : AudioEngine
         var newDevice = InitializePlaybackDevice(newDeviceInfo, oldDevice.Format, config);
         DeviceSwitcher.RestorePlaybackState(newDevice, preservedComponents);
 
-        if (wasRunning) newDevice.Start();
+        if (wasRunning)
+            newDevice.Start();
 
         return newDevice;
     }
@@ -319,7 +318,8 @@ public class MiniAudioEngine : AudioEngine
         DeviceSwitcher.RestorePlaybackState(newDevice.PlaybackDevice, preservedComponents);
         DeviceSwitcher.RestoreCaptureState(newDevice.CaptureDevice, preservedSubscribers);
 
-        if (wasRunning) newDevice.Start();
+        if (wasRunning)
+            newDevice.Start();
 
         return newDevice;
     }
@@ -327,9 +327,7 @@ public class MiniAudioEngine : AudioEngine
     private void OnDeviceDisposing(object? sender, EventArgs e)
     {
         if (sender is AudioDevice device)
-        {
             _activeDevices.Remove(device);
-        }
     }
 
     private static MiniAudioDeviceConfig GetDefaultDeviceConfig()
@@ -372,15 +370,12 @@ public class MiniAudioEngine : AudioEngine
                 
                 // 3. Convert to public structs (Deep Copy)
                 PlaybackDevices = new DeviceInfo[playbackCount];
+
                 for (var i = 0; i < playbackCount; i++)
-                {
                     PlaybackDevices[i] = ConvertFromNative(nativePlayback[i]);
-                }
             }
             else
-            {
                 PlaybackDevices = [];
-            }
 
             // Marshal capture devices
             if (captureCount > 0 && pCaptureDevices != nint.Zero)
@@ -389,21 +384,21 @@ public class MiniAudioEngine : AudioEngine
                 pCaptureDevices.ReadIntoArray(nativeCapture, captureCount);
 
                 CaptureDevices = new DeviceInfo[captureCount];
+
                 for (var i = 0; i < captureCount; i++)
-                {
                     CaptureDevices[i] = ConvertFromNative(nativeCapture[i]);
-                }
             }
             else
-            {
                 CaptureDevices = [];
-            }
         }
         finally
         {
             // 4. Now it is safe to free native memory, as we have copied the data to managed arrays
-            if (pPlaybackDevices != nint.Zero) Native.FreeDeviceInfos(pPlaybackDevices, playbackCountUint);
-            if (pCaptureDevices != nint.Zero) Native.FreeDeviceInfos(pCaptureDevices, captureCountUint);
+            if (pPlaybackDevices != nint.Zero)
+                Native.FreeDeviceInfos(pPlaybackDevices, playbackCountUint);
+
+            if (pCaptureDevices != nint.Zero)
+                Native.FreeDeviceInfos(pCaptureDevices, captureCountUint);
         }
     }
 

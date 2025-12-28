@@ -26,24 +26,15 @@ internal static unsafe partial class Native
     public delegate MiniAudioResult SeekCallback(nint pDecoder, long byteOffset, SeekPoint origin);
 
     #endregion
-
     #region Initialization
 
     static Native()
-    {
-        NativeLibrary.SetDllImportResolver(typeof(Native).Assembly, NativeLibraryResolver.Resolve);
-    }
+        => NativeLibrary.SetDllImportResolver(typeof(Native).Assembly, NativeLibraryResolver.Resolve);
 
     private static class NativeLibraryResolver
     {
         public static nint Resolve(string libraryName, Assembly assembly, DllImportSearchPath? searchPath)
         {
-            var r1 = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetDirectories("*", SearchOption.AllDirectories).OrderBy(f => f.FullName).ToArray();
-            var r2 = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory).GetFiles("*", SearchOption.AllDirectories).OrderBy(f => f.FullName).ToArray();
-            var r3 = AppDomain.CurrentDomain.GetAssemblies();
-
-
-
             // 1. Get the platform-specific library file name (e.g., "libminiaudio.so", "miniaudio.dll").
             var platformSpecificName = GetPlatformSpecificLibraryName(libraryName);
 
@@ -165,7 +156,6 @@ internal static unsafe partial class Native
     }
 
     #endregion
-
     #region Encoder
 
     [LibraryImport(LibraryName, EntryPoint = "ma_encoder_init", StringMarshalling = StringMarshalling.Utf8)]
@@ -179,7 +169,6 @@ internal static unsafe partial class Native
         out ulong pFramesWritten);
 
     #endregion
-
     #region Decoder
 
     [LibraryImport(LibraryName, EntryPoint = "ma_decoder_init")]
@@ -200,7 +189,6 @@ internal static unsafe partial class Native
     public static partial MiniAudioResult DecoderGetLengthInPcmFrames(nint decoder, out ulong length);
 
     #endregion
-
     #region Context
 
     [LibraryImport(LibraryName, EntryPoint = "ma_context_init")]
@@ -213,7 +201,6 @@ internal static unsafe partial class Native
     public static partial MiniAudioBackend ContextGetBackend(nint context);
 
     #endregion
-
     #region Device
 
     [LibraryImport(LibraryName, EntryPoint = "sf_get_devices")]
@@ -232,7 +219,6 @@ internal static unsafe partial class Native
     public static partial MiniAudioResult DeviceStop(nint device);
 
     #endregion
-
     #region Allocations
 
     [LibraryImport(LibraryName, EntryPoint = "sf_allocate_encoder")]
@@ -258,7 +244,6 @@ internal static unsafe partial class Native
     public static partial nint AllocateDeviceConfig(Capability capabilityType, uint sampleRate, AudioCallback dataCallback, nint pSfConfig);
 
     #endregion
-
     #region Utils
 
     [LibraryImport(LibraryName, EntryPoint = "sf_free")]

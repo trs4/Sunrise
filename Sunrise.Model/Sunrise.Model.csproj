@@ -40,24 +40,18 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Label="MiniAudio">
     <None Include="SoundFlow\Backends\MiniAudio\runtimes\**\*.*">
       <Link>runtimes\%(RecursiveDir)%(Filename)%(Extension)</Link>
       <PackagePath>runtimes</PackagePath>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <Pack>true</Pack>
     </None>
-  </ItemGroup>
-  <ItemGroup>
+
     <!-- Windows Runtimes -->
     <RuntimeTargets Include="$(MSBuildThisFileDirectory)..\runtimes\win-x64\native\libminiaudio.dll" AssetKind="Native">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-      <OutputPath>miniaudio.dll</OutputPath>
-    </RuntimeTargets>
-    <RuntimeTargets Include="$(MSBuildThisFileDirectory)..\runtimes\win-x86\native\libminiaudio.dll" AssetKind="Native">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      <RuntimeIdentifier>win-x86</RuntimeIdentifier>
       <OutputPath>miniaudio.dll</OutputPath>
     </RuntimeTargets>
 
