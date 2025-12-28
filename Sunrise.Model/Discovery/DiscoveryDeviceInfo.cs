@@ -6,6 +6,9 @@ public sealed class DiscoveryDeviceInfo
 {
     private readonly SearchMessage _message;
 
+    public DiscoveryDeviceInfo(string deviceName, IPAddress ipAddress, int port)
+        => _message = new() { DeviceName = deviceName, IPAddress = ipAddress.GetAddressBytes(), Port = port };
+
     internal DiscoveryDeviceInfo(SearchMessage message)
         => _message = message ?? throw new ArgumentNullException(nameof(message));
 

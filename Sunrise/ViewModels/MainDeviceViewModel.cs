@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
@@ -34,6 +35,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     private bool _isCategoryChanging;
     private string _changingCategoryText = Texts.Change;
     private bool[] _selectedCategories;
+    private string? _ip;
 #pragma warning disable CA2213 // Disposable fields should be disposed
     private SyncClient? _client;
 #pragma warning restore CA2213 // Disposable fields should be disposed
@@ -51,6 +53,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         ApplyPlaylistCommand = new AsyncRelayCommand(OnApplyPlaylistAsync);
         ApplyCategoryCommand = new AsyncRelayCommand(OnApplyCategoryAsync);
         ChangeCategoryCommand = new RelayCommand(OnChangeCategory);
+        ConnectPlayerCommand = new RelayCommand(OnConnectPlayer);
 
         _discoveryServer = new DiscoveryServer("Android", OnDeviceDetected);
         _discoveryServer.Start();
@@ -169,6 +172,8 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     public IRelayCommand ChangeCategoryCommand { get; }
 
+    public IRelayCommand ConnectPlayerCommand { get; }
+
     public bool IsCategoryChanging
     {
         get => _isCategoryChanging;
@@ -182,6 +187,12 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     }
 
     public CategoryViewModel? SelectedChangedCategory { get; private set; }
+
+    public string? IP
+    {
+        get => _ip;
+        set => SetProperty(ref _ip, value);
+    }
 
     public IRelayCommand BackCommand { get; }
 
@@ -726,6 +737,23 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
         foreach (var category in Categories)
             category.Editing = false;
+    }
+
+    private void OnConnectPlayer()
+    {
+        bool settingsDisplayed = SettingsDisplayed;
+
+        try
+        {
+            var ipAddress = IPAddress.Parse(IP);
+            var deviceInfo = new DiscoveryDeviceInfo(IP, ipAddress, SyncServiceManager.Port);
+            OnDeviceDetected(deviceInfo);
+        }
+        catch (Exception e)
+        {
+            if (settingsDisplayed)
+                Info += Environment.NewLine + e.ToString();
+        }
     }
 
     public override void OnExit()
