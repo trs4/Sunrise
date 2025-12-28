@@ -86,7 +86,7 @@ public class Box
     ///    A <see cref="T:System.Collections.Generic.IEnumerable`1" /> object enumerating the
     ///    children of the current instance
     /// </value>
-    public virtual IEnumerable<Box>? Children => null;
+    public virtual List<Box>? Children => null;
 
     /// <summary>Gets the handler box that applies to the current instance</summary>
     /// <value>
@@ -166,17 +166,13 @@ public class Box
         return null;
     }
 
-    /// <summary>
-    ///    Removes all children with a specified box type from the
-    ///    current instance
-    /// </summary>
-    /// <param name="type">
-    ///    A <see cref="ByteVector" /> object containing the box
-    ///    type to remove
-    /// </param>
+    /// <summary>Removes all children with a specified box type from the current instance</summary>
+    /// <param name="type">A <see cref="ByteVector" /> object containing the box type to remove</param>
     public void RemoveChild(ByteVector type)
     {
-        if (Children is not ICollection<Box> children)
+        var children = Children;
+
+        if (children is null)
             return;
 
         foreach (var box in new List<Box>(children))
@@ -188,31 +184,19 @@ public class Box
 
     /// <summary>Removes a specified box from the current instance</summary>
     /// <param name="box">A <see cref="Box" /> object to remove from the current instance</param>
-    public void RemoveChild(Box box)
-    {
-        if (Children is ICollection<Box> children)
-            children.Remove(box);
-    }
+    public void RemoveChild(Box box) => Children?.Remove(box);
 
     /// <summary>Adds a specified box to the current instance</summary>
     /// <param name="box">A <see cref="Box" /> object to add to the current instance</param>
-    public void AddChild(Box box)
-    {
-        if (Children is ICollection<Box> children)
-            children.Add(box);
-    }
+    public void AddChild(Box box) => Children?.Add(box);
 
     /// <summary>Removes all children from the current instance</summary>
-    public void ClearChildren()
-    {
-        if (Children is ICollection<Box> children)
-            children.Clear();
-    }
+    public void ClearChildren() => Children?.Clear();
 
     /// <summary>Gets whether or not the current instance has children</summary>
     /// <value>A <see cref="bool" /> value indicating whether or not the current instance has any children.
     /// 
-    public bool HasChildren => Children is ICollection<Box> children && children.Count > 0;
+    public bool HasChildren => Children?.Count > 0;
 
     /// <summary>
     ///    Gets the size of the data contained in the current
@@ -255,7 +239,7 @@ public class Box
     ///    A <see cref="T:System.Collections.Generic.IEnumerable`1" /> object enumerating the
     ///    boxes read from the file
     /// </returns>
-    protected IEnumerable<Box> LoadChildren(TagLib.File file)
+    protected List<Box> LoadChildren(TagLib.File file)
     {
         ArgumentNullException.ThrowIfNull(file);
         var children = new List<Box>();

@@ -20,7 +20,7 @@ public class IsoAudioSampleEntry : IsoSampleEntry, IAudioCodec
     private readonly uint _sampleRate;
 
     /// <summary>Contains the children of the box</summary>
-    private readonly IEnumerable<Box> _children;
+    private readonly List<Box> _children;
 
     /// <summary>
     ///    Constructs and initializes a new instance of <see
@@ -65,7 +65,7 @@ public class IsoAudioSampleEntry : IsoSampleEntry, IAudioCodec
     protected override long DataPosition => base.DataPosition + 20;
 
     /// <summary>Gets the children of the current instance</summary>
-    public override IEnumerable<Box> Children => _children;
+    public override List<Box> Children => _children;
 
     /// <summary>Gets the duration of the media represented by the current instance</summary>
     /// <value>Always <see cref="TimeSpan.Zero" /></value>

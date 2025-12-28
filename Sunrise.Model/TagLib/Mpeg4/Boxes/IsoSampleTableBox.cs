@@ -7,7 +7,7 @@ namespace Sunrise.Model.TagLib.Mpeg4;
 public class IsoSampleTableBox : Box
 {
     /// <summary>Contains the children of the box</summary>
-    private readonly IEnumerable<Box> _children;
+    private readonly List<Box> _children;
 
     /// <summary>
     ///    Constructs and initializes a new instance of <see
@@ -35,5 +35,5 @@ public class IsoSampleTableBox : Box
 
     /// <summary>Gets the children of the current instance</summary>
     /// <value>A <see cref="T:System.Collections.Generic.IEnumerable`1" /> object enumerating the children of the current instance</value>
-    public override IEnumerable<Box> Children => _children;
+    public override List<Box> Children => _children;
 }

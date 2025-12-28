@@ -7,7 +7,7 @@ namespace Sunrise.Model.TagLib.Mpeg4;
 public class IsoUserDataBox : Box
 {
     /// <summary>Contains the children of the box</summary>
-    private readonly IEnumerable<Box> _children;
+    private readonly List<Box> _children;
 
     /// <summary>Contains the box headers from the top of the file to the current udta box</summary>
     private BoxHeader[] parent_tree;
@@ -43,7 +43,7 @@ public class IsoUserDataBox : Box
 
     /// <summary>Gets the children of the current instance</summary>
     /// <value>A <see cref="T:System.Collections.Generic.IEnumerable`1" /> object enumerating the children of the current instance</value>
-    public override IEnumerable<Box> Children => _children;
+    public override List<Box> Children => _children;
 
     /// <summary>
     ///    Gets the box headers for the current "<c>udta</c>" box and

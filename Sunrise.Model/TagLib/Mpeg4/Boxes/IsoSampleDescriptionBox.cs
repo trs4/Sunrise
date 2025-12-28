@@ -7,7 +7,7 @@ namespace Sunrise.Model.TagLib.Mpeg4;
 public class IsoSampleDescriptionBox : FullBox
 {
     /// <summary>Contains the children of the box</summary>
-    private readonly IEnumerable<Box> _children;
+    private readonly List<Box> _children;
 
     /// <summary>
     ///    Constructs and initializes a new instance of <see
@@ -49,5 +49,5 @@ public class IsoSampleDescriptionBox : FullBox
     public uint EntryCount { get; }
 
     /// <summary>Gets the children of the current instance</summary>
-    public override IEnumerable<Box> Children => _children;
+    public override List<Box> Children => _children;
 }

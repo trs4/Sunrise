@@ -90,7 +90,7 @@ public class FileParser
     {
         get
         {
-            foreach (IsoSampleDescriptionBox box in _stsdBoxes)
+            foreach (var box in _stsdBoxes.OfType<IsoSampleDescriptionBox>())
             {
                 foreach (var sub in box.Children)
                 {
