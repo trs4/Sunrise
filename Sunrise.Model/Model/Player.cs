@@ -53,15 +53,16 @@ public sealed class Player
 
     public static async Task<Player> InitAsync(string? rootFolder = null, CancellationToken token = default)
     {
-        rootFolder ??= OperatingSystem.IsAndroid()
-            ? Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)
-            : Environment.GetFolderPath(Environment.SpecialFolder.MyMusic);
+        bool isDevice = OperatingSystem.IsAndroid();
+        rootFolder ??= Environment.GetFolderPath(isDevice ? Environment.SpecialFolder.LocalApplicationData : Environment.SpecialFolder.MyMusic);
 
         string folderPath = Path.Combine(rootFolder, "Sunrise");
         Directory.CreateDirectory(folderPath);
 
         string tracksPath = Path.Combine(folderPath, "Tracks");
-        Directory.CreateDirectory(tracksPath);
+
+        if (isDevice)
+            Directory.CreateDirectory(tracksPath);
 
         string databaseFilePath = Path.Combine(folderPath, "MediaLibrary.db");
         string connectionString = $@"Provider=SQLite;Data Source='{databaseFilePath}'";
