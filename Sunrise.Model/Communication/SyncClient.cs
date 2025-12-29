@@ -187,6 +187,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         var durationColumn = (TimeSpanDataColumn)tracksDataTable[nameof(Tracks.Duration)];
         var ratingColumn = (ByteDataColumn)tracksDataTable[nameof(Tracks.Rating)];
         var artistColumn = (StringDataColumn)tracksDataTable[nameof(Tracks.Artist)];
+        var artistsColumn = (StringDataColumn)tracksDataTable[nameof(Tracks.Artists)];
         var genreColumn = (StringDataColumn)tracksDataTable[nameof(Tracks.Genre)];
         var albumColumn = (StringDataColumn)tracksDataTable[nameof(Tracks.Album)];
         var createdColumn = (DateTimeDataColumn)tracksDataTable[nameof(Tracks.Created)];
@@ -216,6 +217,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
                 Duration = durationColumn.Get(row),
                 Rating = ratingColumn.Get(row),
                 Artist = artistColumn.Get(row),
+                Artists = artistsColumn.Get(row),
                 Genre = genreColumn.Get(row),
                 Album = albumColumn.Get(row),
                 Created = createdColumn.Get(row),

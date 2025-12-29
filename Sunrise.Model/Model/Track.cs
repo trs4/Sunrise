@@ -32,6 +32,9 @@ public class Track
     /// <summary>Артист</summary>
     public string? Artist { get; set; }
 
+    /// <summary>Артисты</summary>
+    public string? Artists { get; set; }
+
     /// <summary>Жанр</summary>
     public string? Genre { get; set; }
 

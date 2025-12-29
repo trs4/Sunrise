@@ -13,6 +13,7 @@ public enum Tracks
     [Column(ColumnType.TimeSpan)] Duration,
     [Column(ColumnType.Byte)] Rating,
     [Column(ColumnType.String, size: 255)] Artist,
+    [Column(ColumnType.String, size: 255)] Artists,
     [Column(ColumnType.String, size: 255)] Genre,
     [Column(ColumnType.DateTime, nullable: true)] LastPlay,
     [Column(ColumnType.Integer)] Reproduced,

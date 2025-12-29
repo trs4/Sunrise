@@ -1,12 +1,17 @@
-﻿namespace Sunrise.Model;
+﻿using System.Collections.Concurrent;
+
+namespace Sunrise.Model;
 
 internal sealed class TrackManager
 {
-    public static bool TryCreate(FileInfo file, DateTime added, out Track? track)
+    private static readonly string[] _artistSeparators = ["&", " ft ", " ft. ", " feat ", " feat. ", ",", " and ", " и ", " x ", " х ",
+        " vs ", " vs. ", "+", "/\\", "/"];
+
+    public static bool TryCreate(FileInfo file, DateTime added, out Track? track, ConcurrentDictionary<string, string> artistCache)
     {
         try
         {
-            track = Create(file, added);
+            track = Create(file, added, artistCache);
             return track is not null;
         }
         catch
@@ -16,7 +21,7 @@ internal sealed class TrackManager
         }
     }
 
-    public static Track? Create(FileInfo file, DateTime added)
+    public static Track? Create(FileInfo file, DateTime added, ConcurrentDictionary<string, string> artistCache)
     {
         using var tfile = TagLib.File.Create(file.FullName);
 
@@ -44,6 +49,22 @@ internal sealed class TrackManager
 
         if (string.IsNullOrWhiteSpace(track.Title))
             track.Title = GetTitle(file);
+
+        if (!string.IsNullOrEmpty(track.Artist))
+        {
+            track.Artist = track.Artist.Trim();
+
+            if (track.Artist.Length > 0)
+            {
+                if (track.Artist.Contains("&amp;"))
+                    track.Artist = track.Artist.Replace("&amp;", "&");
+
+                track.Artists = artistCache.GetOrAdd(track.Artist, a => GetArtists(file, a));
+            }
+        }
+
+        if (string.IsNullOrEmpty(track.Artist))
+            track.Artist = null;
 
         if (properties is not null)
         {
@@ -89,6 +110,78 @@ internal sealed class TrackManager
             title = title.Substring(index);
 
         return title;
+    }
+
+    private static string GetArtists(FileInfo file, string artist)
+    {
+        string folderName = file.Directory?.Name ?? string.Empty;
+        var artists = new List<string>() { artist };
+
+        foreach (string separator in _artistSeparators)
+            SplitArtists(ref artists, separator, folderName);
+
+        return artists.Count == 1 ? artists[0] : string.Join('|', artists);
+    }
+
+    private static void SplitArtists(ref List<string> artists, string separator, string folderName)
+    {
+        var tempArtists = new List<string>();
+
+        foreach (string artist in artists)
+        {
+            int currentIndex = 0;
+            int trimIndex = 0;
+            bool found = false;
+
+            while (true)
+            {
+                int index = artist.Length <= currentIndex + separator.Length ? -1 : artist.IndexOf(separator, currentIndex, StringComparison.OrdinalIgnoreCase);
+
+                if (index == -1)
+                {
+                    if (found && artist.Length > currentIndex)
+                        tempArtists.Add(artist.Substring(currentIndex).TrimStart());
+
+                    break;
+                }
+
+                bool notFolder = (trimIndex + folderName.Length) < index
+                    || !artist.Substring(trimIndex).StartsWith(folderName, StringComparison.OrdinalIgnoreCase);
+
+                if (notFolder)
+                    tempArtists.Add(artist.Substring(currentIndex, index - currentIndex).Trim());
+                else
+                {
+                    bool add = artist.Substring(trimIndex + folderName.Length).StartsWith(separator, StringComparison.OrdinalIgnoreCase);
+
+                    if (add)
+                    {
+                        string tempArtist = artist.Substring(trimIndex, folderName.Length);
+
+                        if (!tempArtists.Contains(tempArtist))
+                            tempArtists.Add(tempArtist);
+                    }
+
+                    currentIndex = trimIndex = trimIndex + folderName.Length + separator.Length;
+
+                    if (add)
+                        found = true;
+
+                    continue;
+                }
+
+                currentIndex = index + separator.Length;
+                found = true;
+
+                if (notFolder)
+                    trimIndex = currentIndex;
+            }
+
+            if (!found)
+                tempArtists.Add(artist);
+        }
+
+        artists = tempArtists;
     }
 
 }

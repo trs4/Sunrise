@@ -54,20 +54,22 @@ public static class ImportFromITunes
         for (int i = 0; i < elements.Count; i += 2)
             elementPairs.Add((elements[i], elements[i + 1]));
 
+        var artistCache = new ConcurrentDictionary<string, string>();
+
         var options = new ParallelOptions()
         {
             MaxDegreeOfParallelism = Math.Max((int)(Environment.ProcessorCount * 0.8), 1),
             CancellationToken = token,
         };
 
-        Parallel.ForEach(elementPairs, options, p => ProcessTrack(p.KeyElement, p.TrackElement, tracks, appName, now));
+        Parallel.ForEach(elementPairs, options, p => ProcessTrack(p.KeyElement, p.TrackElement, tracks, appName, now, artistCache));
 
         if (!tracks.IsEmpty)
             await player.AddAsync((IReadOnlyCollection<Track>)tracks.Values, progressOwner: progressOwner, withAppName: appName, token: token);
     }
 
     private static void ProcessTrack(XElement keyElement, XElement trackElement,
-        ConcurrentDictionary<int, Track> tracks, string appName, DateTime now)
+        ConcurrentDictionary<int, Track> tracks, string appName, DateTime now, ConcurrentDictionary<string, string> artistCache)
     {
         if (keyElement.Name.LocalName != "key" || trackElement.Name.LocalName != "dict" || !int.TryParse(keyElement.Value, out int id))
             return;
@@ -120,7 +122,7 @@ public static class ImportFromITunes
         if (file is null || !file.Exists)
             return;
 
-        if (!TrackManager.TryCreate(file, added, out var track) || track is null)
+        if (!TrackManager.TryCreate(file, added, out var track, artistCache) || track is null)
             return;
 
         track.LastPlay = lastPlay;

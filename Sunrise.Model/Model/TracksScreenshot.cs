@@ -56,26 +56,36 @@ public sealed class TracksScreenshot
 
         foreach (var track in Tracks)
         {
-            string artist = track.Artist;
-
-            if (string.IsNullOrWhiteSpace(artist))
+            if (string.IsNullOrEmpty(track.Artist))
                 continue;
 
-            if (!tracksByArtist.TryGetValue(artist, out var tracksByAlbums))
-                tracksByArtist.Add(artist, tracksByAlbums = new(StringComparer.OrdinalIgnoreCase));
+            AppendTrackByArtist(track, track.Artist, tracksByArtist);
 
-            string album = track.Album;
+            if (string.IsNullOrEmpty(track.Artists))
+                continue;
 
-            if (string.IsNullOrWhiteSpace(album))
-                album = string.Empty;
-
-            if (!tracksByAlbums.TryGetValue(album, out var tracks))
-                tracksByAlbums.Add(album, tracks = []);
-
-            tracks.Add(track);
+            foreach (string trackArtist in track.Artists.Split('|'))
+                AppendTrackByArtist(track, trackArtist, tracksByArtist);
         }
 
         return tracksByArtist;
+    }
+
+    private static void AppendTrackByArtist(Track track, string artist, Dictionary<string, Dictionary<string, List<Track>>> tracksByArtist)
+    {
+        if (!tracksByArtist.TryGetValue(artist, out var tracksByAlbums))
+            tracksByArtist.Add(artist, tracksByAlbums = new(StringComparer.OrdinalIgnoreCase));
+
+        string album = track.Album;
+
+        if (string.IsNullOrWhiteSpace(album))
+            album = string.Empty;
+
+        if (!tracksByAlbums.TryGetValue(album, out var tracks))
+            tracksByAlbums.Add(album, tracks = []);
+
+        if (!tracks.Contains(track))
+            tracks.Add(track);
     }
 
     private Dictionary<string, List<Track>> CreateTracksByGenre()

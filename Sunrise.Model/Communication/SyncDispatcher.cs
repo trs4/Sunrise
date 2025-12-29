@@ -51,6 +51,19 @@ public sealed class SyncDispatcher
 
         try
         {
+
+
+
+
+            //await connection.Schema.CreateTableWithParseQuery<Devices>().RunAsync(token);
+
+            //await connection.Insert.CreateQuery<Devices>() // Текущее устройство
+            //    .AddColumn(Devices.Guid, Guid.NewGuid())
+            //    .AddColumn(Devices.Name, Environment.MachineName)
+            //    .AddColumn(Devices.IsMain, true)
+            //    .RunAsync(token);
+
+
             // %%TODO
             var tracksScreenshot = await Player.GetTracksAsync(token);
             var track = tracksScreenshot.Tracks.First(t => t.Title == "Ace Of Hz");
@@ -114,6 +127,7 @@ public sealed class SyncDispatcher
         tracksDataTable.AddTimeSpanColumn(nameof(Tracks.Duration)).Values.AddRange(tracks.Select(t => t.Duration));
         tracksDataTable.AddByteColumn(nameof(Tracks.Rating)).Values.AddRange(tracks.Select(t => t.Rating));
         tracksDataTable.AddStringColumn(nameof(Tracks.Artist)).Values.AddRange(tracks.Select(t => t.Artist));
+        tracksDataTable.AddStringColumn(nameof(Tracks.Artists)).Values.AddRange(tracks.Select(t => t.Artists));
         tracksDataTable.AddStringColumn(nameof(Tracks.Genre)).Values.AddRange(tracks.Select(t => t.Genre));
         tracksDataTable.AddStringColumn(nameof(Tracks.Album)).Values.AddRange(tracks.Select(t => t.Album));
         tracksDataTable.AddDateTimeColumn(nameof(Tracks.Created)).Values.AddRange(tracks.Select(t => t.Created));

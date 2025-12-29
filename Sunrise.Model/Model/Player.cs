@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.Collections.Concurrent;
+using System.Text;
 using IcyRain.Tables;
 using RedLight;
 using RedLight.SQLite;
@@ -783,6 +784,7 @@ public sealed class Player
         var removePictureIds = new List<int>(tracksInPacket);
         var pictures = new List<TrackPicture>(tracksInPacket);
         var now = DateTime.Now;
+        var artistCache = new ConcurrentDictionary<string, string>();
 
         foreach (var file in files)
         {
@@ -792,7 +794,7 @@ public sealed class Player
                 progressOwner.Next(progress, file.Name);
             }
 
-            if (!TrackManager.TryCreate(file, now, out var track))
+            if (!TrackManager.TryCreate(file, now, out var track, artistCache))
                 continue;
 
             if (tracksScreenshot.TracksByPath.TryGetValue(file.FullName, out var existingTrack))
