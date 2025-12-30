@@ -1,12 +1,12 @@
 ﻿namespace Sunrise.Model.TagLib.Mpeg;
 
-[SupportedMimeType("taglib/mpg", "mpg")]
-[SupportedMimeType("taglib/mpeg", "mpeg")]
-[SupportedMimeType("taglib/mpe", "mpe")]
-[SupportedMimeType("taglib/mpv2", "mpv2")]
-[SupportedMimeType("taglib/m2v", "m2v")]
-[SupportedMimeType("video/x-mpg")]
-[SupportedMimeType("video/mpeg")]
+[SupportedMimeType("taglib/mpg", "mpg", FileType.Video)]
+[SupportedMimeType("taglib/mpeg", "mpeg", FileType.Video)]
+[SupportedMimeType("taglib/mpe", "mpe", FileType.Video)]
+[SupportedMimeType("taglib/mpv2", "mpv2", FileType.Video)]
+[SupportedMimeType("taglib/m2v", "m2v", FileType.Video)]
+[SupportedMimeType("video/x-mpg", FileType.Video)]
+[SupportedMimeType("video/mpeg", FileType.Video)]
 public class File : NonContainer.File
 {
     private static readonly ByteVector MarkerStart = new byte[] { 0, 0, 1 };

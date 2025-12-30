@@ -3,13 +3,13 @@ namespace Sunrise.Model.TagLib.Mpeg4;
 /// <summary>This class extends <see cref="TagLib.File" /> to provide tagging and properties support for MPEG-4 files</summary>
 [SupportedMimeType("taglib/m4a", "m4a")]
 [SupportedMimeType("taglib/m4b", "m4b")]
-[SupportedMimeType("taglib/m4v", "m4v")]
+[SupportedMimeType("taglib/m4v", "m4v", FileType.Video)]
 [SupportedMimeType("taglib/m4p", "m4p")]
-[SupportedMimeType("taglib/mp4", "mp4")]
-[SupportedMimeType("audio/mp4")]
+[SupportedMimeType("taglib/mp4", "mp4", FileType.Video)]
+[SupportedMimeType("audio/mp4", FileType.Video)]
 [SupportedMimeType("audio/x-m4a")]
-[SupportedMimeType("video/mp4")]
-[SupportedMimeType("video/x-m4v")]
+[SupportedMimeType("video/mp4", FileType.Video)]
+[SupportedMimeType("video/x-m4v", FileType.Video)]
 public class File : TagLib.File
 {
     /// <summary>Contains the Apple tag</summary>

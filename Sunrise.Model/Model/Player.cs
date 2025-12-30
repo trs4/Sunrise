@@ -763,8 +763,8 @@ public sealed class Player
             .AddColumn(Folders.Path, folderPath)
             .RunAsync(token);
 
-        string searchPattern = String.Join("|", SupportedMimeType.AllExtensions.Select(e => $"*.{e}"));
-        var files = directoryInfo.GetFiles("*.mp3", SearchOption.AllDirectories);
+        string searchPattern = string.Join("|", SupportedMimeType.AllAudioExtensions.Select(e => $"*.{e}"));
+        var files = directoryInfo.GetFiles(searchPattern, SearchOption.AllDirectories);
         await AddAsync(files, progressOwner, token);
         return true;
     }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Concurrent;
+using Sunrise.Model.TagLib;
 
 namespace Sunrise.Model;
 
@@ -23,6 +24,16 @@ internal sealed class TrackManager
 
     public static Track? Create(FileInfo file, DateTime added, ConcurrentDictionary<string, string> artistCache)
     {
+        string extension = file.Extension;
+
+        if (string.IsNullOrEmpty(extension))
+            return null;
+
+        extension = extension.Substring(1);
+
+        if (!SupportedMimeType.AllAudioExtensions.Contains(extension))
+            return null;
+
         using var tfile = TagLib.File.Create(file.FullName);
 
         if (tfile is null)
@@ -55,12 +66,7 @@ internal sealed class TrackManager
             track.Artist = track.Artist.Trim();
 
             if (track.Artist.Length > 0)
-            {
-                if (track.Artist.Contains("&amp;"))
-                    track.Artist = track.Artist.Replace("&amp;", "&");
-
                 track.Artists = artistCache.GetOrAdd(track.Artist, a => GetArtists(file, a));
-            }
         }
 
         if (string.IsNullOrEmpty(track.Artist))
