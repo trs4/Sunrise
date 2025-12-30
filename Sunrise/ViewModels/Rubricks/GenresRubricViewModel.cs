@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Sunrise.Model;
+using Sunrise.Model.Common;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
 
@@ -23,11 +24,11 @@ public sealed class GenresRubricViewModel : RubricViewModel
 
         foreach (var pair in screenshot.TracksByGenre)
         {
-            var tracks = pair.Value.OrderBy(t => t.Title).ToList();
+            var tracks = pair.Value.OrderBy(t => t.Title, NaturalSortComparer.Instance).ToList();
             trackSources.Add(new GenreViewModel(this, pair.Key, tracks));
         }
 
-        trackSources.Sort((a, b) => string.Compare(a.Name, b.Name, true));
+        trackSources.Sort((a, b) => NaturalSortComparer.Instance.Compare(a.Name, b.Name));
         _trackSources = trackSources;
         _screenshot = screenshot;
         return trackSources;

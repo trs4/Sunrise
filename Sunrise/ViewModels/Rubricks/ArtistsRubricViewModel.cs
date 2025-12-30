@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Sunrise.Model;
+using Sunrise.Model.Common;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
 
@@ -23,7 +24,7 @@ public sealed class ArtistsRubricViewModel : RubricViewModel
         foreach (var pair in screenshot.TracksByArtist)
             trackSources.Add(ArtistViewModel.Create(this, pair.Key, pair.Value));
 
-        trackSources.Sort((a, b) => string.Compare(a.Name, b.Name, true));
+        trackSources.Sort((a, b) => NaturalSortComparer.Instance.Compare(a.Name, b.Name));
         _trackSources = trackSources;
         _screenshot = screenshot;
         return trackSources;

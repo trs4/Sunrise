@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Sunrise.Model;
+using Sunrise.Model.Common;
 using Sunrise.Model.Resources;
 
 namespace Sunrise.ViewModels;
@@ -30,7 +31,7 @@ public sealed class ArtistViewModel : TrackSourceViewModel
         foreach (var albumTracks in _tracksByAlbums.Values)
             tracks.AddRange(albumTracks);
 
-        tracks.Sort((a, b) => string.Compare(a.Title, b.Title, true));
+        tracks.Sort((a, b) => NaturalSortComparer.Instance.Compare(a.Title, b.Title));
         return tracks;
     }
 

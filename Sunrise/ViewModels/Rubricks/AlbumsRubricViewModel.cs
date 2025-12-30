@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Sunrise.Model;
+using Sunrise.Model.Common;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
 
@@ -28,12 +29,12 @@ public sealed class AlbumsRubricViewModel : RubricViewModel
                 if (pairByAlbum.Key.Length == 0)
                     continue;
 
-                var tracks = pairByAlbum.Value.OrderBy(t => t.Title).ToList();
+                var tracks = pairByAlbum.Value.OrderBy(t => t.Title, NaturalSortComparer.Instance).ToList();
                 trackSources.Add(new AlbumViewModel(this, pairByAlbum.Key, pairByArtist.Key, tracks));
             }
         }
 
-        trackSources.Sort((a, b) => string.Compare(a.Name, b.Name, true));
+        trackSources.Sort((a, b) => NaturalSortComparer.Instance.Compare(a.Artist, b.Artist));
         _trackSources = trackSources;
         _screenshot = screenshot;
         return trackSources;

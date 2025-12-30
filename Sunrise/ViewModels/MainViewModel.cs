@@ -9,7 +9,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
 using Sunrise.Model.Common;
-using Sunrise.Utils;
 
 namespace Sunrise.ViewModels;
 
@@ -261,7 +260,7 @@ public abstract class MainViewModel : ObservableObject
     {
         Playlists.Clear();
 
-        foreach (var playlist in playlists.OrderBy(p => p.Name, NaturalStringComparer.Instance))
+        foreach (var playlist in playlists.OrderBy(p => p.Name, NaturalSortComparer.Instance))
         {
             var playlistViewModel = new PlaylistViewModel(playlist, TrackPlay.Player);
             Playlists.Add(playlistViewModel);
@@ -272,7 +271,7 @@ public abstract class MainViewModel : ObservableObject
     {
         Categories.Clear();
 
-        foreach (var category in categories.OrderBy(p => p.Name, NaturalStringComparer.Instance))
+        foreach (var category in categories.OrderBy(p => p.Name, NaturalSortComparer.Instance))
         {
             var categoryViewModel = new CategoryViewModel(category);
             Categories.Add(categoryViewModel);
