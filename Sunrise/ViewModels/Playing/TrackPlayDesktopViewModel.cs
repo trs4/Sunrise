@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
+using Sunrise.Model.Model;
 using Sunrise.Services;
 using Sunrise.Utils;
 
@@ -17,9 +19,12 @@ public sealed class TrackPlayDesktopViewModel : TrackPlayViewModel
     public TrackPlayDesktopViewModel(MainViewModel owner, Player player)
         : base(owner, player)
     {
+        ExportCommand = new AsyncRelayCommand(OnExportAsync);
         ImportFromITunesCommand = new AsyncRelayCommand(OnImportFromITunesAsync);
         Player.Media.Volume = _volume;
     }
+
+    public IRelayCommand ExportCommand { get; }
 
     public IRelayCommand ImportFromITunesCommand { get; }
 
@@ -42,6 +47,17 @@ public sealed class TrackPlayDesktopViewModel : TrackPlayViewModel
 
             Player.Media.Volume = _volume;
         }
+    }
+
+    private async Task OnExportAsync(CancellationToken token)
+    {
+        string? filePath = null;
+
+        if (!UIDispatcher.Run(() => AppServices.Get<ISystemDialogsService>().SaveFile(out filePath)))
+            return;
+
+        using var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write);
+        await MediaExporter.ExportAsync(Player, stream, token);
     }
 
     private async Task OnImportFromITunesAsync(CancellationToken token)

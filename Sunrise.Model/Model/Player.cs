@@ -103,6 +103,30 @@ public sealed class Player
         await connection.Schema.CreateTableWithParseQuery<TrackReproduceds>().RunAsync(token);
     }
 
+    #region Devices
+
+    private List<Device>? _devices;
+    private readonly object _devicesSync = new();
+
+    public async Task<List<Device>> GetDevicesAsync(CancellationToken token = default)
+    {
+        List<Device>? devices;
+
+        lock (_devicesSync)
+            devices = _devices;
+
+        if (devices is not null)
+            return devices;
+
+        devices = await _connection.Select.CreateWithParseQuery<Device, Devices>().GetAsync(token);
+        
+        lock (_devicesSync)
+            _devices = devices;
+
+        return devices;
+    }
+
+    #endregion
     #region Tracks
 
     private TracksScreenshot? _tracks;

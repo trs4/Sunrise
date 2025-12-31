@@ -276,4 +276,7 @@
   <data name="Extension" xml:space="preserve">
     <value>Расширение</value>
   </data>
+  <data name="Export" xml:space="preserve">
+    <value>Экспорт</value>
+  </data>
 </root>

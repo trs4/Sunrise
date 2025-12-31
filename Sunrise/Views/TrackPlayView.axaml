@@ -221,12 +221,15 @@
 						   Height="32" Width="32"
 						   OpacityMask="Gray" Opacity="0.7" />
 				</MenuItem.Header>
-
+				
+				<MenuItem Header="{x:Static res:Texts.Export}"
+						  Command="{Binding ExportCommand, Mode=OneWay}" />
 				<MenuItem Header="{x:Static res:Texts.ImportFromITunes}"
 						  Command="{Binding ImportFromITunesCommand, Mode=OneWay}" />
 				<Separator/>
 				<MenuItem Header="{x:Static res:Texts.Settings}"
 						  Command="{Binding Owner.SettingsCommand, Mode=OneWay}" />
+				<Separator/>
 				<MenuItem Header="{x:Static res:Texts.Exit}"
 						  Command="{Binding ExitCommand, Mode=OneWay}" />
 			</MenuItem>
