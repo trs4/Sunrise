@@ -34,7 +34,14 @@ public sealed class TrackPlayDesktopViewModel : TrackPlayViewModel
         base.OnPropertyChanged(e);
 
         if (e.PropertyName == nameof(Volume))
+        {
+            if (_volume < 0)
+                Volume = 0;
+            else if (_volume > 100d)
+                Volume = 100d;
+
             Player.Media.Volume = _volume;
+        }
     }
 
     private async Task OnImportFromITunesAsync(CancellationToken token)

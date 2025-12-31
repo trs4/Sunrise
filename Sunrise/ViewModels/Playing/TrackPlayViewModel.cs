@@ -242,6 +242,11 @@ public abstract class TrackPlayViewModel : ObservableObject
 
     public void ChangePosition(double position)
     {
+        if (position < 0)
+            position = 0;
+        else if (position > 1)
+            position = 1;
+
         var currentTrack = _currentTrack;
         Position = currentTrack is null ? default : TimeSpan.FromMilliseconds(currentTrack.Duration.TotalMilliseconds * position);
         Player.Media.Position = position;

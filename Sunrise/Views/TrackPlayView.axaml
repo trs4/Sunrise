@@ -77,7 +77,9 @@
 
 		<!--  Volume  -->
 		<Grid Grid.Column="2"
-			  Tapped="Volume_Tapped">
+			  Tapped="Volume_Tapped"
+			  PointerWheelChanged="Volume_PointerWheelChanged"
+			  PointerMoved="Volume_PointerMoved">
 			<Slider Name="volumeSlider"
 					Classes="Modern"
 					VerticalAlignment="Center"
@@ -106,7 +108,9 @@
 				<Grid Grid.Column="1"
 					  IsVisible="{Binding CurrentTrack, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
 					  Background="White"
-					  Tapped="Track_Tapped">
+					  Tapped="Track_Tapped"
+					  PointerWheelChanged="Track_PointerWheelChanged"
+					  PointerMoved="Track_PointerMoved">
 					<Grid.ColumnDefinitions>
 						<ColumnDefinition MinWidth="36" Width="Auto" />
 						<ColumnDefinition />
