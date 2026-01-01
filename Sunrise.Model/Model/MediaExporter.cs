@@ -31,6 +31,9 @@ public static class MediaExporter
         stream.Flush();
     }
 
+    internal static MediaDocument? Deserialize(Stream stream)
+        => JsonSerializer.Deserialize<MediaDocument>(stream, _options);
+
     private static MediaDocument BuildDocument(List<Device> devices, List<string> folders,
         TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists, CategoriesScreenshot categoriesScreenshot)
     {

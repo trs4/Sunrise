@@ -1,24 +1,11 @@
 ﻿using System.Runtime.Serialization;
-using IcyRain.Tables;
 
 namespace Sunrise.Model.Communication.Data;
 
 [DataContract]
-public class MediaLibraryData
+public class MediaLibraryData // %%TODO Заменить на Stream
 {
-    /// <summary>Треки</summary>
+    /// <summary>Информация о медиатеке</summary>
     [DataMember(Order = 1)]
-    public DataTable Tracks { get; set; }
-
-    /// <summary>Плейлисты</summary>
-    [DataMember(Order = 2)]
-    public DataTable Playlists { get; set; }
-
-    /// <summary>Треки в плейлистах</summary>
-    [DataMember(Order = 3)]
-    public DataTable PlaylistTracks { get; set; }
-
-    /// <summary>Категории</summary>
-    [DataMember(Order = 4)]
-    public DataTable Categories { get; set; }
+    public byte[] Data { get; set; }
 }

@@ -3,6 +3,7 @@ using Grpc.Core;
 using IcyRain.Grpc.Client;
 using IcyRain.Tables;
 using Sunrise.Model.Communication.Data;
+using Sunrise.Model.Model;
 using Sunrise.Model.Schemes;
 
 namespace Sunrise.Model.Communication;
@@ -94,80 +95,11 @@ public sealed class SyncClient : SyncService.Client, IDisposable
 
     private async Task TransferMediaLibraryAsync(MediaLibraryTicket ticket)
     {
-        // %%TODO
-        var tracksDataTable = new DataTable(); // { RowCapacity = tracks.Count, RowCount = tracks.Count };
-                                               //tracksDataTable.AddGuidColumn(nameof(Tracks.Guid)).Values.AddRange(tracks.Select(t => t.Guid));
-                                               //tracksDataTable.AddStringColumn(nameof(Tracks.Title)).Values.AddRange(tracks.Select(t => t.Title));
-                                               //tracksDataTable.AddNullableInt32Column(nameof(Tracks.Year)).Values.AddRange(tracks.Select(t => t.Year));
-                                               //tracksDataTable.AddTimeSpanColumn(nameof(Tracks.Duration)).Values.AddRange(tracks.Select(t => t.Duration));
-                                               //tracksDataTable.AddByteColumn(nameof(Tracks.Rating)).Values.AddRange(tracks.Select(t => t.Rating));
-                                               //tracksDataTable.AddStringColumn(nameof(Tracks.Artist)).Values.AddRange(tracks.Select(t => t.Artist));
-                                               //tracksDataTable.AddStringColumn(nameof(Tracks.Genre)).Values.AddRange(tracks.Select(t => t.Genre));
-                                               //tracksDataTable.AddStringColumn(nameof(Tracks.Album)).Values.AddRange(tracks.Select(t => t.Album));
-                                               //tracksDataTable.AddDateTimeColumn(nameof(Tracks.Created)).Values.AddRange(tracks.Select(t => t.Created));
-                                               //tracksDataTable.AddDateTimeColumn(nameof(Tracks.Added)).Values.AddRange(tracks.Select(t => t.Added));
-                                               //tracksDataTable.AddInt32Column(nameof(Tracks.Bitrate)).Values.AddRange(tracks.Select(t => t.Bitrate));
-                                               //tracksDataTable.AddInt64Column(nameof(Tracks.Size)).Values.AddRange(tracks.Select(t => t.Size));
-                                               //tracksDataTable.AddDateTimeColumn(nameof(Tracks.LastWrite)).Values.AddRange(tracks.Select(t => t.LastWrite));
-                                               //tracksDataTable.AddBooleanColumn(nameof(Tracks.HasPicture)).Values.AddRange(tracks.Select(t => t.HasPicture));
-                                               //var mimeTypeColumn = tracksDataTable.AddStringColumn(nameof(TrackPictures.MimeType));
-                                               //var pictureColumn = tracksDataTable.AddByteArrayColumn(nameof(TrackPictures.Data));
-                                               //int row = 0;
-                                               //var trackPictures = await Player.LoadPicturesAsync(tracks, token);
-                                               //var trackPicturesMap = trackPictures.ToDictionary(t => t.Id);
+        var stream = new MemoryStream();
+        await MediaExporter.ExportAsync(_player, stream);
+        stream.Seek(0, SeekOrigin.Begin);
 
-        //foreach (var track in tracks)
-        //{
-        //    if (track.HasPicture && trackPicturesMap.TryGetValue(track.Id, out var trackPicture))
-        //    {
-        //        mimeTypeColumn.Set(row, trackPicture.MimeType);
-        //        pictureColumn.Set(row, trackPicture.Data);
-        //    }
-
-        //    row++;
-        //}
-
-        var playlistsDataTable = new DataTable(); // { RowCapacity = playlists.Count, RowCount = playlists.Count };
-        //playlistsDataTable.AddGuidColumn(nameof(Playlists.Guid)).Values.AddRange(playlists.Select(t => t.Guid));
-        //playlistsDataTable.AddStringColumn(nameof(Playlists.Name)).Values.AddRange(playlists.Select(t => t.Name));
-        //playlistsDataTable.AddDateTimeColumn(nameof(Playlists.Created)).Values.AddRange(playlists.Select(t => t.Created));
-
-        //var playlistTracksCount = playlists.Sum(p => p.Tracks.Count);
-        var playlistTracksDataTable = new DataTable(); // { RowCapacity = playlistTracksCount, RowCount = playlistTracksCount };
-                                                       //var playlistColumn = playlistsDataTable.AddGuidColumn(nameof(PlaylistTracks.PlaylistId));
-                                                       //var trackColumn = playlistsDataTable.AddGuidColumn(nameof(PlaylistTracks.TrackId));
-                                                       //int row = 0;
-
-        //foreach (var playlist in playlists)
-        //{
-        //    foreach (var track in playlist.Tracks)
-        //    {
-        //        playlistColumn.Set(row, playlist.Guid);
-        //        trackColumn.Set(row, track.Guid);
-
-        //        row++;
-        //    }
-        //}
-
-
-        var categoriesDataTable = new DataTable(); // { RowCapacity = categories.Count, RowCount = categories.Count };
-        //categoriesDataTable.AddGuidColumn(nameof(Categories.Guid)).Values.AddRange(categories.Select(t => t.Guid));
-        //categoriesDataTable.AddStringColumn(nameof(Categories.Name)).Values.AddRange(categories.Select(t => t.Name));
-
-
-
-
-
-
-
-        var data = new MediaLibraryData()
-        {
-            Tracks = tracksDataTable,
-            Playlists = playlistsDataTable,
-            PlaylistTracks = playlistTracksDataTable,
-            Categories = categoriesDataTable,
-        };
-
+        var data = new MediaLibraryData() { Data = stream.ToArray() };
         await TransferMediaLibrary(data);
     }
 

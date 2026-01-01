@@ -137,7 +137,7 @@
 						   HorizontalAlignment="Left" VerticalAlignment="Center" />
 
 				<TextBox Grid.Row="1" Grid.Column="1"
-						 Text="{Binding IP, Mode=OneWay}"
+						 Text="{Binding SyncIP, UpdateSourceTrigger=PropertyChanged}"
 						 Margin="10 0"
 						 VerticalAlignment="Center" />
 

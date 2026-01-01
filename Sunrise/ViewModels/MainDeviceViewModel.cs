@@ -35,7 +35,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     private bool _isCategoryChanging;
     private string _changingCategoryText = Texts.Change;
     private bool[] _selectedCategories;
-    private string? _ip;
+    private string? _syncIp;
 #pragma warning disable CA2213 // Disposable fields should be disposed
     private SyncClient? _client;
 #pragma warning restore CA2213 // Disposable fields should be disposed
@@ -188,10 +188,10 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     public CategoryViewModel? SelectedChangedCategory { get; private set; }
 
-    public string? IP
+    public string? SyncIP
     {
-        get => _ip;
-        set => SetProperty(ref _ip, value);
+        get => _syncIp;
+        set => SetProperty(ref _syncIp, value);
     }
 
     public IRelayCommand BackCommand { get; }
@@ -745,8 +745,8 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
         try
         {
-            var ipAddress = IPAddress.Parse(IP);
-            var deviceInfo = new DiscoveryDeviceInfo(IP, ipAddress, SyncServiceManager.Port);
+            var ipAddress = IPAddress.Parse(_syncIp);
+            var deviceInfo = new DiscoveryDeviceInfo(_syncIp, ipAddress, SyncServiceManager.Port);
             OnDeviceDetected(deviceInfo);
         }
         catch (Exception e)

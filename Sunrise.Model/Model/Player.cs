@@ -3,6 +3,7 @@ using System.Text;
 using IcyRain.Tables;
 using RedLight;
 using RedLight.SQLite;
+using Sunrise.Model.Communication;
 using Sunrise.Model.Resources;
 using Sunrise.Model.Schemes;
 using Sunrise.Model.TagLib;
@@ -77,16 +78,11 @@ public sealed class Player
 
     private static async Task CreateDatabaseAsync(DatabaseConnection connection, CancellationToken token)
     {
-        bool isDevice = OperatingSystem.IsAndroid();
-        string deviceName = isDevice ? "Android" : Environment.MachineName;
-
         await connection.Schema.CreateTableWithParseQuery<Devices>().RunAsync(token);
+        await AppendMainDeviceAsync(connection, token);
 
-        await connection.Insert.CreateQuery<Devices>() // Текущее устройство
-            .AddColumn(Devices.Guid, Guid.NewGuid())
-            .AddColumn(Devices.Name, deviceName)
-            .AddColumn(Devices.IsMain, true)
-            .RunAsync(token);
+        await connection.Schema.CreateTableWithParseQuery<Updates>().RunAsync(token);
+        await AppendUpdateAsync(connection, token);
 
         await connection.Schema.CreateTableWithParseQuery<Folders>().RunAsync(token);
         await connection.Schema.CreateTableWithParseQuery<AppNames>().RunAsync(token);
@@ -102,6 +98,24 @@ public sealed class Player
 
         await connection.Schema.CreateTableWithParseQuery<TrackReproduceds>().RunAsync(token);
     }
+
+    private static Task<int> AppendMainDeviceAsync(DatabaseConnection connection, CancellationToken token)
+    {
+        bool isDevice = OperatingSystem.IsAndroid();
+        string deviceName = isDevice ? "Android" : Environment.MachineName;
+
+        return connection.Insert.CreateQuery<Devices>() // Текущее устройство
+            .AddColumn(Devices.Guid, Guid.NewGuid())
+            .AddColumn(Devices.Name, deviceName)
+            .AddColumn(Devices.IsMain, true)
+            .RunAsync(token);
+    }
+
+    private static Task<int> AppendUpdateAsync(DatabaseConnection connection, CancellationToken token)
+        => connection.Insert.CreateQuery<Updates>()
+            .AddColumn(Updates.Version, SyncServiceManager.Version)
+            .AddColumn(Updates.Date, DateTime.Now)
+            .RunAsync(token);
 
     #region Devices
 
@@ -119,7 +133,7 @@ public sealed class Player
             return devices;
 
         devices = await _connection.Select.CreateWithParseQuery<Device, Devices>().GetAsync(token);
-        
+
         lock (_devicesSync)
             _devices = devices;
 

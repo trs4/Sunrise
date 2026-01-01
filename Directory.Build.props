@@ -4,7 +4,7 @@
     <AssemblyTitle>Sunrise audio player</AssemblyTitle>
     <Description>Audio player for .NET</Description>
     <Product>Sunrise for $(TargetFramework)</Product>
-    <Copyright>Alexey Mikheyev 2025</Copyright>
+    <Copyright>Alexey Mikheyev 2026</Copyright>
     <Version>1.0.0</Version>
     <!-- FIX BUG <NeutralLanguage>ru-RU</NeutralLanguage>-->
     <NeutralLanguage>en-US</NeutralLanguage>
