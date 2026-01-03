@@ -49,11 +49,12 @@ internal sealed unsafe class MiniAudioDecoder : ISoundDecoder
         Native.Free(configPtr);
 
         if (result != MiniAudioResult.Success) 
-            throw new MiniaudioException("MiniAudio", result, "Unable to initialize decoder.");
+            throw new MiniAudioException("MiniAudio", result, "Unable to initialize decoder.");
 
         result = Native.DecoderGetLengthInPcmFrames(_decoder, out var length);
+        
         if (result != MiniAudioResult.Success) 
-            throw new MiniaudioException("MiniAudio", result, "Unable to get decoder length.");
+            throw new MiniAudioException("MiniAudio", result, "Unable to get decoder length.");
         
         Length = (int)length * Channels;
         _endOfStreamReached = false;

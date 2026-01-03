@@ -44,7 +44,7 @@ internal sealed unsafe class MiniAudioEncoder : ISoundEncoder
         Native.Free(config);
         
         if (result != MiniAudioResult.Success)
-            throw new MiniaudioException("MiniAudio", result, "Unable to initialize encoder.");
+            throw new MiniAudioException("MiniAudio", result, "Unable to initialize encoder.");
     }
 
     /// <inheritdoc />
@@ -68,7 +68,7 @@ internal sealed unsafe class MiniAudioEncoder : ISoundEncoder
             {
                 var result = Native.EncoderWritePcmFrames(_encoder, (nint)pSamples, framesToWrite, out var framesWritten);
                 if (result != MiniAudioResult.Success)
-                    throw new MiniaudioException("MiniAudio", result, "Failed to write PCM frames to encoder.");
+                    throw new MiniAudioException("MiniAudio", result, "Failed to write PCM frames to encoder.");
                 
                 return (int)framesWritten * _channels;
             }
