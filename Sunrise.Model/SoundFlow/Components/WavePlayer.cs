@@ -42,9 +42,9 @@ public static class WavePlayer
         var mixer = playbackDevice.MasterMixer;
 
         foreach (var component in mixer.Components)
-            playbackDevice.MasterMixer.RemoveComponent(component);
+            mixer.RemoveComponent(component);
 
-        playbackDevice.MasterMixer.AddComponent(soundPlayer);
+        mixer.AddComponent(soundPlayer);
         return soundPlayer;
     }
 
