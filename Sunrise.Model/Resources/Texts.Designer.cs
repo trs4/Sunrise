@@ -520,6 +520,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Синхронизировать плейлисты.
+        /// </summary>
+        public static string SynchronizePlaylists {
+            get {
+                return ResourceManager.GetString("SynchronizePlaylists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Название.
         /// </summary>
         public static string Title {

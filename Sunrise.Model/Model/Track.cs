@@ -56,6 +56,9 @@ public class Track
     /// <summary>Добавлено</summary>
     public DateTime Added { get; set; }
 
+    /// <summary>Обновлено</summary>
+    public DateTime Updated { get; set; }
+
     /// <summary>Битрейт</summary>
     public int Bitrate { get; set; }
 

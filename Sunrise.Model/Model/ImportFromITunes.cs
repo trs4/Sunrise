@@ -145,6 +145,7 @@ public static class ImportFromITunes
             {
                 Guid = Guid.NewGuid(),
                 Created = now,
+                Updated = now,
                 Tracks = [],
                 Categories = [],
             };

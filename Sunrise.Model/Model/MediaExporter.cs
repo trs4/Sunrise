@@ -73,6 +73,7 @@ public static class MediaExporter
                 Album = track.Album ?? string.Empty,
                 Created = track.Created,
                 Added = track.Added,
+                Updated = track.Updated,
                 Bitrate = track.Bitrate,
                 Size = track.Size,
                 LastWrite = track.LastWrite,
@@ -96,6 +97,7 @@ public static class MediaExporter
                 Name = playlist.Name,
                 Guid = playlist.Guid,
                 Created = playlist.Created,
+                Updated = playlist.Updated,
                 Tracks = [.. playlist.Tracks.Select(t => t.Guid)],
                 Categories = [.. playlist.Categories.Select(c => c.Guid)],
             };

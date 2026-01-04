@@ -279,4 +279,7 @@
   <data name="Export" xml:space="preserve">
     <value>Экспорт</value>
   </data>
+  <data name="SynchronizePlaylists" xml:space="preserve">
+    <value>Синхронизировать плейлисты</value>
+  </data>
 </root>

@@ -54,6 +54,7 @@ internal sealed class TrackManager
             Album = tfile.Tag.Album,
             Created = file.CreationTime,
             Added = added,
+            Updated = added,
             Size = file.Length,
             LastWrite = file.LastWriteTime,
         };

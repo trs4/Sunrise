@@ -1,5 +1,7 @@
-﻿using Grpc.Core;
+﻿using System.Net;
+using Grpc.Core;
 using Sunrise.Model.Communication.Data;
+using Sunrise.Model.Discovery;
 
 namespace Sunrise.Model.Communication;
 
@@ -12,7 +14,8 @@ public sealed class SyncServer : SyncService.Server
 
     public override async Task Subscription(ConnectParameters request, IServerStreamWriter<SubscriptionTicket> response, ServerCallContext context)
     {
-        var waitEvent = _dispatcher.Initialize(response, context.CancellationToken);
+        var deviceInfo = new DiscoveryDeviceInfo(request.Name, new IPAddress(request.IPAddress), SyncServiceManager.Port);
+        var waitEvent = _dispatcher.Initialize(deviceInfo, response, context.CancellationToken);
         await waitEvent.Task;
     }
 

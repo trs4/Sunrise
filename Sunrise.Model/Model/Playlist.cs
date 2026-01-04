@@ -15,6 +15,9 @@ public class Playlist
     /// <summary>Создано</summary>
     public DateTime Created { get; set; }
 
+    /// <summary>Обновлено</summary>
+    public DateTime Updated { get; set; }
+
     /// <summary>Треки</summary>
     public List<Track> Tracks { get; set; }
 

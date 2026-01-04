@@ -26,6 +26,9 @@ public class UploadTrackFileData : SubscriptionTicket
     public Guid Guid { get; set; }
 
     [DataMember(Order = 2)]
+    public string Path { get; set; }
+
+    [DataMember(Order = 3)]
     public byte[] Content { get; set; } // %%TODO Оптимизировать
 }
 

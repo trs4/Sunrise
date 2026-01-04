@@ -28,11 +28,12 @@ public sealed class MainDesktopViewModel : MainViewModel
     public MainDesktopViewModel(Player player)
         : base(player)
     {
-        Dispatcher = new(player);
+        Dispatcher = new(player, onDeviceDetected: OnDeviceDetectedOnDispatcher);
         AddFolderCommand = new AsyncRelayCommand(AddFolderAsync);
         DoubleClickCommand = new AsyncRelayCommand<TrackViewModel>(OnDoubleClickAsync);
         DisconnectDeviceCommand = new AsyncRelayCommand(OnDisconnectDeviceAsync);
         SynchronizeDeviceCommand = new AsyncRelayCommand(OnSynchronizeDeviceAsync);
+        SynchronizeDevicePlaylistsCommand = new AsyncRelayCommand(OnSynchronizeDevicePlaylistsAsync);
         ClearDeviceCommand = new AsyncRelayCommand(OnClearDeviceAsync);
         InitTracksColumns();
 
@@ -71,6 +72,8 @@ public sealed class MainDesktopViewModel : MainViewModel
 
     public IRelayCommand SynchronizeDeviceCommand { get; }
 
+    public IRelayCommand SynchronizeDevicePlaylistsCommand { get; }
+
     public IRelayCommand ClearDeviceCommand { get; }
 
     private void OnDeviceDetected(DiscoveryDeviceInfo deviceInfo)
@@ -83,6 +86,17 @@ public sealed class MainDesktopViewModel : MainViewModel
             _discoveryClient = null;
         }
 
+        OnDeviceDetectedCore(deviceInfo);
+    }
+
+    private void OnDeviceDetectedOnDispatcher(DiscoveryDeviceInfo deviceInfo)
+    {
+        if (_deviceInfo is null)
+            OnDeviceDetectedCore(deviceInfo);
+    }
+
+    private void OnDeviceDetectedCore(DiscoveryDeviceInfo deviceInfo)
+    {
         _deviceInfo = deviceInfo;
         Device = deviceInfo.DeviceName;
 
@@ -110,6 +124,14 @@ public sealed class MainDesktopViewModel : MainViewModel
             return;
 
         await Dispatcher.SynchronizeAsync(token);
+    }
+
+    private async Task OnSynchronizeDevicePlaylistsAsync(CancellationToken token)
+    {
+        if (_deviceInfo is null)
+            return;
+
+        await Dispatcher.SynchronizePlaylistsAsync(token);
     }
 
     private async Task OnClearDeviceAsync(CancellationToken token)

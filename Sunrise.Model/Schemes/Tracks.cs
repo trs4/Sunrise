@@ -21,6 +21,7 @@ public enum Tracks
     [Column(ColumnType.String, size: 255)] Album,
     [Column(ColumnType.DateTime)] Created,
     [Column(ColumnType.DateTime)] Added,
+    [Column(ColumnType.DateTime)] Updated,
     [Column(ColumnType.Integer)] Bitrate,
     [Column(ColumnType.Long)] Size,
     [Column(ColumnType.DateTime)] LastWrite,

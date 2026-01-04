@@ -1,29 +1,37 @@
 ﻿using Grpc.Core;
 using IcyRain.Tables;
 using Sunrise.Model.Communication.Data;
+using Sunrise.Model.Discovery;
+using Sunrise.Model.Model;
+using Sunrise.Model.Model.Exchange;
 using Sunrise.Model.Schemes;
 
 namespace Sunrise.Model.Communication;
 
 public sealed class SyncDispatcher
 {
+    private readonly Action<DiscoveryDeviceInfo>? _onDeviceDetected;
     private IServerStreamWriter<SubscriptionTicket>? _subscription;
     private TaskCompletionSource<bool>? _waitEvent;
     private bool _isSynchronizing;
     private MediaLibraryData? _mediaLibraryData;
 
-    public SyncDispatcher(Player player)
-        => Player = player ?? throw new ArgumentNullException(nameof(player));
+    public SyncDispatcher(Player player, Action<DiscoveryDeviceInfo>? onDeviceDetected = null)
+    { 
+        Player = player ?? throw new ArgumentNullException(nameof(player));
+        _onDeviceDetected = onDeviceDetected;
+    }
 
     public Player Player { get; }
 
     public bool IsInitialized { get; private set; }
 
-    public TaskCompletionSource<bool> Initialize(IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
+    public TaskCompletionSource<bool> Initialize(DiscoveryDeviceInfo deviceInfo, IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
         if (IsInitialized)
             throw new InvalidOperationException(nameof(IsInitialized));
 
+        _onDeviceDetected?.Invoke(deviceInfo);
         IsInitialized = true;
         _subscription = subscription ?? throw new ArgumentNullException(nameof(subscription));
         var waitEvent = new TaskCompletionSource<bool>();
@@ -40,7 +48,14 @@ public sealed class SyncDispatcher
         return _waitEvent = waitEvent;
     }
 
-    public async Task SynchronizeAsync(CancellationToken token = default)
+    public Task SynchronizeAsync(CancellationToken token = default)
+        => SynchronizeCoreAsync(GetUpdatingMediaAsync, token);
+    
+    public Task SynchronizePlaylistsAsync(CancellationToken token = default)
+        => SynchronizeCoreAsync(GetUpdatingPlaylistsMediaAsync, token);
+
+    private async Task SynchronizeCoreAsync(Func<TracksScreenshot, Dictionary<string, Playlist>, CategoriesScreenshot,
+        ExistingMedia, Task<UpdatingMedia>> getUpdatingMediaAsync, CancellationToken token)
     {
         var subscription = _subscription;
 
@@ -51,29 +66,17 @@ public sealed class SyncDispatcher
 
         try
         {
+            var existingMedia = await GetExistingMediaAsync(subscription, token);
 
-
-
-
-            //await connection.Schema.CreateTableWithParseQuery<Devices>().RunAsync(token);
-
-            //await connection.Insert.CreateQuery<Devices>() // Текущее устройство
-            //    .AddColumn(Devices.Guid, Guid.NewGuid())
-            //    .AddColumn(Devices.Name, Environment.MachineName)
-            //    .AddColumn(Devices.IsMain, true)
-            //    .RunAsync(token);
-
-
-            // %%TODO
             var tracksScreenshot = await Player.GetTracksAsync(token);
-            var track = tracksScreenshot.Tracks.First(t => t.Title == "Ace Of Hz");
+            var playlists = await Player.GetPlaylistsAsync(token);
+            var categoriesScreenshot = await Player.GetCategoriesAsync(token);
 
-            await UploadTracksAsync([track], subscription, token);
-            await UploadTrackFileAsync(track, subscription, token);
+            var updatingMedia = await getUpdatingMediaAsync(tracksScreenshot, playlists, categoriesScreenshot, existingMedia);
 
-
-
-
+            await UploadTracksWithFilesAsync(updatingMedia.Tracks, subscription, token);
+            await UploadPlaylistsAsync(updatingMedia.Playlists, subscription, token);
+            await UploadCategoriesAsync(updatingMedia.Categories, subscription, token);
         }
         finally
         {
@@ -109,16 +112,114 @@ public sealed class SyncDispatcher
 
     public void SetMediaLibrary(MediaLibraryData data) => _mediaLibraryData = data;
 
+    private async Task<ExistingMedia> GetExistingMediaAsync(IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
+    {
+        var data = await LoadMediaLibraryAsync(subscription, token);
+        var stream = new MemoryStream(data.Data);
+        var document = MediaExporter.Deserialize(stream) ?? throw new InvalidOperationException(nameof(MediaExporter));
+
+        var existingTracks = new Dictionary<Guid, TrackElement>(document.Tracks?.Count ?? 0);
+        var existingPlaylists = new Dictionary<Guid, PlaylistElement>(document.Playlists?.Count ?? 0);
+        var existingCategories = new Dictionary<Guid, CategoryElement>(document.Categories?.Count ?? 0);
+
+        foreach (var track in document.Tracks ?? [])
+            existingTracks[track.Guid] = track;
+
+        foreach (var playlist in document.Playlists ?? [])
+            existingPlaylists[playlist.Guid] = playlist;
+
+        foreach (var category in document.Categories ?? [])
+            existingCategories[category.Guid] = category;
+
+        return new(existingTracks, existingPlaylists, existingCategories);
+    }
+
+    private static async Task<UpdatingMedia> GetUpdatingMediaAsync(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
+        CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia)
+    {
+        var updatingTracks = new List<Track>(tracksScreenshot.Tracks.Count);
+        var updatingPlaylists = new List<Playlist>(playlists.Count);
+        var updatingCategories = new List<Category>(categoriesScreenshot.Categories.Count);
+
+        foreach (var track in tracksScreenshot.Tracks)
+        {
+            if (existingMedia.Tracks.TryGetValue(track.Guid, out var existingTrack) && track.Updated == existingTrack.Updated)
+                continue;
+
+            updatingTracks.Add(track);
+        }
+
+        foreach (var playlist in playlists.Values)
+        {
+            if (existingMedia.Playlists.TryGetValue(playlist.Guid, out var existingPlaylist) && playlist.Updated == existingPlaylist.Updated)
+                continue;
+
+            updatingPlaylists.Add(playlist);
+        }
+
+        foreach (var category in categoriesScreenshot.Categories)
+        {
+            if (existingMedia.Categories.TryGetValue(category.Guid, out var existingCategory) && category.Name == existingCategory.Name)
+                continue;
+
+            updatingCategories.Add(category);
+        }
+
+        return new(updatingTracks, updatingPlaylists, updatingCategories);
+    }
+
+    private static async Task<UpdatingMedia> GetUpdatingPlaylistsMediaAsync(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
+        CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia)
+    {
+        var playlistsTracks = playlists.Values.SelectMany(p => p.Tracks.Select(t => t.Guid)).ToHashSet();
+
+        var updatingTracks = new List<Track>(tracksScreenshot.Tracks.Count);
+        var updatingPlaylists = new List<Playlist>(playlists.Count);
+        var updatingCategories = new List<Category>(categoriesScreenshot.Categories.Count);
+
+        foreach (var track in tracksScreenshot.Tracks)
+        {
+            if (!playlistsTracks.Contains(track.Guid))
+                continue;
+
+            if (existingMedia.Tracks.TryGetValue(track.Guid, out var existingTrack) && track.Updated == existingTrack.Updated)
+                continue;
+
+            updatingTracks.Add(track);
+        }
+
+        foreach (var playlist in playlists.Values)
+        {
+            if (existingMedia.Playlists.TryGetValue(playlist.Guid, out var existingPlaylist) && playlist.Updated == existingPlaylist.Updated)
+                continue;
+
+            updatingPlaylists.Add(playlist);
+        }
+
+        foreach (var category in categoriesScreenshot.Categories)
+        {
+            if (existingMedia.Categories.TryGetValue(category.Guid, out var existingCategory) && category.Name == existingCategory.Name)
+                continue;
+
+            updatingCategories.Add(category);
+        }
+
+        return new(updatingTracks, updatingPlaylists, updatingCategories);
+    }
+
     private static Task UploadTrackFileAsync(Track track, IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
         byte[] content = File.ReadAllBytes(track.Path);
-        var data = new UploadTrackFileData() { Guid = track.Guid, Content = content };
+        var data = new UploadTrackFileData() { Guid = track.Guid, Path = track.Path, Content = content };
         return subscription.WriteAsync(data, token);
     }
 
     private async Task UploadTracksAsync(IReadOnlyCollection<Track> tracks,
         IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
+        if (tracks is null || tracks.Count == 0)
+            return;
+
         var tracksDataTable = new DataTable() { RowCapacity = tracks.Count, RowCount = tracks.Count };
         tracksDataTable.AddGuidColumn(nameof(Tracks.Guid)).Values.AddRange(tracks.Select(t => t.Guid));
         tracksDataTable.AddStringColumn(nameof(Tracks.Path)).Values.AddRange(tracks.Select(t => t.Path));
@@ -132,6 +233,7 @@ public sealed class SyncDispatcher
         tracksDataTable.AddStringColumn(nameof(Tracks.Album)).Values.AddRange(tracks.Select(t => t.Album));
         tracksDataTable.AddDateTimeColumn(nameof(Tracks.Created)).Values.AddRange(tracks.Select(t => t.Created));
         tracksDataTable.AddDateTimeColumn(nameof(Tracks.Added)).Values.AddRange(tracks.Select(t => t.Added));
+        tracksDataTable.AddDateTimeColumn(nameof(Tracks.Updated)).Values.AddRange(tracks.Select(t => t.Updated));
         tracksDataTable.AddInt32Column(nameof(Tracks.Bitrate)).Values.AddRange(tracks.Select(t => t.Bitrate));
         tracksDataTable.AddInt64Column(nameof(Tracks.Size)).Values.AddRange(tracks.Select(t => t.Size));
         tracksDataTable.AddDateTimeColumn(nameof(Tracks.LastWrite)).Values.AddRange(tracks.Select(t => t.LastWrite));
@@ -157,9 +259,24 @@ public sealed class SyncDispatcher
         await subscription.WriteAsync(data, token);
     }
 
+    private async Task UploadTracksWithFilesAsync(IReadOnlyCollection<Track> tracks,
+        IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
+    {
+        if (tracks is null || tracks.Count == 0)
+            return;
+
+        foreach (var track in tracks)
+            await UploadTrackFileAsync(track, subscription, token);
+
+        await UploadTracksAsync(tracks, subscription, token);
+    }
+
     private static async Task UploadTrackReproducedsAsync(IReadOnlyCollection<Track> tracks,
         IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
+        if (tracks is null || tracks.Count == 0)
+            return;
+
         // %%TODO
 
 
@@ -196,10 +313,14 @@ public sealed class SyncDispatcher
     private static async Task UploadPlaylistsAsync(IReadOnlyCollection<Playlist> playlists,
         IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
+        if (playlists is null || playlists.Count == 0)
+            return;
+
         var playlistsDataTable = new DataTable() { RowCapacity = playlists.Count, RowCount = playlists.Count };
         playlistsDataTable.AddGuidColumn(nameof(Playlists.Guid)).Values.AddRange(playlists.Select(t => t.Guid));
         playlistsDataTable.AddStringColumn(nameof(Playlists.Name)).Values.AddRange(playlists.Select(t => t.Name));
         playlistsDataTable.AddDateTimeColumn(nameof(Playlists.Created)).Values.AddRange(playlists.Select(t => t.Created));
+        playlistsDataTable.AddDateTimeColumn(nameof(Playlists.Updated)).Values.AddRange(playlists.Select(t => t.Updated));
 
         var playlistTracksCount = playlists.Sum(p => p.Tracks.Count);
         var playlistTracksDataTable = new DataTable() { RowCapacity = playlistTracksCount, RowCount = playlistTracksCount };
@@ -241,6 +362,9 @@ public sealed class SyncDispatcher
     private static async Task UploadCategoriesAsync(IReadOnlyCollection<Category> categories,
         IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
+        if (categories is null || categories.Count == 0)
+            return;
+
         var categoriesDataTable = new DataTable() { RowCapacity = categories.Count, RowCount = categories.Count };
         categoriesDataTable.AddGuidColumn(nameof(Categories.Guid)).Values.AddRange(categories.Select(t => t.Guid));
         categoriesDataTable.AddStringColumn(nameof(Categories.Name)).Values.AddRange(categories.Select(t => t.Name));
@@ -283,4 +407,7 @@ public sealed class SyncDispatcher
         catch { }
     }
 
+    private record ExistingMedia(Dictionary<Guid, TrackElement> Tracks, Dictionary<Guid, PlaylistElement> Playlists, Dictionary<Guid, CategoryElement> Categories);
+
+    private record UpdatingMedia(List<Track> Tracks, List<Playlist> Playlists, List<Category> Categories);
 }

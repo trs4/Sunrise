@@ -23,6 +23,7 @@ public class TrackViewModel : ObservableObject
     private string? _album;
     private DateTime _created;
     private DateTime _added;
+    private DateTime _updated;
     private double _bitrate;
     private long _size;
     private string? _extension;
@@ -42,6 +43,7 @@ public class TrackViewModel : ObservableObject
         _album = track.Album;
         _created = track.Created;
         _added = track.Added;
+        _updated = track.Updated;
         _bitrate = track.Bitrate;
         _size = track.Size;
     }
@@ -152,6 +154,13 @@ public class TrackViewModel : ObservableObject
     {
         get => _added;
         set => SetProperty(ref _added, value);
+    }
+
+    /// <summary>Обновлено</summary>
+    public DateTime Updated
+    {
+        get => _updated;
+        set => SetProperty(ref _updated, value);
     }
 
     /// <summary>Битрейт</summary>

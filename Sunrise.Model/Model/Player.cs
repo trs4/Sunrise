@@ -20,7 +20,7 @@ public sealed class Player
     private static readonly HashSet<string> _updateTracksExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         nameof(Tracks.Guid), nameof(Tracks.Path), nameof(Tracks.Picked), nameof(Tracks.Rating), nameof(Tracks.Reproduced),
-        nameof(Tracks.Added), nameof(Tracks.RootFolder), nameof(Tracks.RelationFolder), nameof(Tracks.OriginalText),
+        nameof(Tracks.Added), nameof(Tracks.Updated), nameof(Tracks.RootFolder), nameof(Tracks.RelationFolder), nameof(Tracks.OriginalText),
         nameof(Tracks.TranslateText), nameof(Tracks.Language)
     };
 
@@ -442,6 +442,7 @@ public sealed class Player
 
     public async Task<Playlist> AddPlaylistAsync(CancellationToken token = default)
     {
+        var now = DateTime.Now;
         var playlists = await GetPlaylistsAsync(token);
         string name = FindNewPlaylistName(playlists);
 
@@ -449,7 +450,8 @@ public sealed class Player
         {
             Guid = Guid.NewGuid(),
             Name = name,
-            Created = DateTime.Now,
+            Created = now,
+            Updated = now,
             Tracks = [],
             Categories = [],
         };
@@ -1170,6 +1172,7 @@ public sealed class Player
                 }
 
                 playlist.Created = existingPlaylist.Created;
+                playlist.Updated = existingPlaylist.Updated;
 
                 if (NeedUpdatePlaylist(playlist, existingPlaylist))
                     updatePlaylistTracks.Add((playlist, existingPlaylist));

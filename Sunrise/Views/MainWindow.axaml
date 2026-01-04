@@ -146,6 +146,15 @@
 							Margin="10 2 15 2"
 							Padding="0"
 							IsEnabled="{Binding !DeviceLocked, Mode=OneWay}"
+							Command="{Binding SynchronizeDevicePlaylistsCommand, Mode=OneWay}">
+						<TextBlock Text="{x:Static res:Texts.SynchronizePlaylists}"
+								   FontSize="11" />
+					</Button>
+					<Button Classes="light"
+							Height="23"
+							Margin="10 2 15 2"
+							Padding="0"
+							IsEnabled="{Binding !DeviceLocked, Mode=OneWay}"
 							Command="{Binding ClearDeviceCommand, Mode=OneWay}">
 						<TextBlock Text="{x:Static res:Texts.Clear}"
 								   FontSize="11" />

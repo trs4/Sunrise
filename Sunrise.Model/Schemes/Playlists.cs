@@ -8,4 +8,5 @@ public enum Playlists
     [Column(ColumnType.Guid)] Guid,
     [Column(ColumnType.String, size: 255)] Name,
     [Column(ColumnType.DateTime)] Created,
+    [Column(ColumnType.DateTime)] Updated,
 }

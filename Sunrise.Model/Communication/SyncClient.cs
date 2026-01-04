@@ -2,6 +2,7 @@
 using Grpc.Core;
 using IcyRain.Grpc.Client;
 using IcyRain.Tables;
+using Sunrise.Model.Common;
 using Sunrise.Model.Communication.Data;
 using Sunrise.Model.Model;
 using Sunrise.Model.Schemes;
@@ -42,7 +43,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         if (_subscriptionCTS is not null)
             throw new InvalidOperationException(nameof(Connect));
 
-        var parameters = new ConnectParameters() { Name = _name };
+        var parameters = new ConnectParameters() { Name = _name, IPAddress = Network.GetMachineIPAddress().GetAddressBytes() };
         var cts = _subscriptionCTS = new CancellationTokenSource();
         var call = Subscription(parameters);
         _ = SubscriptionWait(call, cts.Token);
@@ -54,7 +55,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         {
             while (true)
             {
-                if (await call.ResponseStream.MoveNext(token).ConfigureAwait(false))
+                if (await call.ResponseStream.MoveNext(token))
                 {
                     var ticket = call.ResponseStream.Current;
                     await ProcessTicket(ticket, token);
@@ -105,7 +106,8 @@ public sealed class SyncClient : SyncService.Client, IDisposable
 
     private void UploadTrackFile(UploadTrackFileData data)
     {
-        string filePath = Path.Combine(_player.TracksPath, data.Guid.ToString());
+        string extension = Path.GetExtension(data.Path);
+        string filePath = Path.Combine(_player.TracksPath, data.Guid.ToString() + extension);
         File.WriteAllBytes(filePath, data.Content);
     }
 
@@ -124,6 +126,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         var albumColumn = (StringDataColumn)tracksDataTable[nameof(Tracks.Album)];
         var createdColumn = (DateTimeDataColumn)tracksDataTable[nameof(Tracks.Created)];
         var addedColumn = (DateTimeDataColumn)tracksDataTable[nameof(Tracks.Added)];
+        var updatedColumn = (DateTimeDataColumn)tracksDataTable[nameof(Tracks.Updated)];
         var bitrateColumn = (Int32DataColumn)tracksDataTable[nameof(Tracks.Bitrate)];
         var sizeColumn = (Int64DataColumn)tracksDataTable[nameof(Tracks.Size)];
         var lastWriteColumn = (DateTimeDataColumn)tracksDataTable[nameof(Tracks.LastWrite)];
@@ -137,7 +140,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
             var guid = guidColumn.Get(row);
             string path = pathColumn.Get(row);
             string extension = Path.GetExtension(path);
-            string filePath = Path.Combine(_player.TracksPath, guid.ToString(), extension);
+            string filePath = Path.Combine(_player.TracksPath, guid.ToString() + extension);
             bool hasPicture = hasPictureColumn.Get(row);
 
             var track = new Track()
@@ -154,6 +157,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
                 Album = albumColumn.Get(row),
                 Created = createdColumn.Get(row),
                 Added = addedColumn.Get(row),
+                Updated = updatedColumn.Get(row),
                 Bitrate = bitrateColumn.Get(row),
                 Size = sizeColumn.Get(row),
                 LastWrite = lastWriteColumn.Get(row),
@@ -192,6 +196,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         var guidColumn = (GuidDataColumn)playlistsDataTable[nameof(Playlists.Guid)];
         var nameColumn = (StringDataColumn)playlistsDataTable[nameof(Playlists.Name)];
         var createdColumn = (DateTimeDataColumn)playlistsDataTable[nameof(Playlists.Created)];
+        var updatedColumn = (DateTimeDataColumn)playlistsDataTable[nameof(Playlists.Updated)];
         var playlists = new List<Playlist>(playlistsDataTable.RowCount);
         var playlistsByGuid = new Dictionary<Guid, Playlist>(playlistsDataTable.RowCount);
 
@@ -204,6 +209,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
                 Guid = guid,
                 Name = nameColumn.Get(row),
                 Created = createdColumn.Get(row),
+                Updated = updatedColumn.Get(row),
                 Tracks = [],
                 Categories = [],
             };
