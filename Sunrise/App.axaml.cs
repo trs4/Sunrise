@@ -2,12 +2,16 @@
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Data.Core.Plugins;
 using Avalonia.Markup.Xaml;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using Sunrise.Model;
+using Sunrise.Model.Common;
 using Sunrise.Services;
 using Sunrise.ViewModels;
 using Sunrise.Views;
@@ -22,6 +26,7 @@ public partial class App : Application
     public override async void OnFrameworkInitializationCompleted()
     {
         SetCurrentCulture();
+        InitExceptionHandlers();
         var player = await Player.InitAsync();
         var viewModel = InitApplication(player);
         await viewModel.ReloadTracksAsync();
@@ -82,6 +87,25 @@ public partial class App : Application
 
         Thread.CurrentThread.CurrentCulture = cultureInfo;
         Thread.CurrentThread.CurrentUICulture = cultureInfo;
+    }
+
+    private static void InitExceptionHandlers()
+    {
+        AppDomain.CurrentDomain.UnhandledException += CurrentDomain_UnhandledException;
+        TaskScheduler.UnobservedTaskException += TaskScheduler_UnobservedTaskException;
+    }
+
+    private static async void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+    {
+        string message = e.ExceptionObject is Exception exception ? ExceptionHandler.GetString(exception) : e.ExceptionObject?.ToString();
+        await MessageBoxManager.GetMessageBoxStandard("UnhandledException", message, ButtonEnum.Ok).ShowAsync();
+    }
+
+    private static async void TaskScheduler_UnobservedTaskException(object? sender, UnobservedTaskExceptionEventArgs e)
+    {
+        string message = ExceptionHandler.GetString(e.Exception);
+        await MessageBoxManager.GetMessageBoxStandard("UnobservedTaskException", message, ButtonEnum.Ok).ShowAsync();
+        e.SetObserved();
     }
 
     private static void DisableAvaloniaDataAnnotationValidation()
