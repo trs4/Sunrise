@@ -139,7 +139,7 @@ public record struct AudioFormat
     /// <summary>Infers an <see cref="AudioFormat"/> from the given stream by reading the stream's metadata</summary>
     /// <param name="filePath">The stream to read the metadata from</param>
     /// <returns>The inferred <see cref="AudioFormat"/></returns>
-    public static async Task<AudioFormat?> GetFormatFromStreamAsync(string filePath)
+    public static AudioFormat? GetFormatFromStream(string filePath)
     {
         using var tfile = TagLib.File.Create(filePath);
         var properties = tfile?.Properties;

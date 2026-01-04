@@ -201,7 +201,7 @@ public abstract class TrackPlayViewModel : ObservableObject
         }
     }
 
-    private async Task ChangeAsync(TrackViewModel trackViewModel)
+    private void Change(TrackViewModel trackViewModel)
     {
         bool isPlaying = false;
         var currentTrack = _currentTrack;
@@ -236,7 +236,10 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         Position = default;
         PlayIcon = _playIconSource;
-        _currentTrack?.IsPlaying = false;
+
+        if (_currentTrack is { } currentTrack)
+            currentTrack.IsPlaying = false;
+
         _playerTimer.Stop();
     }
 
@@ -333,7 +336,7 @@ public abstract class TrackPlayViewModel : ObservableObject
             }
             else if (Owner.SelectedRubrick is not SongsRubricViewModel || track.Picked)
             {
-                await ChangeAsync(track);
+                Change(track);
                 break;
             }
         }
@@ -366,7 +369,7 @@ public abstract class TrackPlayViewModel : ObservableObject
                     track = await Strategy.GetFirstAsync();
 
                     if (track is not null)
-                        await ChangeAsync(track);
+                        Change(track);
                 }
                 else
                     Clear();
@@ -377,7 +380,7 @@ public abstract class TrackPlayViewModel : ObservableObject
                 track = nextTrack;
             else
             {
-                await ChangeAsync(nextTrack);
+                Change(nextTrack);
                 break;
             }
         }

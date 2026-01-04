@@ -49,13 +49,13 @@ public sealed class SyncDispatcher
     }
 
     public Task SynchronizeAsync(CancellationToken token = default)
-        => SynchronizeCoreAsync(GetUpdatingMediaAsync, token);
+        => SynchronizeCoreAsync(GetUpdatingMedia, token);
     
     public Task SynchronizePlaylistsAsync(CancellationToken token = default)
-        => SynchronizeCoreAsync(GetUpdatingPlaylistsMediaAsync, token);
+        => SynchronizeCoreAsync(GetUpdatingPlaylistsMedia, token);
 
     private async Task SynchronizeCoreAsync(Func<TracksScreenshot, Dictionary<string, Playlist>, CategoriesScreenshot,
-        ExistingMedia, Task<UpdatingMedia>> getUpdatingMediaAsync, CancellationToken token)
+        ExistingMedia, UpdatingMedia> getUpdatingMedia, CancellationToken token)
     {
         var subscription = _subscription;
 
@@ -72,7 +72,7 @@ public sealed class SyncDispatcher
             var playlists = await Player.GetPlaylistsAsync(token);
             var categoriesScreenshot = await Player.GetCategoriesAsync(token);
 
-            var updatingMedia = await getUpdatingMediaAsync(tracksScreenshot, playlists, categoriesScreenshot, existingMedia);
+            var updatingMedia = getUpdatingMedia(tracksScreenshot, playlists, categoriesScreenshot, existingMedia);
 
             await UploadTracksWithFilesAsync(updatingMedia.Tracks, subscription, token);
             await UploadPlaylistsAsync(updatingMedia.Playlists, subscription, token);
@@ -134,7 +134,7 @@ public sealed class SyncDispatcher
         return new(existingTracks, existingPlaylists, existingCategories);
     }
 
-    private static async Task<UpdatingMedia> GetUpdatingMediaAsync(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
+    private static UpdatingMedia GetUpdatingMedia(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
         CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia)
     {
         var updatingTracks = new List<Track>(tracksScreenshot.Tracks.Count);
@@ -168,7 +168,7 @@ public sealed class SyncDispatcher
         return new(updatingTracks, updatingPlaylists, updatingCategories);
     }
 
-    private static async Task<UpdatingMedia> GetUpdatingPlaylistsMediaAsync(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
+    private static UpdatingMedia GetUpdatingPlaylistsMedia(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
         CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia)
     {
         var playlistsTracks = playlists.Values.SelectMany(p => p.Tracks.Select(t => t.Guid)).ToHashSet();
