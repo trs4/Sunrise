@@ -10,6 +10,7 @@ namespace Sunrise.Model.Communication;
 
 public sealed class SyncDispatcher
 {
+    private const int _packetSize = 128;
     private readonly Action<DiscoveryDeviceInfo>? _onDeviceDetected;
     private IServerStreamWriter<SubscriptionTicket>? _subscription;
     private TaskCompletionSource<bool>? _waitEvent;
@@ -17,7 +18,7 @@ public sealed class SyncDispatcher
     private MediaLibraryData? _mediaLibraryData;
 
     public SyncDispatcher(Player player, Action<DiscoveryDeviceInfo>? onDeviceDetected = null)
-    { 
+    {
         Player = player ?? throw new ArgumentNullException(nameof(player));
         _onDeviceDetected = onDeviceDetected;
     }
@@ -50,7 +51,7 @@ public sealed class SyncDispatcher
 
     public Task SynchronizeAsync(CancellationToken token = default)
         => SynchronizeCoreAsync(GetUpdatingMedia, token);
-    
+
     public Task SynchronizePlaylistsAsync(CancellationToken token = default)
         => SynchronizeCoreAsync(GetUpdatingPlaylistsMedia, token);
 
@@ -73,10 +74,7 @@ public sealed class SyncDispatcher
             var categoriesScreenshot = await Player.GetCategoriesAsync(token);
 
             var updatingMedia = getUpdatingMedia(tracksScreenshot, playlists, categoriesScreenshot, existingMedia);
-
-            await UploadTracksWithFilesAsync(updatingMedia.Tracks, subscription, token);
-            await UploadPlaylistsAsync(updatingMedia.Playlists, subscription, token);
-            await UploadCategoriesAsync(updatingMedia.Categories, subscription, token);
+            await UploadAsync(updatingMedia, subscription, token);
         }
         finally
         {
@@ -137,56 +135,44 @@ public sealed class SyncDispatcher
 
     private static UpdatingMedia GetUpdatingMedia(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
         CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia)
-    {
-        var updatingTracks = new List<Track>(tracksScreenshot.Tracks.Count);
-        var updatingPlaylists = new List<Playlist>(playlists.Count);
-        var updatingCategories = new List<Category>(categoriesScreenshot.Categories.Count);
-
-        foreach (var track in tracksScreenshot.Tracks)
-        {
-            if (existingMedia.Tracks.TryGetValue(track.Guid, out var existingTrack) && track.Updated == existingTrack.Updated)
-                continue;
-
-            updatingTracks.Add(track);
-        }
-
-        foreach (var playlist in playlists.Values)
-        {
-            if (existingMedia.Playlists.TryGetValue(playlist.Guid, out var existingPlaylist) && playlist.Updated == existingPlaylist.Updated)
-                continue;
-
-            updatingPlaylists.Add(playlist);
-        }
-
-        foreach (var category in categoriesScreenshot.Categories)
-        {
-            if (existingMedia.Categories.TryGetValue(category.Guid, out var existingCategory) && category.Name == existingCategory.Name)
-                continue;
-
-            updatingCategories.Add(category);
-        }
-
-        return new(updatingTracks, updatingPlaylists, updatingCategories);
-    }
+        => GetUpdatingMediaCore(tracksScreenshot, playlists, categoriesScreenshot, existingMedia);
 
     private static UpdatingMedia GetUpdatingPlaylistsMedia(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
         CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia)
     {
         var playlistsTracks = playlists.Values.SelectMany(p => p.Tracks.Select(t => t.Guid)).ToHashSet();
 
-        var updatingTracks = new List<Track>(tracksScreenshot.Tracks.Count);
-        var updatingPlaylists = new List<Playlist>(playlists.Count);
-        var updatingCategories = new List<Category>(categoriesScreenshot.Categories.Count);
+        return GetUpdatingMediaCore(tracksScreenshot, playlists, categoriesScreenshot, existingMedia,
+            track => !playlistsTracks.Contains(track.Guid));
+    }
+
+    private static UpdatingMedia GetUpdatingMediaCore(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
+        CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia, Predicate<Track>? trackCondition = null)
+    {
+        var updatingTracks = new List<List<Track>>(tracksScreenshot.Tracks.Count / _packetSize);
+        var updatingTracksPacket = new List<Track>(_packetSize);
+
+        var updatingPlaylists = new List<List<Playlist>>(playlists.Count / _packetSize);
+        var updatingPlaylistsPacket = new List<Playlist>(_packetSize);
+
+        var updatingCategories = new List<List<Category>>(categoriesScreenshot.Categories.Count / _packetSize);
+        var updatingCategoriesPacket = new List<Category>(_packetSize);
 
         foreach (var track in tracksScreenshot.Tracks)
         {
-            if (!playlistsTracks.Contains(track.Guid))
+            if (trackCondition?.Invoke(track) ?? false)
                 continue;
 
             if (existingMedia.Tracks.TryGetValue(track.Guid, out var existingTrack) && track.Updated == existingTrack.Updated)
                 continue;
 
-            updatingTracks.Add(track);
+            updatingTracksPacket.Add(track);
+
+            if (updatingTracksPacket.Count == _packetSize)
+            {
+                updatingTracks.Add(updatingTracksPacket);
+                updatingTracksPacket = new List<Track>(_packetSize);
+            }
         }
 
         foreach (var playlist in playlists.Values)
@@ -194,7 +180,13 @@ public sealed class SyncDispatcher
             if (existingMedia.Playlists.TryGetValue(playlist.Guid, out var existingPlaylist) && playlist.Updated == existingPlaylist.Updated)
                 continue;
 
-            updatingPlaylists.Add(playlist);
+            updatingPlaylistsPacket.Add(playlist);
+
+            if (updatingPlaylistsPacket.Count == _packetSize)
+            {
+                updatingPlaylists.Add(updatingPlaylistsPacket);
+                updatingPlaylistsPacket = new List<Playlist>(_packetSize);
+            }
         }
 
         foreach (var category in categoriesScreenshot.Categories)
@@ -202,10 +194,37 @@ public sealed class SyncDispatcher
             if (existingMedia.Categories.TryGetValue(category.Guid, out var existingCategory) && category.Name == existingCategory.Name)
                 continue;
 
-            updatingCategories.Add(category);
+            updatingCategoriesPacket.Add(category);
+
+            if (updatingCategoriesPacket.Count == _packetSize)
+            {
+                updatingCategories.Add(updatingCategoriesPacket);
+                updatingCategoriesPacket = new List<Category>(_packetSize);
+            }
         }
 
+        if (updatingTracksPacket.Count > 0)
+            updatingTracks.Add(updatingTracksPacket);
+
+        if (updatingPlaylistsPacket.Count > 0)
+            updatingPlaylists.Add(updatingPlaylistsPacket);
+
+        if (updatingCategoriesPacket.Count > 0)
+            updatingCategories.Add(updatingCategoriesPacket);
+
         return new(updatingTracks, updatingPlaylists, updatingCategories);
+    }
+
+    private async Task UploadAsync(UpdatingMedia updatingMedia, IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
+    {
+        foreach (var tracks in updatingMedia.Tracks)
+            await UploadTracksWithFilesAsync(tracks, subscription, token);
+
+        foreach (var playlists in updatingMedia.Playlists)
+            await UploadPlaylistsAsync(playlists, subscription, token);
+
+        foreach (var categories in updatingMedia.Categories)
+            await UploadCategoriesAsync(categories, subscription, token);
     }
 
     private static Task UploadTrackFileAsync(Track track, IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
@@ -410,5 +429,5 @@ public sealed class SyncDispatcher
 
     private record ExistingMedia(Dictionary<Guid, TrackElement> Tracks, Dictionary<Guid, PlaylistElement> Playlists, Dictionary<Guid, CategoryElement> Categories);
 
-    private record UpdatingMedia(List<Track> Tracks, List<Playlist> Playlists, List<Category> Categories);
+    private record UpdatingMedia(List<List<Track>> Tracks, List<List<Playlist>> Playlists, List<List<Category>> Categories);
 }
