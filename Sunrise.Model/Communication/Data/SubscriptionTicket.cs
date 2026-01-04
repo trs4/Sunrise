@@ -7,7 +7,7 @@ namespace Sunrise.Model.Communication.Data;
 [DataContract, KnownType(typeof(DisconnectTicket)), KnownType(typeof(MediaLibraryTicket)),
     KnownType(typeof(UploadTrackFileData)), KnownType(typeof(UploadTracksData)), KnownType(typeof(UploadTrackReproducedsData)), KnownType(typeof(DeleteTracksData)),
     KnownType(typeof(UploadPlaylistsData)), KnownType(typeof(DeletePlaylistsData)),
-    KnownType(typeof(UploadCategoriesData)), KnownType(typeof(DeleteCategoriesData))]
+    KnownType(typeof(UploadCategoriesData)), KnownType(typeof(DeleteCategoriesData)), KnownType(typeof(DeleteData))]
 public abstract class SubscriptionTicket { }
 
 /// <summary>Запрос окончания передачи данных</summary>
@@ -97,4 +97,10 @@ public class DeleteCategoriesData : SubscriptionTicket
     /// <summary>Категории</summary>
     [DataMember(Order = 1)]
     public Guid[] Categories { get; set; }
+}
+
+/// <summary>Удаляет все данные</summary>
+[DataContract]
+public class DeleteData : SubscriptionTicket
+{
 }

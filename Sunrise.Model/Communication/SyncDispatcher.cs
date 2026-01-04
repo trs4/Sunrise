@@ -84,13 +84,14 @@ public sealed class SyncDispatcher
         }
     }
 
-#pragma warning disable CA1822 // Пометьте члены как статические
-    public Task ClearAsync(CancellationToken token = default)
-#pragma warning restore CA1822 // Пометьте члены как статические
+    public async Task ClearAsync(CancellationToken token = default)
     {
-        // %%TODO
+        var subscription = _subscription;
 
-        return Task.CompletedTask;
+        if (_isSynchronizing || subscription is null)
+            return;
+
+        await subscription.WriteAsync(new DeleteData(), token);
     }
 
     private async Task<MediaLibraryData> LoadMediaLibraryAsync(IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)

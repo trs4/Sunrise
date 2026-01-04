@@ -34,6 +34,7 @@ public sealed class Player
         nameof(Categories.Guid)
     };
 
+    private const string _mediaLibrary = "MediaLibrary.db";
     private readonly DatabaseConnection _connection;
 
     static Player()
@@ -66,7 +67,7 @@ public sealed class Player
         if (isDevice)
             Directory.CreateDirectory(tracksPath);
 
-        string databaseFilePath = Path.Combine(folderPath, "MediaLibrary.db");
+        string databaseFilePath = Path.Combine(folderPath, _mediaLibrary);
         string connectionString = $@"Provider=SQLite;Data Source='{databaseFilePath}'";
         var connection = SQLiteDatabaseConnection.Create(connectionString);
 
@@ -74,6 +75,27 @@ public sealed class Player
             await CreateDatabaseAsync(connection, token);
 
         return new Player(folderPath, tracksPath, connection);
+    }
+
+    public async Task DeleteDataAsync(CancellationToken token = default)
+    {
+        bool isDevice = OperatingSystem.IsAndroid();
+        string databaseFilePath = Path.Combine(FolderPath, _mediaLibrary);
+
+        System.IO.File.Delete(databaseFilePath);
+
+        if (isDevice)
+        {
+            new DirectoryInfo(TracksPath).Delete(true);
+            Directory.CreateDirectory(TracksPath);
+        }
+
+        await DeleteAllMediaAsync(token);
+        
+        ClearDevices();
+        ClearTracks();
+        ClearCategories();
+        ClearPlaylists();
     }
 
     private static async Task CreateDatabaseAsync(DatabaseConnection connection, CancellationToken token)
@@ -138,6 +160,12 @@ public sealed class Player
             _devices = devices;
 
         return devices;
+    }
+
+    public void ClearDevices()
+    {
+        lock (_devicesSync)
+            _devices = null;
     }
 
     #endregion
@@ -1353,7 +1381,7 @@ public sealed class Player
         return ids;
     }
 
-    public async Task DeleteAllMediaAsync(CancellationToken token = default)
+    private async Task DeleteAllMediaAsync(CancellationToken token = default)
     {
         await _connection.Delete.CreateQuery<Tracks>().RunAsync(token);
         await _connection.Delete.CreateQuery<TrackPictures>().RunAsync(token);

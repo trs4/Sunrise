@@ -92,6 +92,8 @@ public sealed class SyncClient : SyncService.Client, IDisposable
             await UploadCategoriesAsync(uploadCategoriesData, token);
         else if (ticket is DeleteCategoriesData deleteCategoriesData)
             await DeleteCategoriesAsync(deleteCategoriesData, token);
+        else if (ticket is DeleteData)
+            await DeleteDataAsync(token);
     }
 
     private async Task TransferMediaLibraryAsync(MediaLibraryTicket ticket)
@@ -270,6 +272,9 @@ public sealed class SyncClient : SyncService.Client, IDisposable
 
     private Task DeleteCategoriesAsync(DeleteCategoriesData data, CancellationToken token)
         => _player.DeleteCategoriesAsync(data.Categories, token);
+
+    private Task DeleteDataAsync(CancellationToken token)
+        => _player.DeleteDataAsync(token);
 
     public void Disconnect()
     {
