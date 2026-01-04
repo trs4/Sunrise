@@ -189,8 +189,13 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         // %%TODO
     }
 
-    private Task DeleteTracksAsync(DeleteTracksData data, CancellationToken token)
-        => _player.DeleteTracksAsync(data.Tracks, token);
+    private async Task DeleteTracksAsync(DeleteTracksData data, CancellationToken token)
+    {
+        await _player.DeleteTracksAsync(data.Tracks, token);
+
+        if (_reloadCallback is not null)
+            await _reloadCallback(token);
+    }
 
     private async Task UploadPlaylistsAsync(UploadPlaylistsData data, CancellationToken token)
     {
@@ -243,8 +248,13 @@ public sealed class SyncClient : SyncService.Client, IDisposable
             await _reloadCallback(token);
     }
 
-    private Task DeletePlaylistsAsync(DeletePlaylistsData data, CancellationToken token)
-        => _player.DeletePlaylistsAsync(data.Playlists, token);
+    private async Task DeletePlaylistsAsync(DeletePlaylistsData data, CancellationToken token)
+    {
+        await _player.DeletePlaylistsAsync(data.Playlists, token);
+
+        if (_reloadCallback is not null)
+            await _reloadCallback(token);
+    }
 
     private async Task UploadCategoriesAsync(UploadCategoriesData data, CancellationToken token)
     {
@@ -270,11 +280,21 @@ public sealed class SyncClient : SyncService.Client, IDisposable
             await _reloadCallback(token);
     }
 
-    private Task DeleteCategoriesAsync(DeleteCategoriesData data, CancellationToken token)
-        => _player.DeleteCategoriesAsync(data.Categories, token);
+    private async Task DeleteCategoriesAsync(DeleteCategoriesData data, CancellationToken token)
+    {
+        await _player.DeleteCategoriesAsync(data.Categories, token);
 
-    private Task DeleteDataAsync(CancellationToken token)
-        => _player.DeleteDataAsync(token);
+        if (_reloadCallback is not null)
+            await _reloadCallback(token);
+    }
+
+    private async Task DeleteDataAsync(CancellationToken token)
+    {
+        await _player.DeleteDataAsync(token);
+
+        if (_reloadCallback is not null)
+            await _reloadCallback(token);
+    }
 
     public void Disconnect()
     {

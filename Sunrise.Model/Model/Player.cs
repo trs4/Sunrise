@@ -80,9 +80,6 @@ public sealed class Player
     public async Task DeleteDataAsync(CancellationToken token = default)
     {
         bool isDevice = OperatingSystem.IsAndroid();
-        string databaseFilePath = Path.Combine(FolderPath, _mediaLibrary);
-
-        System.IO.File.Delete(databaseFilePath);
 
         if (isDevice)
         {
@@ -91,7 +88,7 @@ public sealed class Player
         }
 
         await DeleteAllMediaAsync(token);
-        
+
         ClearDevices();
         ClearTracks();
         ClearCategories();
