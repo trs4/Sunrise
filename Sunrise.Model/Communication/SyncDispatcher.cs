@@ -426,8 +426,8 @@ public sealed class SyncDispatcher
 
         var playlistTracksCount = playlists.Sum(p => p.Tracks.Count);
         var playlistTracksDataTable = new DataTable() { RowCapacity = playlistTracksCount, RowCount = playlistTracksCount };
-        var playlistColumn = playlistsDataTable.AddGuidColumn(nameof(PlaylistTracks.PlaylistId));
-        var trackColumn = playlistsDataTable.AddGuidColumn(nameof(PlaylistTracks.TrackId));
+        var playlistColumn = playlistTracksDataTable.AddGuidColumn(nameof(PlaylistTracks.PlaylistId));
+        var trackColumn = playlistTracksDataTable.AddGuidColumn(nameof(PlaylistTracks.TrackId));
         int row = 0;
 
         foreach (var playlist in playlists)
