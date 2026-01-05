@@ -7,6 +7,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using Sunrise.Model;
 using Sunrise.Model.Common;
 
@@ -173,6 +175,12 @@ public abstract class MainViewModel : ObservableObject
         await SelectTracksAsync(rubricViewModel, token: token);
         ChangePlaylists(playlists.Values);
         ChangeCategories(categoriesScreenshot.Categories);
+    }
+
+    protected async Task OnException(Exception exception)
+    {
+        string message = ExceptionHandler.GetString(exception);
+        await MessageBoxManager.GetMessageBoxStandard(GetType().Name, message, ButtonEnum.Ok).ShowAsync();
     }
 
     public Task SelectSongsAsync(CancellationToken token = default)

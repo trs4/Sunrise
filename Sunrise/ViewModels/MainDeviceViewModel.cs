@@ -74,7 +74,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         {
             _client?.Dispose();
             _client = null;
-            var client = _client = SyncClient.Create("Android", TrackPlay.Player, deviceInfo.IPAddress, deviceInfo.Port, ReloadTracksAsync);
+            var client = _client = SyncClient.Create("Android", TrackPlay.Player, deviceInfo.IPAddress, deviceInfo.Port, ReloadTracksAsync, OnException);
             client.Connect();
 
             if (settingsDisplayed)

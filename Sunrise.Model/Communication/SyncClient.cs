@@ -15,19 +15,22 @@ public sealed class SyncClient : SyncService.Client, IDisposable
     private readonly string _name;
     private readonly Player _player;
     private readonly Func<CancellationToken, Task>? _reloadCallback;
+    private readonly Func<Exception, Task>? _onExceptionCallback;
     private CancellationTokenSource? _subscriptionCTS;
 
-    private SyncClient(GrpcChannel channel, string name, Player player, Func<CancellationToken, Task>? reloadCallback)
+    private SyncClient(GrpcChannel channel, string name, Player player,
+        Func<CancellationToken, Task>? reloadCallback, Func<Exception, Task>? onExceptionCallback)
         : base(channel)
     {
         _channel = channel ?? throw new ArgumentNullException(nameof(channel));
         _name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentNullException(nameof(name)) : name;
         _player = player ?? throw new ArgumentNullException(nameof(player));
         _reloadCallback = reloadCallback;
+        _onExceptionCallback = onExceptionCallback;
     }
 
     public static SyncClient Create(string name, Player player, IPAddress ipAddress, int port,
-        Func<CancellationToken, Task>? reloadCallback = null)
+        Func<CancellationToken, Task>? reloadCallback = null, Func<Exception, Task>? onExceptionCallback = null)
     {
         var channel = GrpcChannel.ForAddress(ipAddress, port, setOptions: options =>
         {
@@ -35,7 +38,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
             options.MaxReceiveMessageSize = null;
         });
 
-        return new SyncClient(channel, name, player, reloadCallback);
+        return new SyncClient(channel, name, player, reloadCallback, onExceptionCallback);
     }
 
     public void Connect()
@@ -62,7 +65,11 @@ public sealed class SyncClient : SyncService.Client, IDisposable
                 }
             }
         }
-        catch { }
+        catch (Exception e)
+        {
+            if (_onExceptionCallback is not null)
+                await _onExceptionCallback(e);
+        }
         finally
         {
             await call.ResponseHeadersAsync;
