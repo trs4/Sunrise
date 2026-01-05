@@ -4,7 +4,7 @@ using IcyRain.Tables;
 namespace Sunrise.Model.Communication.Data;
 
 /// <summary>Запрос подписки</summary>
-[DataContract, KnownType(typeof(DisconnectTicket)), KnownType(typeof(MediaLibraryTicket)),
+[DataContract, KnownType(typeof(DisconnectTicket)), KnownType(typeof(MediaLibraryTicket)), KnownType(typeof(MediaFilesTicket)),
     KnownType(typeof(UploadTrackFileData)), KnownType(typeof(UploadTracksData)), KnownType(typeof(UploadTrackReproducedsData)), KnownType(typeof(DeleteTracksData)),
     KnownType(typeof(UploadPlaylistsData)), KnownType(typeof(DeletePlaylistsData)),
     KnownType(typeof(UploadCategoriesData)), KnownType(typeof(DeleteCategoriesData)), KnownType(typeof(DeleteData))]
@@ -17,6 +17,10 @@ public class DisconnectTicket : SubscriptionTicket { }
 /// <summary>Запрос передачи структуры медиатеки</summary>
 [DataContract]
 public class MediaLibraryTicket : SubscriptionTicket { }
+
+/// <summary>Запрос передачи файлов в папках медиатеки</summary>
+[DataContract]
+public class MediaFilesTicket : SubscriptionTicket { }
 
 /// <summary>Данные обновления файла трека</summary>
 [DataContract]

@@ -74,8 +74,10 @@ public sealed class SyncClient : SyncService.Client, IDisposable
     {
         if (ticket is DisconnectTicket)
             Disconnect();
-        else if (ticket is MediaLibraryTicket mediaLibraryTicket)
-            await TransferMediaLibraryAsync(mediaLibraryTicket);
+        else if (ticket is MediaLibraryTicket)
+            await TransferMediaLibraryAsync(token);
+        else if (ticket is MediaFilesTicket)
+            await TransferMediaFilesAsync(token);
         else if (ticket is UploadTrackFileData uploadTrackFileData)
             UploadTrackFile(uploadTrackFileData);
         else if (ticket is UploadTracksData uploadTracksData)
@@ -96,20 +98,58 @@ public sealed class SyncClient : SyncService.Client, IDisposable
             await DeleteDataAsync(token);
     }
 
-    private async Task TransferMediaLibraryAsync(MediaLibraryTicket ticket)
+    private async Task TransferMediaLibraryAsync(CancellationToken token)
     {
         var stream = new MemoryStream();
-        await MediaExporter.ExportAsync(_player, stream);
+        await MediaExporter.ExportAsync(_player, stream, token);
         stream.Seek(0, SeekOrigin.Begin);
 
         var data = new MediaLibraryData() { Data = stream.ToArray() };
         await TransferMediaLibrary(data);
     }
 
+    private async Task TransferMediaFilesAsync(CancellationToken token)
+    {
+        bool isDevice = OperatingSystem.IsAndroid();
+        var folders = await _player.GetFoldersAsync(token);
+
+        if (isDevice)
+            folders.Add("/storage/emulated/0/Music");
+
+        var filePaths = new List<string>();
+
+        foreach (string folder in folders)
+        {
+            var directoryInfo = new DirectoryInfo(folder);
+
+            if (directoryInfo.Exists)
+                filePaths.AddRange(directoryInfo.GetFiles("*", SearchOption.AllDirectories).Select(f => f.FullName));
+        }
+
+        var data = new MediaFilesData() { FilePaths = filePaths };
+        await TransferMediaFiles(data);
+    }
+
+    private string GetRootFolder(bool isDevice)
+        => isDevice ? "/storage/emulated/0/Music" : Path.Combine(_player.FolderPath, "Tracks");
+
+    private static string GetFilePath(bool isDevice, string rootFolder, string filePath)
+    {
+        filePath = Path.Combine(rootFolder, filePath);
+
+        if (isDevice)
+            filePath = filePath.Replace("\\", "/");
+
+        return filePath;
+    }
+
     private void UploadTrackFile(UploadTrackFileData data)
     {
-        string extension = Path.GetExtension(data.Path);
-        string filePath = Path.Combine(_player.TracksPath, data.Guid.ToString() + extension);
+        bool isDevice = OperatingSystem.IsAndroid();
+        string rootFolder = GetRootFolder(isDevice);
+        string filePath = GetFilePath(isDevice, rootFolder, data.Path);
+        string directoryPath = Path.GetDirectoryName(filePath);
+        Directory.CreateDirectory(directoryPath);
         File.WriteAllBytes(filePath, data.Content);
     }
 
@@ -136,13 +176,14 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         var mimeTypeColumn = (StringDataColumn)tracksDataTable[nameof(TrackPictures.MimeType)];
         var pictureColumn = (ByteArrayDataColumn)tracksDataTable[nameof(TrackPictures.Data)];
         var tracks = new List<Track>(tracksDataTable.RowCount);
+        bool isDevice = OperatingSystem.IsAndroid();
+        string rootFolder = GetRootFolder(isDevice);
 
         for (int row = 0; row < tracksDataTable.RowCount; row++)
         {
             var guid = guidColumn.Get(row);
             string path = pathColumn.Get(row);
-            string extension = Path.GetExtension(path);
-            string filePath = Path.Combine(_player.TracksPath, guid.ToString() + extension);
+            string filePath = GetFilePath(isDevice, rootFolder, path);
             bool hasPicture = hasPictureColumn.Get(row);
 
             var track = new Track()

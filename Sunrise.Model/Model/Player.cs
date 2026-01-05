@@ -40,10 +40,9 @@ public sealed class Player
     static Player()
         => Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-    private Player(string folderPath, string tracksPath, DatabaseConnection connection)
+    private Player(string folderPath, DatabaseConnection connection)
     {
         FolderPath = folderPath ?? throw new ArgumentNullException(nameof(folderPath));
-        TracksPath = tracksPath ?? throw new ArgumentNullException(nameof(tracksPath));
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         Media = new(this);
     }
@@ -51,8 +50,6 @@ public sealed class Player
     public MediaPlayer Media { get; }
 
     public string FolderPath { get; }
-
-    public string TracksPath { get; }
 
     public static async Task<Player> InitAsync(string? rootFolder = null, CancellationToken token = default)
     {
@@ -62,11 +59,6 @@ public sealed class Player
         string folderPath = Path.Combine(rootFolder, "Sunrise");
         Directory.CreateDirectory(folderPath);
 
-        string tracksPath = Path.Combine(folderPath, "Tracks");
-
-        if (isDevice)
-            Directory.CreateDirectory(tracksPath);
-
         string databaseFilePath = Path.Combine(folderPath, _mediaLibrary);
         string connectionString = $@"Provider=SQLite;Data Source='{databaseFilePath}'";
         var connection = SQLiteDatabaseConnection.Create(connectionString);
@@ -74,19 +66,11 @@ public sealed class Player
         if (!System.IO.File.Exists(databaseFilePath))
             await CreateDatabaseAsync(connection, token);
 
-        return new Player(folderPath, tracksPath, connection);
+        return new Player(folderPath, connection);
     }
 
     public async Task DeleteDataAsync(CancellationToken token = default)
     {
-        bool isDevice = OperatingSystem.IsAndroid();
-
-        if (isDevice)
-        {
-            new DirectoryInfo(TracksPath).Delete(true);
-            Directory.CreateDirectory(TracksPath);
-        }
-
         await DeleteAllMediaAsync(token);
 
         ClearDevices();
@@ -1299,10 +1283,22 @@ public sealed class Player
             .RunAsync(token);
     }
 
-    public Task<List<string>> GetFoldersAsync(CancellationToken token = default)
-        => _connection.Select.CreateQuery(Tables.Folders)
+    public async Task<List<string>> GetFoldersAsync(CancellationToken token = default)
+    {
+        var folders = await _connection.Select.CreateQuery(Tables.Folders)
             .AddColumn(Folders.Path)
             .GetAsync<List<string>>(token);
+
+        for (int i = 0; i < folders.Count; i++)
+        {
+            string folder = folders[i];
+
+            if (folder[^1] != '\\')
+                folders[i] = folder + "\\";
+        }
+
+        return folders;
+    }
 
     //#pragma warning disable CA1822 // Mark members as static
     //    /// <summary>Обновить треки из папок</summary>

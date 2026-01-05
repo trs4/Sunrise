@@ -16,6 +16,7 @@ public sealed class SyncDispatcher
     private TaskCompletionSource<bool>? _waitEvent;
     private bool _isSynchronizing;
     private MediaLibraryData? _mediaLibraryData;
+    private MediaFilesData? _mediaFilesData;
 
     public SyncDispatcher(Player player, Action<DiscoveryDeviceInfo>? onDeviceDetected = null)
     {
@@ -55,7 +56,7 @@ public sealed class SyncDispatcher
     public Task SynchronizePlaylistsAsync(CancellationToken token = default)
         => SynchronizeCoreAsync(GetUpdatingPlaylistsMedia, token);
 
-    private async Task SynchronizeCoreAsync(Func<TracksScreenshot, Dictionary<string, Playlist>, CategoriesScreenshot,
+    private async Task SynchronizeCoreAsync(Func<TracksScreenshot, Dictionary<string, Playlist>, CategoriesScreenshot, List<string>,
         ExistingMedia, UpdatingMedia> getUpdatingMedia, CancellationToken token)
     {
         var subscription = _subscription;
@@ -69,12 +70,13 @@ public sealed class SyncDispatcher
         {
             var existingMedia = await GetExistingMediaAsync(subscription, token);
 
+            var folders = await Player.GetFoldersAsync(token);
             var tracksScreenshot = await Player.GetTracksAsync(token);
             var playlists = await Player.GetPlaylistsAsync(token);
             var categoriesScreenshot = await Player.GetCategoriesAsync(token);
 
-            var updatingMedia = getUpdatingMedia(tracksScreenshot, playlists, categoriesScreenshot, existingMedia);
-            await UploadAsync(updatingMedia, subscription, token);
+            var updatingMedia = getUpdatingMedia(tracksScreenshot, playlists, categoriesScreenshot, folders, existingMedia);
+            await UploadAsync(updatingMedia, existingMedia.TrackPaths, existingMedia.FilePaths, subscription, token);
         }
         finally
         {
@@ -92,7 +94,7 @@ public sealed class SyncDispatcher
         await subscription.WriteAsync(new DeleteData(), token);
     }
 
-    private async Task<MediaLibraryData> LoadMediaLibraryAsync(IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
+    private async Task<byte[]> LoadMediaLibraryAsync(IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
         await subscription.WriteAsync(new MediaLibraryTicket(), token);
 
@@ -105,24 +107,49 @@ public sealed class SyncDispatcher
                 continue;
 
             _mediaLibraryData = null;
-            return mediaLibraryData;
+            return mediaLibraryData.Data;
         }
     }
 
     public void SetMediaLibrary(MediaLibraryData data) => _mediaLibraryData = data;
 
+    private async Task<List<string>> LoadMediaFilesAsync(IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
+    {
+        await subscription.WriteAsync(new MediaFilesTicket(), token);
+
+        while (true)
+        {
+            await Task.Delay(25, token).ConfigureAwait(false);
+            var mediaFilesData = _mediaFilesData;
+
+            if (mediaFilesData is null)
+                continue;
+
+            _mediaFilesData = null;
+            return mediaFilesData.FilePaths;
+        }
+    }
+
+    public void SetMediaFiles(MediaFilesData data) => _mediaFilesData = data;
+
     private async Task<ExistingMedia> GetExistingMediaAsync(IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
-        var data = await LoadMediaLibraryAsync(subscription, token);
-        var stream = new MemoryStream(data.Data);
+        var bytes = await LoadMediaLibraryAsync(subscription, token);
+        var mediaFilePaths = await LoadMediaFilesAsync(subscription, token);
+        var stream = new MemoryStream(bytes);
         var document = MediaExporter.Deserialize(stream) ?? throw new InvalidOperationException(nameof(MediaExporter));
 
+        var existingFolders = document.Folders?.ToList() ?? [];
         var existingTracks = new Dictionary<Guid, TrackElement>(document.Tracks?.Count ?? 0);
         var existingPlaylists = new Dictionary<Guid, PlaylistElement>(document.Playlists?.Count ?? 0);
         var existingCategories = new Dictionary<Guid, CategoryElement>(document.Categories?.Count ?? 0);
+        var existingTrackPaths = new Dictionary<Guid, string>(document.Tracks?.Count ?? 0);
 
         foreach (var track in document.Tracks ?? [])
+        {
             existingTracks[track.Guid] = track;
+            existingTrackPaths[track.Guid] = GetTrackRelativePath(track.Path, existingFolders);
+        }
 
         foreach (var playlist in document.Playlists ?? [])
             existingPlaylists[playlist.Guid] = playlist;
@@ -130,24 +157,43 @@ public sealed class SyncDispatcher
         foreach (var category in document.Categories ?? [])
             existingCategories[category.Guid] = category;
 
-        return new(existingTracks, existingPlaylists, existingCategories);
+        var existingFilePaths = new HashSet<string>(mediaFilePaths.Count, StringComparer.OrdinalIgnoreCase);
+
+        if (existingFolders.Count > 0)
+        {
+            foreach (string filePath in mediaFilePaths)
+            {
+                foreach (string folder in existingFolders)
+                {
+                    int index = filePath.IndexOf(folder, StringComparison.OrdinalIgnoreCase);
+
+                    if (index > -1)
+                    {
+                        existingFilePaths.Add(filePath.Substring(index + folder.Length));
+                        break;
+                    }
+                }
+            }
+        }
+
+        return new(existingTracks, existingPlaylists, existingCategories, existingTrackPaths, existingFilePaths);
     }
 
     private static UpdatingMedia GetUpdatingMedia(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
-        CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia)
-        => GetUpdatingMediaCore(tracksScreenshot, playlists, categoriesScreenshot, existingMedia);
+        CategoriesScreenshot categoriesScreenshot, List<string> folders, ExistingMedia existingMedia)
+        => GetUpdatingMediaCore(tracksScreenshot, playlists, categoriesScreenshot, folders, existingMedia);
 
     private static UpdatingMedia GetUpdatingPlaylistsMedia(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
-        CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia)
+        CategoriesScreenshot categoriesScreenshot, List<string> folders, ExistingMedia existingMedia)
     {
         var playlistsTracks = playlists.Values.SelectMany(p => p.Tracks.Select(t => t.Guid)).ToHashSet();
 
-        return GetUpdatingMediaCore(tracksScreenshot, playlists, categoriesScreenshot, existingMedia,
+        return GetUpdatingMediaCore(tracksScreenshot, playlists, categoriesScreenshot, folders, existingMedia,
             track => !playlistsTracks.Contains(track.Guid));
     }
 
     private static UpdatingMedia GetUpdatingMediaCore(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
-        CategoriesScreenshot categoriesScreenshot, ExistingMedia existingMedia, Predicate<Track>? trackCondition = null)
+        CategoriesScreenshot categoriesScreenshot, List<string> folders, ExistingMedia existingMedia, Predicate<Track>? trackCondition = null)
     {
         var updatingTracks = new List<List<Track>>(tracksScreenshot.Tracks.Count / _packetSize);
         var updatingTracksPacket = new List<Track>(_packetSize);
@@ -158,6 +204,8 @@ public sealed class SyncDispatcher
         var updatingCategories = new List<List<Category>>(categoriesScreenshot.Categories.Count / _packetSize);
         var updatingCategoriesPacket = new List<Category>(_packetSize);
 
+        var trackPaths = new Dictionary<int, string>(tracksScreenshot.Tracks.Count);
+
         foreach (var track in tracksScreenshot.Tracks)
         {
             if (trackCondition?.Invoke(track) ?? false)
@@ -167,6 +215,7 @@ public sealed class SyncDispatcher
                 continue;
 
             updatingTracksPacket.Add(track);
+            AddTrackRelativePath(track, trackPaths, folders);
 
             if (updatingTracksPacket.Count == _packetSize)
             {
@@ -212,13 +261,35 @@ public sealed class SyncDispatcher
         if (updatingCategoriesPacket.Count > 0)
             updatingCategories.Add(updatingCategoriesPacket);
 
-        return new(updatingTracks, updatingPlaylists, updatingCategories);
+        return new(updatingTracks, updatingPlaylists, updatingCategories, trackPaths);
     }
 
-    private async Task UploadAsync(UpdatingMedia updatingMedia, IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
+    private static void AddTrackRelativePath(Track track, Dictionary<int, string> trackPaths, List<string> folders)
+        => trackPaths.Add(track.Id, GetTrackRelativePath(track.Path, folders));
+
+    private static string GetTrackRelativePath(string filePath, List<string> folders)
+    {
+        int index;
+
+        foreach (string folder in folders)
+        {
+            index = filePath.IndexOf(folder, StringComparison.OrdinalIgnoreCase);
+
+            if (index > -1)
+                return filePath.Substring(index + folder.Length);
+        }
+
+        const string disk = ":\\";
+        index = filePath.IndexOf(disk, StringComparison.OrdinalIgnoreCase);
+        return filePath.Substring(index + disk.Length);
+    }
+
+    private async Task UploadAsync(UpdatingMedia updatingMedia,
+        Dictionary<Guid, string> existingTrackPaths, HashSet<string> existingFilePaths,
+        IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
         foreach (var tracks in updatingMedia.Tracks)
-            await UploadTracksWithFilesAsync(tracks, subscription, token);
+            await UploadTracksWithFilesAsync(tracks, updatingMedia.TrackPaths, existingTrackPaths, existingFilePaths, subscription, token);
 
         foreach (var playlists in updatingMedia.Playlists)
             await UploadPlaylistsAsync(playlists, subscription, token);
@@ -227,14 +298,24 @@ public sealed class SyncDispatcher
             await UploadCategoriesAsync(categories, subscription, token);
     }
 
-    private static Task UploadTrackFileAsync(Track track, IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
+    private static Task UploadTrackFileAsync(Track track, Dictionary<int, string> trackPaths,
+        Dictionary<Guid, string> existingTrackPaths, HashSet<string> existingFilePaths,
+        IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
+        string relativePath = trackPaths[track.Id];
+
+        if (existingFilePaths.Contains(relativePath) || (existingTrackPaths.TryGetValue(track.Guid, out string existingRelativePath)
+            && relativePath.Equals(existingRelativePath, StringComparison.OrdinalIgnoreCase)))
+        {
+            return Task.CompletedTask;
+        }
+
         byte[] content = File.ReadAllBytes(track.Path);
-        var data = new UploadTrackFileData() { Guid = track.Guid, Path = track.Path, Content = content };
+        var data = new UploadTrackFileData() { Guid = track.Guid, Path = relativePath, Content = content };
         return subscription.WriteAsync(data, token);
     }
 
-    private async Task UploadTracksAsync(IReadOnlyCollection<Track> tracks,
+    private async Task UploadTracksAsync(IReadOnlyCollection<Track> tracks, Dictionary<int, string> trackPaths,
         IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
         if (tracks is null || tracks.Count == 0)
@@ -242,7 +323,7 @@ public sealed class SyncDispatcher
 
         var tracksDataTable = new DataTable() { RowCapacity = tracks.Count, RowCount = tracks.Count };
         tracksDataTable.AddGuidColumn(nameof(Tracks.Guid)).Values.AddRange(tracks.Select(t => t.Guid));
-        tracksDataTable.AddStringColumn(nameof(Tracks.Path)).Values.AddRange(tracks.Select(t => t.Path));
+        tracksDataTable.AddStringColumn(nameof(Tracks.Path)).Values.AddRange(tracks.Select(t => trackPaths[t.Id]));
         tracksDataTable.AddStringColumn(nameof(Tracks.Title)).Values.AddRange(tracks.Select(t => t.Title));
         tracksDataTable.AddNullableInt32Column(nameof(Tracks.Year)).Values.AddRange(tracks.Select(t => t.Year));
         tracksDataTable.AddTimeSpanColumn(nameof(Tracks.Duration)).Values.AddRange(tracks.Select(t => t.Duration));
@@ -279,16 +360,17 @@ public sealed class SyncDispatcher
         await subscription.WriteAsync(data, token);
     }
 
-    private async Task UploadTracksWithFilesAsync(IReadOnlyCollection<Track> tracks,
+    private async Task UploadTracksWithFilesAsync(IReadOnlyCollection<Track> tracks, Dictionary<int, string> trackPaths,
+        Dictionary<Guid, string> existingTrackPaths, HashSet<string> existingFilePaths,
         IServerStreamWriter<SubscriptionTicket> subscription, CancellationToken token)
     {
         if (tracks is null || tracks.Count == 0)
             return;
 
         foreach (var track in tracks)
-            await UploadTrackFileAsync(track, subscription, token);
+            await UploadTrackFileAsync(track, trackPaths, existingTrackPaths, existingFilePaths, subscription, token);
 
-        await UploadTracksAsync(tracks, subscription, token);
+        await UploadTracksAsync(tracks, trackPaths, subscription, token);
     }
 
     private static async Task UploadTrackReproducedsAsync(IReadOnlyCollection<Track> tracks,
@@ -427,7 +509,9 @@ public sealed class SyncDispatcher
         catch { }
     }
 
-    private record ExistingMedia(Dictionary<Guid, TrackElement> Tracks, Dictionary<Guid, PlaylistElement> Playlists, Dictionary<Guid, CategoryElement> Categories);
+    private record ExistingMedia(Dictionary<Guid, TrackElement> Tracks, Dictionary<Guid, PlaylistElement> Playlists, Dictionary<Guid, CategoryElement> Categories,
+        Dictionary<Guid, string> TrackPaths, HashSet<string> FilePaths);
 
-    private record UpdatingMedia(List<List<Track>> Tracks, List<List<Playlist>> Playlists, List<List<Category>> Categories);
+    private record UpdatingMedia(List<List<Track>> Tracks, List<List<Playlist>> Playlists, List<List<Category>> Categories,
+        Dictionary<int, string> TrackPaths);
 }

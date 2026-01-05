@@ -5,4 +5,5 @@ namespace Sunrise.Model.Communication
 service SyncService with lz4, protected {
     streaming SubscriptionTicket Subscription(ConnectParameters parameters)
     Empty TransferMediaLibrary(MediaLibraryData data)
+    Empty TransferMediaFiles(MediaFilesData data)
 }

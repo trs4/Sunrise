@@ -25,4 +25,10 @@ public sealed class SyncServer : SyncService.Server
         return Task.FromResult(new Empty());
     }
 
+    public override Task<Empty> TransferMediaFiles(MediaFilesData request, ServerCallContext context)
+    {
+        _dispatcher.SetMediaFiles(request);
+        return Task.FromResult(new Empty());
+    }
+
 }
