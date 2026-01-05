@@ -15,7 +15,9 @@ public sealed class TrackDescriptionConverter : IMultiValueConverter
         if (values.Count != 2 || values[0] is not MainViewModel mainViewModel || values[1] is not TrackViewModel trackViewModel)
             return null;
 
-        if (mainViewModel.SelectedTrackSource is ArtistViewModel)
+        if (mainViewModel.SelectedTrackSource is null)
+            return trackViewModel.Artist;
+        else if (mainViewModel.SelectedTrackSource is ArtistViewModel)
             return trackViewModel.Album;
         else if (mainViewModel.SelectedTrackSource is AlbumViewModel)
             return null;

@@ -130,6 +130,9 @@
   <data name="Categories" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Svg\Categories.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>
+  <data name="DotsVerticalRounded" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>Svg\DotsVerticalRounded.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </data>
   <data name="DownCircle" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>Svg\DownCircle.svg;System.Byte[], mscorlib, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </data>

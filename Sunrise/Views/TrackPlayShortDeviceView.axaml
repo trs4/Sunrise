@@ -7,7 +7,8 @@
 			 xmlns:scv="clr-namespace:Sunrise.Converters"
 			 xmlns:su="clr-namespace:Sunrise.Utils"
 			 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
-			 Height="48"
+			 Height="72"
+			 Margin="10"
 			 x:DataType="svm:TrackPlayDeviceViewModel"
 			 x:CompileBindings="False"
 			 mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="450"
@@ -19,23 +20,24 @@
 		<Style Selector="Button.TrackBtn">
 			<Setter Property="VerticalAlignment" Value="Center" />
 			<Setter Property="HorizontalAlignment" Value="Center" />
-			<Setter Property="Height" Value="32" />
-			<Setter Property="Width" Value="32" />
+			<Setter Property="Height" Value="64" />
+			<Setter Property="Width" Value="64" />
 			<Setter Property="Theme" Value="{StaticResource MaterialFlatButton}" />
 		</Style>
 
 		<Style Selector="Image.ImageBtn">
-			<Setter Property="Height" Value="28" />
-			<Setter Property="Width" Value="28" />
+			<Setter Property="Height" Value="40" />
+			<Setter Property="Width" Value="40" />
 			<Setter Property="OpacityMask" Value="Gray" />
 			<Setter Property="Opacity" Value="0.7" />
+			<Setter Property="Stretch" Value="Uniform" />
 		</Style>
 	</UserControl.Styles>
 
 	<Border Background="Gainsboro"
 			CornerRadius="10"
-			Margin="2" Padding="5"
-			Height="48">
+			Padding="5"
+			Height="72">
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="0.15*" />
@@ -53,30 +55,26 @@
 
 			<!--  Track  -->
 			<Grid Grid.Column="1" Background="Transparent"
+				  Margin="10 0 0 0"
 				  Tapped="Track_Tapped">
 				<Grid.RowDefinitions>
 					<RowDefinition />
-					<RowDefinition Height="Auto" />
+					<RowDefinition />
 					<RowDefinition Height="6" />
 				</Grid.RowDefinitions>
 
 				<!--  Название  -->
 				<TextBlock Grid.Row="0"
-						   VerticalAlignment="Center"
-						   FontSize="14"
-						   Text="{Binding CurrentTrack.Title, Mode=OneWay}" />
+						   Text="{Binding CurrentTrack.Title, Mode=OneWay}"
+						   VerticalAlignment="Bottom"
+						   FontSize="18"
+						   FontWeight="Bold" />
 
 				<!--  Артист  -->
 				<TextBlock Grid.Row="1"
-						   VerticalAlignment="Center"
-						   FontSize="12">
-					<TextBlock.Text>
-						<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
-							<Binding Path="CurrentTrack.Artist" Mode="OneWay" />
-							<Binding Path="CurrentTrack.Album" Mode="OneWay" />
-						</MultiBinding>
-					</TextBlock.Text>
-				</TextBlock>
+						   Text="{Binding CurrentTrack.Artist, Mode=OneWay}"
+						   VerticalAlignment="Top"
+						   FontSize="17" />
 
 				<!--  Прогресс  -->
 				<ProgressBar Grid.Row="2"

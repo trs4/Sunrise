@@ -34,18 +34,19 @@
 				HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
 			<StackPanel Orientation="Horizontal">
 				<Image Source="{su:FromIcon LeftCircle}"
-					   Height="20" Width="20"
+					   Height="32" Width="32"
 					   Margin="0 0 10 0"
 					   OpacityMask="Gray" Opacity="0.2"
 					   HorizontalAlignment="Left" VerticalAlignment="Center" />
 
 				<TextBlock Text="{Binding BackPlaylistCaption, Mode=OneWay}"
+						   FontSize="18"
 						   HorizontalAlignment="Left" VerticalAlignment="Center" />
 			</StackPanel>
 		</Button>
 
 		<ScrollViewer Grid.Row="1"
-				Margin="0 5 0 0">
+					  Margin="0 5 0 0">
 			<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
@@ -166,7 +167,7 @@
 						Theme="{StaticResource MaterialFlatButton}"
 						Command="{Binding RandomPlayRunCommand, Mode=OneWay}"
 						IsVisible="{Binding IsPlaylistCaptionVisible, Mode=OneWay}"
-						Height="32"
+						Height="48"
 						HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
 					<Grid>
 						<Grid.ColumnDefinitions>
@@ -176,6 +177,7 @@
 
 						<TextBlock Grid.Column="0"
 								   Text="{x:Static res:Texts.MixAll}"
+								   FontSize="18"
 								   HorizontalAlignment="Left" VerticalAlignment="Center" />
 
 						<Image Grid.Column="1"
@@ -190,10 +192,10 @@
 						Theme="{StaticResource MaterialFlatButton}"
 						Command="{Binding RecentlyAddedPlaylistsCommand, Mode=OneWay}"
 						IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}"
-						Height="32"
+						Height="48"
 						HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
 					<TextBlock Text="{x:Static res:Texts.RecentlyAddedButton}"
-							   FontSize="11" />
+							   FontSize="14" />
 				</Button>
 
 				<ListBox Grid.Row="4"

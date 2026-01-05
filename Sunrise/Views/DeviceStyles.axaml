@@ -8,16 +8,18 @@
 	<DataTemplate x:Key="RubricTemplate" DataType="svm:RubricViewModel">
 		<Grid>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="Auto" MinWidth="25" />
+				<ColumnDefinition Width="Auto" MinWidth="32" />
 				<ColumnDefinition Width="Auto" />
 			</Grid.ColumnDefinitions>
 
 			<Image Grid.Column="0"
 				   Source="{Binding Icon, Mode=OneWay}"
-				   MaxHeight="16" MaxWidth="16" />
+				   MaxHeight="18" MaxWidth="18" />
 
 			<TextBlock Grid.Column="1"
 					   Text="{Binding Name, Mode=OneWay}"
+					   Margin="2 0 0 0"
+					   FontSize="18"
 					   VerticalAlignment="Center" />
 		</Grid>
 	</DataTemplate>
@@ -25,20 +27,22 @@
 	<DataTemplate x:Key="TrackTemplate" DataType="svm:TrackViewModel">
 		<Grid>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="30" />
 				<ColumnDefinition Width="5" />
+				<ColumnDefinition Width="64" />
+				<ColumnDefinition Width="12" />
 				<ColumnDefinition />
+				<ColumnDefinition Width="30" />
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
-				<RowDefinition Height="15" />
-				<RowDefinition Height="15" />
+				<RowDefinition Height="32" />
+				<RowDefinition Height="32" />
 			</Grid.RowDefinitions>
 
-			<Image Grid.RowSpan="2"
+			<Image Grid.Column="1" Grid.RowSpan="2"
 				   Source="{su:FromIcon Track}"
 				   OpacityMask="Gray" Opacity="0.15"
 				   VerticalAlignment="Center" HorizontalAlignment="Center"
-				   Height="24" Width="24">
+				   Height="48" Width="48">
 				<Image.IsVisible>
 					<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
 						<Binding Path="Icon" Mode="OneWay" Converter="{x:Static ObjectConverters.IsNull}" />
@@ -46,36 +50,43 @@
 					</MultiBinding>
 				</Image.IsVisible>
 			</Image>
-			<Image Grid.RowSpan="2"
-				   Source="{Binding Icon, Mode=OneWay}"
-				   IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-				   VerticalAlignment="Center" HorizontalAlignment="Center"
-				   Height="24" Width="24" />
-			<Border Grid.RowSpan="2"
+			<Border Grid.Column="1" Grid.RowSpan="2"
+					IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+					ClipToBounds="True" CornerRadius="5"
+					VerticalAlignment="Center" HorizontalAlignment="Center"
+					Height="64" Width="64">
+				<Image Source="{Binding Icon, Mode=OneWay}"
+					   Stretch="UniformToFill"
+					   VerticalAlignment="Center" HorizontalAlignment="Center"
+					   Height="64" Width="64" />
+			</Border>
+			<Border Grid.Column="1" Grid.RowSpan="2"
 					IsVisible="{Binding IsPlaying, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
 					VerticalAlignment="Center" HorizontalAlignment="Center"
 					Background="White"
 					Opacity="0.8"
-					Height="20" Width="20"
-					CornerRadius="10"
+					Height="40" Width="40"
+					CornerRadius="20"
 					BorderThickness="1"
 					BorderBrush="LightGray"
 					Tapped="TrackIcon_Tapped">
 				<Image Source="{Binding IsPlaying, Mode=OneWay, Converter={x:Static scv:IsPlayingToIconTrackConverter.Instance}}"
 					   VerticalAlignment="Center" HorizontalAlignment="Center"
 					   OpacityMask="Gray" Opacity="0.8"
-					   Height="10" Width="10" />
+					   Height="20" Width="20" />
 			</Border>
 
 			<!--  Название  -->
-			<TextBlock Grid.Column="2" Grid.Row="0"
+			<TextBlock Grid.Column="3" Grid.Row="0"
 					   Text="{Binding Title, Mode=OneWay}"
-					   VerticalAlignment="Center" />
+					   VerticalAlignment="Bottom"
+					   FontSize="18"
+					   FontWeight="Bold" />
 
 			<!--  Описание  -->
-			<TextBlock Grid.Column="2" Grid.Row="1"
-					   VerticalAlignment="Center"
-					   FontSize="12"
+			<TextBlock Grid.Column="3" Grid.Row="1"
+					   VerticalAlignment="Top"
+					   FontSize="17"
 					   Foreground="Gray">
 				<TextBlock.Text>
 					<MultiBinding Converter="{x:Static scv:TrackDescriptionConverter.Instance}" Mode="OneWay">
@@ -85,43 +96,57 @@
 				</TextBlock.Text>
 			</TextBlock>
 
+			<Image Grid.Column="4" Grid.RowSpan="2"
+				   Source="{su:FromIcon DotsVerticalRounded}"
+				   VerticalAlignment="Center" HorizontalAlignment="Center"
+				   OpacityMask="Gray" Opacity="0.3"
+				   Height="24" Width="24" />
 		</Grid>
 	</DataTemplate>
 
 	<DataTemplate x:Key="TrackSourceTemplate" DataType="svm:TrackSourceViewModel">
 		<Grid>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="30" />
 				<ColumnDefinition Width="5" />
+				<ColumnDefinition Width="64" />
+				<ColumnDefinition Width="12" />
 				<ColumnDefinition />
+				<ColumnDefinition Width="30" />
 			</Grid.ColumnDefinitions>
 			<Grid.RowDefinitions>
-				<RowDefinition Height="15" />
-				<RowDefinition Height="15" />
+				<RowDefinition Height="32" />
+				<RowDefinition Height="32" />
 			</Grid.RowDefinitions>
 
-			<Image Grid.Column="0" Grid.RowSpan="2"
+			<Image Grid.Column="1" Grid.RowSpan="2"
 				   Source="{su:FromIcon Track}"
 				   IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
 				   OpacityMask="Gray" Opacity="0.15"
 				   VerticalAlignment="Center" HorizontalAlignment="Center"
-				   Height="24" Width="24" />
-			<Image Grid.Column="0" Grid.RowSpan="2"
-				   Source="{Binding Icon, Mode=OneWay}"
-				   IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-				   VerticalAlignment="Center" HorizontalAlignment="Center"
-				   Height="24" Width="24" />
+				   Height="48" Width="48" />
+			<Border Grid.Column="1" Grid.RowSpan="2"
+					IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+					ClipToBounds="True" CornerRadius="5"
+					VerticalAlignment="Center" HorizontalAlignment="Center"
+					Height="64" Width="64">
+				<Image Source="{Binding Icon, Mode=OneWay}"
+					   Stretch="UniformToFill"
+					   VerticalAlignment="Center" HorizontalAlignment="Center"
+					   Height="64" Width="64" />
+			</Border>
 
 			<!--  Название  -->
-			<TextBlock Grid.Column="2" Grid.Row="0"
+			<TextBlock Grid.Column="3" Grid.Row="0"
 					   Text="{Binding Name, Mode=OneWay}"
-					   VerticalAlignment="Center" />
+					   VerticalAlignment="Bottom"
+					   FontSize="18"
+					   FontWeight="Bold" />
 
 			<!--  Описание  -->
-			<TextBlock Grid.Column="2" Grid.Row="1"
+			<TextBlock Grid.Column="3" Grid.Row="1"
 					   Text="{Binding Description, Mode=OneWay}"
-					   VerticalAlignment="Center"
-					   FontSize="12"
+					   VerticalAlignment="Top"
+					   FontSize="17"
 					   Foreground="Gray" />
 		</Grid>
 	</DataTemplate>
@@ -129,27 +154,40 @@
 	<DataTemplate x:Key="PlaylistTemplate" DataType="svm:PlaylistViewModel">
 		<Grid>
 			<Grid.ColumnDefinitions>
-				<ColumnDefinition Width="30" />
 				<ColumnDefinition Width="5" />
+				<ColumnDefinition Width="64" />
+				<ColumnDefinition Width="12" />
 				<ColumnDefinition />
+				<ColumnDefinition Width="30" />
 			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="32" />
+				<RowDefinition Height="32" />
+			</Grid.RowDefinitions>
 
-			<Image Grid.Column="0"
+			<Image Grid.Column="1" Grid.RowSpan="2"
 				   Source="{su:FromIcon Track}"
 				   IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
 				   OpacityMask="Gray" Opacity="0.15"
 				   VerticalAlignment="Center" HorizontalAlignment="Center"
-				   Height="24" Width="24" />
-			<Image Grid.Column="0"
-				   Source="{Binding Icon, Mode=OneWay}"
-				   IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-				   VerticalAlignment="Center" HorizontalAlignment="Center"
-				   Height="24" Width="24" />
+				   Height="48" Width="48" />
+			<Border Grid.Column="1" Grid.RowSpan="2"
+					IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+					ClipToBounds="True" CornerRadius="5"
+					VerticalAlignment="Center" HorizontalAlignment="Center"
+					Height="64" Width="64">
+				<Image Source="{Binding Icon, Mode=OneWay}"
+					   Stretch="UniformToFill"
+					   VerticalAlignment="Center" HorizontalAlignment="Center"
+					   Height="64" Width="64" />
+			</Border>
 
 			<!--  Название  -->
-			<TextBlock Grid.Column="2"
+			<TextBlock Grid.Column="3" Grid.RowSpan="2"
 					   Text="{Binding Name, Mode=OneWay}"
-					   VerticalAlignment="Center" />
+					   VerticalAlignment="Center"
+					   FontSize="18"
+					   FontWeight="Bold" />
 		</Grid>
 	</DataTemplate>
 
@@ -182,17 +220,11 @@
 
 			<!--  Артист  -->
 			<TextBlock Grid.Row="2"
+					   Text="{Binding Artist, Mode=OneWay}"
 					   VerticalAlignment="Center" HorizontalAlignment="Left"
 					   FontSize="10"
 					   TextTrimming="{x:Static TextTrimming.CharacterEllipsis}"
-					   Foreground="Gray">
-				<TextBlock.Text>
-					<MultiBinding Converter="{x:Static scv:ConcatTextConverter.Instance}" Mode="OneWay">
-						<Binding Path="Artist" Mode="OneWay" />
-						<Binding Path="Album" Mode="OneWay" />
-					</MultiBinding>
-				</TextBlock.Text>
-			</TextBlock>
+					   Foreground="Gray" />
 
 		</Grid>
 	</DataTemplate>
