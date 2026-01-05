@@ -146,7 +146,7 @@
 						Height="32"
 						HorizontalAlignment="Right"
 						HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-					<TextBlock Text="{x:Static res:Texts.Connect}"
+					<TextBlock Text="{Binding ConnectPlayerCaption, Mode=OneWay}"
 							   FontSize="11" />
 				</Button>
 

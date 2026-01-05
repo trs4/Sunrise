@@ -35,6 +35,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     private bool _isCategoryChanging;
     private string _changingCategoryText = Texts.Change;
     private bool[] _selectedCategories;
+    private string _connectPlayerCaption = Texts.Connect;
     private string? _syncIp;
 #pragma warning disable CA2213 // Disposable fields should be disposed
     private SyncClient? _client;
@@ -173,6 +174,12 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     public IRelayCommand ChangeCategoryCommand { get; }
 
     public IRelayCommand ConnectPlayerCommand { get; }
+
+    public string ConnectPlayerCaption
+    {
+        get => _connectPlayerCaption;
+        set => SetProperty(ref _connectPlayerCaption, value);
+    }
 
     public bool IsCategoryChanging
     {
@@ -742,12 +749,23 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     private void OnConnectPlayer()
     {
         bool settingsDisplayed = SettingsDisplayed;
+        var client = _client;
 
         try
         {
-            var ipAddress = IPAddress.Parse(_syncIp);
-            var deviceInfo = new DiscoveryDeviceInfo(_syncIp, ipAddress, SyncServiceManager.Port);
-            OnDeviceDetected(deviceInfo);
+            if (client is null)
+            {
+                ConnectPlayerCaption = Texts.Disconnect;
+                var ipAddress = IPAddress.Parse(_syncIp);
+                var deviceInfo = new DiscoveryDeviceInfo(_syncIp, ipAddress, SyncServiceManager.Port);
+                OnDeviceDetected(deviceInfo);
+            }
+            else
+            {
+                ConnectPlayerCaption = Texts.Connect;
+                client.Dispose();
+                _client = null;
+            }
         }
         catch (Exception e)
         {
