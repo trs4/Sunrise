@@ -331,7 +331,16 @@ public abstract class TrackPlayViewModel : ObservableObject
 
             if (track is null)
             {
-                Clear();
+                track = CurrentTrack;
+
+                if (track is not null)
+                {
+                    Stop();
+                    Change(track);
+                }
+                else
+                    Clear();
+
                 break;
             }
             else if (Owner.SelectedRubrick is not SongsRubricViewModel || track.Picked)
@@ -372,7 +381,17 @@ public abstract class TrackPlayViewModel : ObservableObject
                         Change(track);
                 }
                 else
-                    Clear();
+                {
+                    track = await Strategy.GetFirstAsync();
+
+                    if (track is not null)
+                    {
+                        Stop();
+                        Change(track);
+                    }
+                    else
+                        Clear();
+                }
 
                 break;
             }
