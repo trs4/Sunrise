@@ -232,13 +232,14 @@ public sealed class Player
         return category;
     }
 
-    public async ValueTask AddAsync(IReadOnlyCollection<Category> categories,
+    public async ValueTask<bool> AddAsync(IReadOnlyCollection<Category> categories,
         bool sync = false, IProgress? progressOwner = null, CancellationToken token = default)
     {
         if (categories is null || categories.Count == 0)
-            return;
+            return false;
 
         progressOwner?.Show(Texts.LoadCategories);
+        bool changed = false;
         var existingCategories = await GetCategoriesAsync(token);
         double progress = 0d;
         double step = 100d / categories.Count;
@@ -281,13 +282,22 @@ public sealed class Player
         }
 
         if (addCategories.Count > 0)
+        {
+            changed = true;
             await _connection.Insert.CreateWithParseMultiQuery<Category, Categories>(addCategories).FillAsync(token);
+        }
 
         if (updateCategories.Count > 0)
+        {
+            changed = true;
             await _connection.Update.CreateWithParseMultiQuery<Category, Categories>(updateCategories, _updateCategoriesExcludedColumns).RunAsync(token);
+        }
 
-        ClearCategories();
+        if (changed)
+            ClearCategories();
+
         progressOwner?.Hide();
+        return changed;
     }
 
     private static string FindNewCategoryName(CategoriesScreenshot screenshot)
@@ -884,13 +894,14 @@ public sealed class Player
         progressOwner?.Hide();
     }
 
-    public async ValueTask AddAsync(IReadOnlyCollection<Track> tracks,
+    public async ValueTask<bool> AddAsync(IReadOnlyCollection<Track> tracks,
         bool sync = false, IProgress? progressOwner = null, string? withAppName = null, CancellationToken token = default)
     {
         if (tracks is null || tracks.Count == 0)
-            return;
+            return false;
 
         progressOwner?.Show(Texts.LoadTracks);
+        bool changed = false;
         var tracksScreenshot = await GetTracksAsync(token);
         double progress = 0d;
         double step = 100d / tracks.Count;
@@ -970,6 +981,7 @@ public sealed class Player
 
             if (addTracks.Count == tracksInPacket || addReproduceds.Count == tracksInPacket)
             {
+                changed = true;
                 await AddTracksAsync(addTracks, pictures, token);
 
                 if (addReproduceds.Count > 0)
@@ -977,26 +989,47 @@ public sealed class Player
             }
 
             if (updateTracks.Count == tracksInPacket)
+            {
+                changed = true;
                 await UpdateTracksAsync(updateTracks, pictures, removePictureIds, token);
+            }
 
             if (updateReproduceds.Count == tracksInPacket)
+            {
+                changed = true;
                 await UpdateReproducedsAsync(updateReproduceds, token);
+            }
         }
 
         if (addTracks.Count > 0)
+        {
+            changed = true;
             await AddTracksAsync(addTracks, pictures, token);
+        }
 
         if (updateTracks.Count > 0)
+        {
+            changed = true;
             await UpdateTracksAsync(updateTracks, pictures, removePictureIds, token);
+        }
 
         if (addReproduceds.Count > 0)
+        {
+            changed = true;
             await AddReproducedsAsync(addReproduceds, withAppNameId.GetValueOrDefault(), token);
+        }
 
         if (updateReproduceds.Count > 0)
+        {
+            changed = true;
             await UpdateReproducedsAsync(updateReproduceds, token);
+        }
 
-        ClearTracks();
+        if (changed)
+            ClearTracks();
+
         progressOwner?.Hide();
+        return changed;
     }
 
     private static void UpdateIdProperties(Track track, Track existingTrack)
@@ -1139,13 +1172,14 @@ public sealed class Player
         reproduceds.Clear();
     }
 
-    public async ValueTask AddAsync(IReadOnlyCollection<Playlist> playlists,
+    public async ValueTask<bool> AddAsync(IReadOnlyCollection<Playlist> playlists,
         bool sync = false, IProgress? progressOwner = null, CancellationToken token = default)
     {
         if (playlists is null || playlists.Count == 0)
-            return;
+            return false;
 
         progressOwner?.Show(Texts.LoadPlaylists);
+        bool changed = false;
         var existingPlaylists = await GetPlaylistsAsync(token);
         var existingPlaylistsByGuid = sync ? existingPlaylists.Values.ToDictionary(p => p.Guid) : null;
         double progress = 0d;
@@ -1197,6 +1231,7 @@ public sealed class Player
 
         if (addPlaylists.Count > 0)
         {
+            changed = true;
             await _connection.Insert.CreateWithParseMultiQuery<Playlist, Playlists>(addPlaylists).FillAsync(token);
 
             foreach (var playlist in addPlaylists)
@@ -1214,10 +1249,15 @@ public sealed class Player
         }
 
         if (updatePlaylists.Count > 0)
+        {
+            changed = true;
             await _connection.Update.CreateWithParseMultiQuery<Playlist, Playlists>(updatePlaylists, _updatePlaylistsExcludedColumns).RunAsync(token);
+        }
 
         if (updatePlaylistTracks.Count > 0)
         {
+            changed = true;
+
             foreach (var (playlist, existingPlaylist) in updatePlaylistTracks)
             {
                 int position = 0;
@@ -1255,13 +1295,22 @@ public sealed class Player
         }
 
         if (removePlaylistTracks.RowCount > 0)
+        {
+            changed = true;
             await _connection.Delete.CreateWithParseMultiQuery<DataTable, PlaylistTracks>(removePlaylistTracks).RunAsync(token);
+        }
 
         if (addPlaylistTracks.RowCount > 0)
+        {
+            changed = true;
             await _connection.Insert.CreateWithParseMultiQuery<DataTable, PlaylistTracks>(addPlaylistTracks, returningIdentity: false).RunAsync(token);
+        }
 
-        ClearPlaylists();
+        if (changed)
+            ClearPlaylists();
+
         progressOwner?.Hide();
+        return changed;
     }
 
     private static bool NeedUpdatePlaylist(Playlist playlist, Playlist existingPlaylist)

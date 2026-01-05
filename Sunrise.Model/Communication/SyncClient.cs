@@ -218,9 +218,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
             tracks.Add(track);
         }
 
-        await _player.AddAsync(tracks, sync: true, token: token);
-
-        if (_reloadCallback is not null)
+        if (await _player.AddAsync(tracks, sync: true, token: token) && _reloadCallback is not null)
             await _reloadCallback(token);
     }
 
@@ -282,9 +280,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
             }
         }
 
-        await _player.AddAsync(playlists, sync: true, token: token);
-
-        if (_reloadCallback is not null)
+        if (await _player.AddAsync(playlists, sync: true, token: token) && _reloadCallback is not null)
             await _reloadCallback(token);
     }
 
@@ -314,9 +310,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
             categories.Add(category);
         }
 
-        await _player.AddAsync(categories, sync: true, token: token);
-
-        if (_reloadCallback is not null)
+        if (await _player.AddAsync(categories, sync: true, token: token) && _reloadCallback is not null)
             await _reloadCallback(token);
     }
 
