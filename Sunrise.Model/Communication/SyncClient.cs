@@ -110,11 +110,8 @@ public sealed class SyncClient : SyncService.Client, IDisposable
 
     private async Task TransferMediaFilesAsync(CancellationToken token)
     {
-        bool isDevice = OperatingSystem.IsAndroid();
         var folders = await _player.GetFoldersAsync(token);
-
-        if (isDevice)
-            folders.Add("/storage/emulated/0/Music");
+        folders.Add(_player.TracksPath);
 
         var filePaths = new List<string>();
 
@@ -130,12 +127,9 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         await TransferMediaFiles(data);
     }
 
-    private string GetRootFolder(bool isDevice)
-        => isDevice ? "/storage/emulated/0/Music" : Path.Combine(_player.FolderPath, "Tracks");
-
-    private static string GetFilePath(bool isDevice, string rootFolder, string filePath)
+    private string GetFilePath(bool isDevice, string filePath)
     {
-        filePath = Path.Combine(rootFolder, filePath);
+        filePath = Path.Combine(_player.TracksPath, filePath);
 
         if (isDevice)
             filePath = filePath.Replace("\\", "/");
@@ -146,8 +140,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
     private void UploadTrackFile(UploadTrackFileData data)
     {
         bool isDevice = OperatingSystem.IsAndroid();
-        string rootFolder = GetRootFolder(isDevice);
-        string filePath = GetFilePath(isDevice, rootFolder, data.Path);
+        string filePath = GetFilePath(isDevice, data.Path);
         string directoryPath = Path.GetDirectoryName(filePath);
         Directory.CreateDirectory(directoryPath);
         File.WriteAllBytes(filePath, data.Content);
@@ -177,13 +170,12 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         var pictureColumn = (ByteArrayDataColumn)tracksDataTable[nameof(TrackPictures.Data)];
         var tracks = new List<Track>(tracksDataTable.RowCount);
         bool isDevice = OperatingSystem.IsAndroid();
-        string rootFolder = GetRootFolder(isDevice);
 
         for (int row = 0; row < tracksDataTable.RowCount; row++)
         {
             var guid = guidColumn.Get(row);
             string path = pathColumn.Get(row);
-            string filePath = GetFilePath(isDevice, rootFolder, path);
+            string filePath = GetFilePath(isDevice, path);
             bool hasPicture = hasPictureColumn.Get(row);
 
             var track = new Track()

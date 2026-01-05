@@ -169,7 +169,7 @@ public sealed class SyncDispatcher
 
                     if (index > -1)
                     {
-                        existingFilePaths.Add(filePath.Substring(index + folder.Length));
+                        existingFilePaths.Add(filePath.Substring(index + folder.Length + 1).Replace("/", "\\"));
                         break;
                     }
                 }

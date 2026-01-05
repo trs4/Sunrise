@@ -40,9 +40,10 @@ public sealed class Player
     static Player()
         => Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-    private Player(string folderPath, DatabaseConnection connection)
+    private Player(string folderPath, string tracksPath, DatabaseConnection connection)
     {
         FolderPath = folderPath ?? throw new ArgumentNullException(nameof(folderPath));
+        TracksPath = tracksPath ?? throw new ArgumentNullException(nameof(tracksPath));
         _connection = connection ?? throw new ArgumentNullException(nameof(connection));
         Media = new(this);
     }
@@ -50,6 +51,8 @@ public sealed class Player
     public MediaPlayer Media { get; }
 
     public string FolderPath { get; }
+
+    public string TracksPath { get; }
 
     public static async Task<Player> InitAsync(string? rootFolder = null, CancellationToken token = default)
     {
@@ -59,6 +62,8 @@ public sealed class Player
         string folderPath = Path.Combine(rootFolder, "Sunrise");
         Directory.CreateDirectory(folderPath);
 
+        string tracksPath = isDevice ? "/storage/emulated/0/Music" : Path.Combine(folderPath, "Tracks");
+
         string databaseFilePath = Path.Combine(folderPath, _mediaLibrary);
         string connectionString = $@"Provider=SQLite;Data Source='{databaseFilePath}'";
         var connection = SQLiteDatabaseConnection.Create(connectionString);
@@ -66,7 +71,7 @@ public sealed class Player
         if (!System.IO.File.Exists(databaseFilePath))
             await CreateDatabaseAsync(connection, token);
 
-        return new Player(folderPath, connection);
+        return new Player(folderPath, tracksPath, connection);
     }
 
     public async Task DeleteDataAsync(CancellationToken token = default)

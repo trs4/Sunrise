@@ -20,13 +20,10 @@ public static class MediaExporter
     {
         ArgumentNullException.ThrowIfNull(player);
         ArgumentNullException.ThrowIfNull(stream);
-        bool isDevice = OperatingSystem.IsAndroid();
 
         var devices = await player.GetDevicesAsync(token);
         var folders = await player.GetFoldersAsync(token);
-
-        if (isDevice)
-            folders.Add("/storage/emulated/0/Music");
+        folders.Add(player.TracksPath);
 
         var tracksScreenshot = await player.GetTracksAsync(token);
         var playlists = await player.GetPlaylistsAsync(token);
