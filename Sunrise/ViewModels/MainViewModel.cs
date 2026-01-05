@@ -223,7 +223,7 @@ public abstract class MainViewModel : ObservableObject
                     SelectedTrackSource = selectedTrackSource = trackSources.Count > 0 ? trackSources[0] : null;
             }
 
-            SelectedTrackSource = selectedTrackSource;
+            SelectedTrackSource = rubricViewModel is SongsRubricViewModel ? null : selectedTrackSource;
             tracks = CanAddRubricTracks(rubricViewModel) ? rubricViewModel.GetTracks(tracksScreenshot, selectedTrackSource) : [];
         }
         else if (tracksOwner is TrackSourceViewModel trackSourceViewModel)
