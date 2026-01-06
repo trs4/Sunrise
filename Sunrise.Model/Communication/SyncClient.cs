@@ -268,7 +268,7 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         var trackColumn = (GuidDataColumn)playlistTracksDataTable[nameof(PlaylistTracks.TrackId)];
         var tracksScreenshot = await _player.GetTracksAsync(token);
 
-        for (int row = 0; row < playlistsDataTable.RowCount; row++)
+        for (int row = 0; row < playlistTracksDataTable.RowCount; row++)
         {
             var playlistGuid = playlistColumn.Get(row);
             var trackGuid = trackColumn.Get(row);

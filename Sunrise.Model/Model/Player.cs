@@ -1214,11 +1214,9 @@ public sealed class Player
                 if (sync)
                     playlist.Name = existingPlaylist.Name;
                 else
-                {
-                    playlist.Id = existingPlaylist.Id;
                     playlist.Guid = existingPlaylist.Guid;
-                }
 
+                playlist.Id = existingPlaylist.Id;
                 playlist.Created = existingPlaylist.Created;
                 playlist.Updated = existingPlaylist.Updated;
 
