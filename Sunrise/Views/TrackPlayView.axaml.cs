@@ -49,7 +49,7 @@ public partial class TrackPlayView : UserControl
             return;
 
         double position = e.GetPosition(progressBar).X / progressBar.Bounds.Width;
-        viewModel!.ChangePosition(position);
+        viewModel!.ChangePositionDelay(position);
     }
 
     private void Track_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
@@ -63,7 +63,7 @@ public partial class TrackPlayView : UserControl
             position = -position;
 
         position += viewModel!.Player.Media.Position;
-        viewModel!.ChangePosition(position);
+        viewModel!.ChangePositionDelay(position);
     }
 
     private void Track_PointerMoved(object? sender, PointerEventArgs e)
@@ -74,7 +74,7 @@ public partial class TrackPlayView : UserControl
             return;
 
         double position = e.GetPosition(progressBar).X / progressBar.Bounds.Width;
-        viewModel!.ChangePosition(position);
+        viewModel!.ChangePositionDelay(position);
     }
 
     private bool TryGetCurrentTrack(RoutedEventArgs e, out TrackPlayViewModel? viewModel, out TrackViewModel? currentTrack)

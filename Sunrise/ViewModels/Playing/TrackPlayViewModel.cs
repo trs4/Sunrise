@@ -7,6 +7,7 @@ using CommunityToolkit.Mvvm.Input;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using Sunrise.Model;
+using Sunrise.Model.Common;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
 
@@ -32,6 +33,7 @@ public abstract class TrackPlayViewModel : ObservableObject
     private object _repeatPlayIcon = _repeatPlayIconSource;
     private RubricViewModel? _ownerRubric;
     private TrackSourceViewModel? _ownerTrackSource;
+    private readonly DelayLastQueue _changePositionQueue = new(TimeSpan.FromSeconds(0.25));
 
     protected TrackPlayViewModel() { } // For designer
 
@@ -243,7 +245,19 @@ public abstract class TrackPlayViewModel : ObservableObject
         _playerTimer.Stop();
     }
 
+    public void ChangePositionDelay(double position)
+    {
+        ChangePositionCore(ref position);
+        _changePositionQueue.Add(() => ChangePosition(position));
+    }
+
     public void ChangePosition(double position)
+    {
+        ChangePositionCore(ref position);
+        Player.Media.Position = position;
+    }
+
+    private void ChangePositionCore(ref double position)
     {
         if (position < 0)
             position = 0;
@@ -252,7 +266,6 @@ public abstract class TrackPlayViewModel : ObservableObject
 
         var currentTrack = _currentTrack;
         Position = currentTrack is null ? default : TimeSpan.FromMilliseconds(currentTrack.Duration.TotalMilliseconds * position);
-        Player.Media.Position = position;
     }
 
     private void Pause(TrackViewModel trackViewModel)

@@ -17,7 +17,7 @@ public partial class TrackPlayDeviceView : UserControl
             return;
 
         double position = e.GetPosition(progressBar).X / progressBar.Bounds.Width;
-        viewModel!.ChangePosition(position);
+        viewModel!.ChangePositionDelay(position);
     }
 
     private void Track_PointerMoved(object? sender, PointerEventArgs e)
@@ -28,7 +28,7 @@ public partial class TrackPlayDeviceView : UserControl
             return;
 
         double position = e.GetPosition(progressBar).X / progressBar.Bounds.Width;
-        viewModel!.ChangePosition(position);
+        viewModel!.ChangePositionDelay(position);
     }
 
     private bool TryGetCurrentTrack(RoutedEventArgs e, out TrackPlayViewModel? viewModel, out TrackViewModel? currentTrack)
