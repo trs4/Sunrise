@@ -763,6 +763,8 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         {
             if (client is null)
             {
+                Network.ClearCache();
+
                 if (!string.IsNullOrWhiteSpace(_syncIp))
                 {
                     ConnectPlayerCaption = Texts.Disconnect;
