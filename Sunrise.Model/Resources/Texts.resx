@@ -282,4 +282,7 @@
   <data name="SynchronizePlaylists" xml:space="preserve">
     <value>Синхронизировать плейлисты</value>
   </data>
+  <data name="WiFiDisabled" xml:space="preserve">
+    <value>Wi-Fi выключен</value>
+  </data>
 </root>

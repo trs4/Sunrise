@@ -7,6 +7,8 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using Sunrise.Model;
 using Sunrise.Model.Common;
 using Sunrise.Model.Communication;
@@ -17,7 +19,6 @@ namespace Sunrise.ViewModels;
 
 public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 {
-    private readonly DiscoveryServer _discoveryServer;
     private const int _recentlyAddedTracksCount = 10;
     private const int _recentlyAddedPlaylistsCount = 10;
     private int _selectedTabIndex;
@@ -38,6 +39,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     private string _connectPlayerCaption = Texts.Connect;
     private string? _syncIp;
 #pragma warning disable CA2213 // Disposable fields should be disposed
+    private DiscoveryServer? _discoveryServer;
     private SyncClient? _client;
 #pragma warning restore CA2213 // Disposable fields should be disposed
 
@@ -54,10 +56,16 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         ApplyPlaylistCommand = new AsyncRelayCommand(OnApplyPlaylistAsync);
         ApplyCategoryCommand = new AsyncRelayCommand(OnApplyCategoryAsync);
         ChangeCategoryCommand = new RelayCommand(OnChangeCategory);
-        ConnectPlayerCommand = new RelayCommand(OnConnectPlayer);
+        ConnectPlayerCommand = new AsyncRelayCommand(OnConnectPlayerAsync);
 
-        _discoveryServer = new DiscoveryServer("Android", OnDeviceDetected);
-        _discoveryServer.Start();
+        if (Network.Exist())
+            StartDiscoveryServer();
+    }
+
+    private void StartDiscoveryServer()
+    {
+        var discoveryServer = _discoveryServer = new DiscoveryServer("Android", OnDeviceDetected);
+        discoveryServer.Start();
     }
 
     private void OnDeviceDetected(DiscoveryDeviceInfo deviceInfo)
@@ -746,7 +754,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
             category.Editing = false;
     }
 
-    private void OnConnectPlayer()
+    private async Task OnConnectPlayerAsync()
     {
         bool settingsDisplayed = SettingsDisplayed;
         var client = _client;
@@ -755,10 +763,24 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         {
             if (client is null)
             {
-                ConnectPlayerCaption = Texts.Disconnect;
-                var ipAddress = IPAddress.Parse(_syncIp);
-                var deviceInfo = new DiscoveryDeviceInfo(_syncIp, ipAddress, SyncServiceManager.Port);
-                OnDeviceDetected(deviceInfo);
+                if (!string.IsNullOrWhiteSpace(_syncIp))
+                {
+                    ConnectPlayerCaption = Texts.Disconnect;
+                    var ipAddress = IPAddress.Parse(_syncIp);
+                    var deviceInfo = new DiscoveryDeviceInfo(_syncIp, ipAddress, SyncServiceManager.Port);
+                    OnDeviceDetected(deviceInfo);
+                }
+                else
+                {
+                    if (!Network.Exist())
+                    {
+                        await MessageBoxManager.GetMessageBoxStandard(string.Empty, Texts.WiFiDisabled, ButtonEnum.Ok).ShowAsync();
+                        return;
+                    }
+
+                    if (_discoveryServer is null)
+                        StartDiscoveryServer();
+                }
             }
             else
             {
@@ -776,16 +798,22 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     public override void OnExit()
     {
-        _discoveryServer.Dispose();
+        Tasks.StartOnDefaultScheduler(() =>
+        {
+            _discoveryServer?.Dispose();
+            _discoveryServer = null;
+        });
+
         HideTrackPage();
     }
 
     public void Dispose()
     {
-        _discoveryServer.Dispose();
-
         Tasks.StartOnDefaultScheduler(() =>
         {
+            _discoveryServer?.Dispose();
+            _discoveryServer = null;
+
             _client?.Dispose();
             _client = null;
         });

@@ -8,8 +8,17 @@ namespace Sunrise.Model.Common;
 public static class Network
 {
     private static IPAddress? _machineIPAddress;
+    private static string? _machineNetworkDescription;
 
     public static IPAddress GetMachineIPAddress() => _machineIPAddress ??= FindMachineIPAddress();
+
+    public static string GetMachineNetworkDescription() => _machineNetworkDescription ??= FindMachineNetworkDescription();
+
+    public static bool Exist()
+    {
+        string description = GetMachineNetworkDescription();
+        return description.StartsWith("wlan", StringComparison.OrdinalIgnoreCase);
+    }
 
     public static List<(IPAddress IPAddress, NetworkInterface NetworkInterface)> GetAvailableIPAddresses()
     {
@@ -33,6 +42,9 @@ public static class Network
     private static IPAddress FindMachineIPAddress()
         => GetNetworkInterface()?.GetIPProperties().UnicastAddresses
         .Select(c => c.Address).Where(a => a.AddressFamily == AddressFamily.InterNetwork).FirstOrDefault() ?? IPAddress.None;
+
+    private static string FindMachineNetworkDescription()
+        => GetNetworkInterface()?.Description ?? string.Empty;
 
     private static NetworkInterface? GetNetworkInterface()
     {
@@ -58,5 +70,9 @@ public static class Network
     }
 
     public static void ClearCache()
-        => _machineIPAddress = null;
+    {
+        _machineIPAddress = null;
+        _machineNetworkDescription = null;
+    }
+
 }

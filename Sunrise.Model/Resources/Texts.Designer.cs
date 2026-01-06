@@ -547,6 +547,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Wi-Fi выключен.
+        /// </summary>
+        public static string WiFiDisabled {
+            get {
+                return ResourceManager.GetString("WiFiDisabled", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Год.
         /// </summary>
         public static string Year {
