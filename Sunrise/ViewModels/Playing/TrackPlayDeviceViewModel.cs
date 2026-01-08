@@ -53,6 +53,16 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
 
     public IRelayCommand DeleteTrackCommand { get; }
 
+    protected override void PlayCore(TrackViewModel trackViewModel, bool toStart = false)
+    {
+        var owner = (MainDeviceViewModel)Owner;
+
+        if (!owner.IsShortTrackVisible && !owner.IsTrackVisible)
+            owner.IsShortTrackVisible = true;
+
+        base.PlayCore(trackViewModel, toStart);
+    }
+
     private void OnChangeTrack()
     {
         IsChanging = !IsChanging;

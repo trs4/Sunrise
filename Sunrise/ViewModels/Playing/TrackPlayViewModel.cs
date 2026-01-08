@@ -172,7 +172,7 @@ public abstract class TrackPlayViewModel : ObservableObject
 
     public Task PlayItBeginAsync(TrackViewModel trackViewModel) => PlayCoreAsync(trackViewModel, toStart: true);
 
-    private void PlayCore(TrackViewModel trackViewModel, bool toStart = false)
+    protected virtual void PlayCore(TrackViewModel trackViewModel, bool toStart = false)
     {
         var currentTrack = _currentTrack;
         bool change = toStart || currentTrack != trackViewModel;
