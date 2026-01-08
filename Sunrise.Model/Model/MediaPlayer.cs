@@ -75,14 +75,24 @@ public sealed class MediaPlayer : IDisposable
         if (stateChanged is null)
             return;
 
+        var args = GetStateArgs();
+
+        if (args is null)
+            return;
+
+        stateChanged(this, args);
+    }
+
+    public TrackStateChangedEventArgs? GetStateArgs()
+    {
         var track = _track;
         var wavePlayer = _wavePlayer;
 
         if (track is null || wavePlayer is null)
-            return;
+            return null;
 
         double position = (double)wavePlayer.DataProvider.Position / wavePlayer.DataProvider.Length;
-        stateChanged(this, new(track, wavePlayer.State, position));
+        return new(track, wavePlayer.State, position);
     }
 
     public void Play(Track track) => PlayPause(track, true);
