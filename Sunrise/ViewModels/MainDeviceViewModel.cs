@@ -48,7 +48,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     public MainDeviceViewModel(Player player)
         : base(player)
     {
-        BackCommand = new AsyncRelayCommand(OnBackAsync);
+        BackCommand = new AsyncRelayCommand(BackAsync);
         RandomPlayRunCommand = new AsyncRelayCommand(OnRandomPlayRunAsync);
         RecentlyAddedCommand = new AsyncRelayCommand(OnRecentlyAddedAsync);
         RecentlyAddedPlaylistsCommand = new AsyncRelayCommand(OnRecentlyAddedPlaylistsAsync);
@@ -377,7 +377,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         IsTrackVisible = false;
     }
 
-    private Task OnBackAsync()
+    public Task BackAsync()
     {
         if (TrackSourceHistory.Count == 0)
         {

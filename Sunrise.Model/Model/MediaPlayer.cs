@@ -7,6 +7,7 @@ public sealed class MediaPlayer : IDisposable
 {
     private volatile bool _canOnStoppedRaised = true;
     private SoundPlayer? _wavePlayer;
+    private Track? _track;
     private string _filePath;
     private double _volume = 100d;
 
@@ -49,6 +50,7 @@ public sealed class MediaPlayer : IDisposable
             {
                 int sampleOffset = (int)(wavePlayer.DataProvider.Length * value);
                 wavePlayer.Seek(sampleOffset);
+                RaiseStateChanged();
             }
         }
     }
@@ -64,9 +66,32 @@ public sealed class MediaPlayer : IDisposable
 
     public Func<ValueTask> OnStopped { get; set; }
 
-    public void Play(Track track)
+    public event TrackStateChangedEventHandler? StateChanged;
+
+    private void RaiseStateChanged()
     {
-        ArgumentNullException.ThrowIfNull(track);
+        var stateChanged = StateChanged;
+
+        if (stateChanged is null)
+            return;
+
+        var track = _track;
+        var wavePlayer = _wavePlayer;
+
+        if (track is null || wavePlayer is null)
+            return;
+
+        double position = (double)wavePlayer.DataProvider.Position / wavePlayer.DataProvider.Length;
+        stateChanged(this, new(track, wavePlayer.State, position));
+    }
+
+    public void Play(Track track) => PlayPause(track, true);
+
+    public void Pause(Track track) => PlayPause(track, false);
+
+    private void PlayPause(Track track, bool play)
+    {
+        _track = track ?? throw new ArgumentNullException(nameof(track));
         string filePath = track.Path;
         SoundPlayer? prevWavePlayer = null;
         _canOnStoppedRaised = false;
@@ -96,7 +121,12 @@ public sealed class MediaPlayer : IDisposable
             else if (wavePlayer.State == PlaybackState.Playing)
                 wavePlayer.Seek(0);
 
-            wavePlayer.Play();
+            if (play)
+                wavePlayer.Play();
+            else
+                wavePlayer.Pause();
+
+            RaiseStateChanged();
         }
         finally
         {
@@ -122,9 +152,17 @@ public sealed class MediaPlayer : IDisposable
             await OnStopped();
     }
 
-    public void Pause() => _wavePlayer?.Pause();
+    public void Pause()
+    {
+        _wavePlayer?.Pause();
+        RaiseStateChanged();
+    }
 
-    public void Stop() => _wavePlayer?.Stop();
+    public void Stop()
+    {
+        _wavePlayer?.Stop();
+        RaiseStateChanged();
+    }
 
     public void Dispose()
     {

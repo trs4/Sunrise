@@ -1,7 +1,24 @@
-﻿namespace Sunrise.Model.Common;
+﻿using System.Runtime.ExceptionServices;
+
+namespace Sunrise.Model.Common;
 
 public static class Tasks
 {
+    public static void Execute(Task task)
+    {
+        if (task.Status == TaskStatus.RanToCompletion)
+            return;
+
+        try
+        {
+            Task.Run(async () => await task.ConfigureAwait(false)).Wait();
+        }
+        catch (AggregateException e)
+        {
+            ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+        }
+    }
+
     public static Task StartOnDefaultScheduler(Action action)
         => Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
 

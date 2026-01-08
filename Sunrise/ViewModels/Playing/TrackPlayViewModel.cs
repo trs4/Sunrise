@@ -172,30 +172,35 @@ public abstract class TrackPlayViewModel : ObservableObject
 
     public Task PlayItBeginAsync(TrackViewModel trackViewModel) => PlayCoreAsync(trackViewModel, toStart: true);
 
+    private void PlayCore(TrackViewModel trackViewModel, bool toStart = false)
+    {
+        var currentTrack = _currentTrack;
+        bool change = toStart || currentTrack != trackViewModel;
+
+        if (change)
+        {
+            if (currentTrack is not null)
+                currentTrack.IsPlaying = null;
+
+            Position = default;
+            TrackIcon = null;
+            CurrentTrack = trackViewModel;
+        }
+
+        PlayIcon = _pauseIconSource;
+        trackViewModel.IsPlaying = true;
+        Player.Media.Play(trackViewModel.Track);
+        _playerTimer.Start();
+
+        if (change)
+            SetPicture(trackViewModel.Track);
+    }
+
     private async Task PlayCoreAsync(TrackViewModel trackViewModel, bool toStart = false)
     {
         try
         {
-            var currentTrack = _currentTrack;
-            bool change = toStart || currentTrack != trackViewModel;
-
-            if (change)
-            {
-                if (currentTrack is not null)
-                    currentTrack.IsPlaying = null;
-
-                Position = default;
-                TrackIcon = null;
-                CurrentTrack = trackViewModel;
-            }
-
-            PlayIcon = _pauseIconSource;
-            trackViewModel.IsPlaying = true;
-            Player.Media.Play(trackViewModel.Track);
-            _playerTimer.Start();
-
-            if (change)
-                SetPicture(trackViewModel.Track);
+            PlayCore(trackViewModel, toStart);
         }
         catch (Exception e)
         {
@@ -227,7 +232,7 @@ public abstract class TrackPlayViewModel : ObservableObject
         }
         else
         {
-            Player.Media.Pause();
+            Player.Media.Pause(trackViewModel.Track);
             _playerTimer.Stop();
         }
 
@@ -278,17 +283,17 @@ public abstract class TrackPlayViewModel : ObservableObject
 
     public void Clear()
     {
-        if (_currentTrack is not null)
-            _currentTrack.IsPlaying = null;
+        var currentTrack = _currentTrack;
+
+        if (currentTrack is not null)
+            currentTrack.IsPlaying = null;
 
         CurrentTrack = null;
         Position = default;
         TrackIcon = null;
         PlayIcon = _playIconSource;
-        CurrentTrack = null;
         Player.Media.Stop();
         _playerTimer.Stop();
-        TrackIcon = null;
     }
 
     private void OnRandomPlay() => RandomPlay = !_randomPlay;
@@ -312,7 +317,23 @@ public abstract class TrackPlayViewModel : ObservableObject
         }
     }
 
-    private async Task PlayPauseTrackAsync()
+    public async Task PlayTrackAsync()
+    {
+        var currentTrack = CurrentTrack ??= await Strategy.GetFirstAsync();
+
+        if (currentTrack is not null && !(currentTrack.IsPlaying ?? false))
+            await PlayCoreAsync(currentTrack);
+    }
+
+    public async Task PauseTrackAsync()
+    {
+        var currentTrack = CurrentTrack ??= await Strategy.GetFirstAsync();
+
+        if (currentTrack is not null && (currentTrack.IsPlaying ?? false))
+            Pause(currentTrack);
+    }
+
+    public async Task PlayPauseTrackAsync()
     {
         var currentTrack = CurrentTrack ??= await Strategy.GetFirstAsync();
 
@@ -325,7 +346,7 @@ public abstract class TrackPlayViewModel : ObservableObject
             await PlayCoreAsync(currentTrack);
     }
 
-    private async Task GoToPrevTrackAsync()
+    public async Task GoToPrevTrackAsync()
     {
         var track = CurrentTrack;
 
@@ -364,7 +385,7 @@ public abstract class TrackPlayViewModel : ObservableObject
         }
     }
 
-    protected async Task GoToNextTrackAsync()
+    public async Task GoToNextTrackAsync()
     {
         var track = CurrentTrack;
 

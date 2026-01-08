@@ -164,6 +164,14 @@ public abstract class MainViewModel : ObservableObject
         set => SetProperty(ref _info, value);
     }
 
+    public void WriteInfo(string message)
+    {
+        InitInfo();
+        Info += Environment.NewLine + message;
+    }
+
+    public void WriteInfo(Exception exception) => WriteInfo(ExceptionHandler.GetString(exception));
+
     protected abstract TrackPlayViewModel CreateTrackPlay(Player player);
 
     public async Task ReloadTracksAsync(CancellationToken token = default)
