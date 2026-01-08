@@ -377,6 +377,20 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         IsTrackVisible = false;
     }
 
+    public bool CanBack()
+    {
+        // %%TODO
+        if (SelectedPlaylist is not null)
+            return true;
+
+        if (TrackSourceHistory.Count == 0)
+            return false;
+        else if (TrackSourceHistory.Count == 1 && TrackSourceHistory[0] is null or SongsRubricViewModel)
+            return false;
+
+        return true;
+    }
+
     public Task BackAsync()
     {
         if (TrackSourceHistory.Count == 0)

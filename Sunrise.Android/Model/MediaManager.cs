@@ -17,6 +17,7 @@ namespace Sunrise.Android.Model;
 internal sealed class MediaManager
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
+    private readonly AvaloniaMainActivity _activity;
     private readonly MainDeviceViewModel _mainViewModel;
     private readonly AudioManager _audioManager;
     private readonly MediaSession _mediaSession;
@@ -24,9 +25,9 @@ internal sealed class MediaManager
     private Track? _currentTrack;
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
-    public MediaManager(AvaloniaMainActivity activity) //, MainDeviceViewModel mainViewModel, AudioManager audioManager, MediaSession mediaSession)
+    public MediaManager(AvaloniaMainActivity activity)
     {
-        ArgumentNullException.ThrowIfNull(activity);
+        _activity = activity ?? throw new ArgumentNullException(nameof(activity));
 
         _mainViewModel = (activity.Content as StyledElement)?.DataContext as MainDeviceViewModel
             ?? throw new InvalidOperationException(nameof(MainDeviceViewModel));
@@ -77,6 +78,10 @@ internal sealed class MediaManager
                     break;
                 case Keycode.Back:
                     await _mainViewModel.BackAsync();
+
+                    if (!_mainViewModel.CanBack())
+                        Hide();
+
                     break;
             }
         }
@@ -132,6 +137,15 @@ internal sealed class MediaManager
 
         MediaHelper.SendPlaybackState(_mediaSession, playbackStateCode, positionMilliseconds);
     }
+
+#pragma warning disable CA2000 // Dispose objects before losing scope
+    private void Hide()
+    {
+        var main = new Intent(Intent.ActionMain);
+        main.AddCategory(Intent.CategoryHome);
+        _activity.StartActivity(main);
+    }
+#pragma warning restore CA2000 // Dispose objects before losing scope
 
     public void Release()
     {
