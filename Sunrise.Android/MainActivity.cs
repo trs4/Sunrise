@@ -33,7 +33,9 @@ public class MainActivity : AvaloniaMainActivity<App>
 
     public override bool OnKeyDown([GeneratedEnum] Keycode keyCode, KeyEvent? e)
     {
-        _manager?.Execute(keyCode);
+        if (e?.Action == KeyEventActions.Down)
+            _manager?.Execute(keyCode);
+
         return base.OnKeyDown(keyCode, e);
     }
 

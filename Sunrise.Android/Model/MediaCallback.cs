@@ -14,10 +14,8 @@ internal sealed class MediaCallback : MediaSession.Callback
 
     public override bool OnMediaButtonEvent(Intent mediaButtonIntent)
     {
-        var keyEvent = MediaHelper.GetParcelableExtra<KeyEvent>(mediaButtonIntent, Intent.ExtraKeyEvent);
-
-        if (keyEvent is not null && keyEvent.Action == KeyEventActions.Down)
-            _manager.Execute(keyEvent.KeyCode);
+        if (_manager.MainViewModel.SettingsDisplayed)
+            _manager.MainViewModel.WriteInfo($"OnMediaButtonEvent: {MediaHelper.Serialize(mediaButtonIntent)}");
 
         return base.OnMediaButtonEvent(mediaButtonIntent);
     }
@@ -27,6 +25,17 @@ internal sealed class MediaCallback : MediaSession.Callback
 
     public override void OnPlay()
         => _manager.Execute(Keycode.MediaPlay);
+
+    public override void OnSeekTo(long pos)
+    {
+        var track = _manager.CurrentTrack;
+
+        if (track is null)
+            return;
+
+        double position = pos / track.Duration.TotalMilliseconds;
+        _manager.MainViewModel.TrackPlay.ChangePositionDelay(position);
+    }
 
     public override void OnSkipToNext()
         => _manager.Execute(Keycode.MediaNext);

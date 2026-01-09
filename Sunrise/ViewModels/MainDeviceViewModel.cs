@@ -70,13 +70,8 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     private void OnDeviceDetected(DiscoveryDeviceInfo deviceInfo)
     {
-        bool settingsDisplayed = SettingsDisplayed;
-
-        if (settingsDisplayed)
-        {
-            InitInfo();
-            Info += Environment.NewLine + $"DeviceDetected {deviceInfo.DeviceName} - {deviceInfo.IPAddress}:{deviceInfo.Port}";
-        }
+        if (SettingsDisplayed)
+            WriteInfo($"DeviceDetected {deviceInfo.DeviceName} - {deviceInfo.IPAddress}:{deviceInfo.Port}");
 
         try
         {
@@ -85,13 +80,12 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
             var client = _client = SyncClient.Create("Android", TrackPlay.Player, deviceInfo.IPAddress, deviceInfo.Port, ReloadTracksAsync, OnException);
             client.Connect();
 
-            if (settingsDisplayed)
-                Info += Environment.NewLine + "Connected";
+            if (SettingsDisplayed)
+                WriteInfo("Connected");
         }
         catch (Exception e)
         {
-            if (settingsDisplayed)
-                Info += Environment.NewLine + e.ToString();
+            WriteInfo(e);
         }
     }
 

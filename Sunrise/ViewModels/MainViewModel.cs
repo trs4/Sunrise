@@ -372,7 +372,7 @@ public abstract class MainViewModel : ObservableObject
         SettingsDisplayed = !SettingsDisplayed;
     }
 
-    protected void InitInfo()
+    private void InitInfo()
         => Info ??= BuildInfo();
 
     private static string BuildInfo()

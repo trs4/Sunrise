@@ -100,13 +100,8 @@ public sealed class MainDesktopViewModel : MainViewModel
         _deviceInfo = deviceInfo;
         Device = deviceInfo.DeviceName;
 
-        bool settingsDisplayed = SettingsDisplayed;
-
-        if (settingsDisplayed)
-        {
-            InitInfo();
-            Info += Environment.NewLine + $"DeviceDetected {deviceInfo.IPAddress} {deviceInfo.Port}";
-        }
+        if (SettingsDisplayed)
+            WriteInfo($"DeviceDetected {deviceInfo.IPAddress} {deviceInfo.Port}");
     }
 
     private async Task OnDisconnectDeviceAsync(CancellationToken token)
@@ -114,6 +109,7 @@ public sealed class MainDesktopViewModel : MainViewModel
         if (_deviceInfo is null)
             return;
 
+        // %%TODO
         //await Dispatcher.ClearAsync(token);
         await Task.Delay(1, token);
     }

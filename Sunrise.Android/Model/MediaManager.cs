@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Android.Content;
 using Android.Media;
@@ -18,18 +19,16 @@ internal sealed class MediaManager
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
     private readonly AvaloniaMainActivity _activity;
-    private readonly MainDeviceViewModel _mainViewModel;
     private readonly AudioManager _audioManager;
     private readonly MediaSession _mediaSession;
     private string? _currentProductName;
-    private Track? _currentTrack;
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
     public MediaManager(AvaloniaMainActivity activity)
     {
         _activity = activity ?? throw new ArgumentNullException(nameof(activity));
 
-        _mainViewModel = (activity.Content as StyledElement)?.DataContext as MainDeviceViewModel
+        MainViewModel = (activity.Content as StyledElement)?.DataContext as MainDeviceViewModel
             ?? throw new InvalidOperationException(nameof(MainDeviceViewModel));
 
         _audioManager = (AudioManager)activity.GetSystemService(Context.AudioService)
@@ -46,40 +45,48 @@ internal sealed class MediaManager
         _mediaSession.SetFlags(MediaSessionFlags.HandlesMediaButtons | MediaSessionFlags.HandlesTransportControls);
         _mediaSession.Active = true;
 
-        var mediaPlayer = _mainViewModel.TrackPlay.Player.Media;
+        var mediaPlayer = MainViewModel.TrackPlay.Player.Media;
         mediaPlayer.StateChanged -= MediaPlayer_StateChanged;
         mediaPlayer.StateChanged += MediaPlayer_StateChanged;
     }
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
-    public void Execute(Keycode key) => Tasks.Execute(ExecuteAsync(key));
+    public MainDeviceViewModel MainViewModel { get; }
 
-    public async Task ExecuteAsync(Keycode key)
+    public Track? CurrentTrack { get; private set; }
+
+    public void Execute(Keycode key, [CallerMemberName] string? propertyName = null)
+        => Tasks.Execute(ExecuteAsync(key, propertyName));
+
+    public async Task ExecuteAsync(Keycode key, [CallerMemberName] string? propertyName = null)
     {
         try
         {
+            if (MainViewModel.SettingsDisplayed)
+                MainViewModel.WriteInfo($"KeyDown {propertyName}: {key}");
+
             switch (key)
             {
                 case Keycode.MediaPlay:
-                    await _mainViewModel.TrackPlay.PlayTrackAsync();
+                    await MainViewModel.TrackPlay.PlayTrackAsync();
                     break;
                 case Keycode.MediaPause:
                 case Keycode.MediaPlayPause:
-                    await _mainViewModel.TrackPlay.PlayPauseTrackAsync();
+                    await MainViewModel.TrackPlay.PlayPauseTrackAsync();
                     break;
                 case Keycode.MediaStop:
-                    await _mainViewModel.TrackPlay.PauseTrackAsync();
+                    await MainViewModel.TrackPlay.PauseTrackAsync();
                     break;
                 case Keycode.MediaNext:
-                    await _mainViewModel.TrackPlay.GoToNextTrackAsync();
+                    await MainViewModel.TrackPlay.GoToNextTrackAsync();
                     break;
                 case Keycode.MediaPrevious:
-                    await _mainViewModel.TrackPlay.GoToPrevTrackAsync();
+                    await MainViewModel.TrackPlay.GoToPrevTrackAsync();
                     break;
                 case Keycode.Back:
-                    await _mainViewModel.BackAsync();
+                    await MainViewModel.BackAsync();
 
-                    if (!_mainViewModel.CanBack())
+                    if (!MainViewModel.CanBack())
                         Hide();
 
                     break;
@@ -87,7 +94,7 @@ internal sealed class MediaManager
         }
         catch (Exception e)
         {
-            _mainViewModel.WriteInfo(e);
+            MainViewModel.WriteInfo(e);
         }
     }
 
@@ -116,7 +123,7 @@ internal sealed class MediaManager
         if (!IsBluetoothA2dpOn(out string? productName))
             return;
 
-        var args = _mainViewModel.TrackPlay.Player.Media.GetStateArgs();
+        var args = MainViewModel.TrackPlay.Player.Media.GetStateArgs();
 
         if (args is null)
             return;
@@ -128,10 +135,10 @@ internal sealed class MediaManager
     {
         var (playbackStateCode, durationMilliseconds, positionMilliseconds) = MediaHelper.Prepare(args);
 
-        if (forced || _currentProductName != productName || !ReferenceEquals(_currentTrack, args.Track))
+        if (forced || _currentProductName != productName || !ReferenceEquals(CurrentTrack, args.Track))
         {
             _currentProductName = productName;
-            _currentTrack = args.Track;
+            CurrentTrack = args.Track;
             MediaHelper.SendMediaMetadata(_mediaSession, args.Track, durationMilliseconds);
         }
 
@@ -149,8 +156,8 @@ internal sealed class MediaManager
 
     public void Release()
     {
-        _mainViewModel.TrackPlay.Player.Media.StateChanged -= MediaPlayer_StateChanged;
-        _currentTrack = null;
+        MainViewModel.TrackPlay.Player.Media.StateChanged -= MediaPlayer_StateChanged;
+        CurrentTrack = null;
         _currentProductName = null;
         _mediaSession.Release();
     }
