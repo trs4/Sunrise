@@ -499,25 +499,34 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
                 }
 
                 var playlists = await TrackPlay.Player.GetPlaylistsAsync();
-                var filteredPlaylists = new List<Playlist>(playlists.Count);
-
-                foreach (var playlist in playlists.Values)
-                {
-                    foreach (var category in Categories)
-                    {
-                        int categoryId = category.Category.Id;
-
-                        if (playlist.Categories.Any(c => c.Id == categoryId))
-                        {
-                            filteredPlaylists.Add(playlist);
-                            break;
-                        }
-                    }
-                }
-
+                var filteredPlaylists = FilterPlaylistsByCategories(playlists);
                 ChangePlaylists(filteredPlaylists);
             }
         }
+    }
+
+    private IReadOnlyCollection<Playlist> FilterPlaylistsByCategories(Dictionary<string, Playlist> playlists)
+    {
+        if (Categories.Count == 0 || Categories.All(c => !c.IsChecked))
+            return playlists.Values;
+
+        var filteredPlaylists = new List<Playlist>(playlists.Count);
+
+        foreach (var playlist in playlists.Values)
+        {
+            foreach (var category in Categories)
+            {
+                int categoryId = category.Category.Id;
+
+                if (playlist.Categories.Any(c => c.Id == categoryId))
+                {
+                    filteredPlaylists.Add(playlist);
+                    break;
+                }
+            }
+        }
+
+        return filteredPlaylists;
     }
 
     protected override async void OnPropertyChanged(PropertyChangedEventArgs e)
