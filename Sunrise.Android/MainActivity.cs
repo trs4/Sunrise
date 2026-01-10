@@ -5,7 +5,10 @@ using Android.Runtime;
 using Android.Views;
 using Avalonia;
 using Avalonia.Android;
+using MsBox.Avalonia;
+using MsBox.Avalonia.Enums;
 using Sunrise.Android.Model;
+using Sunrise.Model.Common;
 
 namespace Sunrise.Android;
 
@@ -18,6 +21,16 @@ namespace Sunrise.Android;
 public class MainActivity : AvaloniaMainActivity<App>
 {
     private MediaManager? _manager;
+
+    public MainActivity()
+        => AndroidEnvironment.UnhandledExceptionRaiser += AndroidEnvironment_UnhandledExceptionRaiser;
+     
+    private static async void AndroidEnvironment_UnhandledExceptionRaiser(object? sender, RaiseThrowableEventArgs e)
+    {
+        string message = ExceptionHandler.GetString(e.Exception);
+        await MessageBoxManager.GetMessageBoxStandard("UnobservedTaskException", message, ButtonEnum.Ok).ShowAsync();
+        e.Handled = true;
+    }
 
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
         => base.CustomizeAppBuilder(builder)
