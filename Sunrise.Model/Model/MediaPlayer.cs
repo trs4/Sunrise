@@ -134,7 +134,12 @@ public sealed class MediaPlayer : IDisposable
                 wavePlayer.Seek(0);
 
             if (play)
+            {
+                if (IsEnd)
+                    wavePlayer.Seek(0);
+
                 wavePlayer.Play();
+            }
             else
                 wavePlayer.Pause();
 
@@ -160,8 +165,13 @@ public sealed class MediaPlayer : IDisposable
 
     private async void OnPlaybackEnded(object? sender, EventArgs e)
     {
-        if (_canOnStoppedRaised && _wavePlayer?.State == PlaybackState.Stopped && OnStopped is not null)
-            await OnStopped();
+        if (_canOnStoppedRaised && _wavePlayer?.State == PlaybackState.Stopped)
+        {
+            if (OnStopped is not null)
+                await OnStopped();
+
+            RaiseStateChanged();
+        }
     }
 
     public void Pause()

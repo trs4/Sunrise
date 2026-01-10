@@ -20,6 +20,8 @@ public sealed class TrackStateChangedEventArgs : EventArgs
     public PlaybackState State { get; }
 
     public double Position { get; }
+
+    public override string ToString() => $"{Track} State: {State} Position: {Position:N2}";
 }
 
 public delegate void TrackStateChangedEventHandler(object? sender, TrackStateChangedEventArgs e);
