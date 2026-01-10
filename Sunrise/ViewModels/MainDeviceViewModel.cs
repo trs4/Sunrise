@@ -538,10 +538,21 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         {
             if (SelectedTab == DeviceTabs.Tracks)
             {
-                var tracksOwner = TrackSourceHistory.LastOrDefault(r => r is not PlaylistRubricViewModel
-                    && (IsTrackSourcesVisible || !r.IsDependent));
+                RubricViewModel? tracksOwner = null;
 
-                TrackSourceHistory.Clear();
+                for (int i = TrackSourceHistory.Count - 1; i >= 0; i--)
+                {
+                    var rubricViewModel = TrackSourceHistory[i];
+
+                    if (rubricViewModel is not PlaylistRubricViewModel && (rubricViewModel is TrackSourceViewModel || !rubricViewModel.IsDependent))
+                    {
+                        tracksOwner = rubricViewModel;
+                        break;
+                    }
+                    else
+                        TrackSourceHistory.RemoveAt(i);
+                }
+
                 await ChangeTracksAsync(tracksOwner);
             }
             else if (SelectedTab == DeviceTabs.Playlists)
