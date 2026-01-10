@@ -2,7 +2,6 @@
 using Android.Content;
 using Android.Media;
 using Android.Media.Session;
-using Android.OS;
 using Sunrise.Model;
 using Sunrise.Model.Common;
 using State = Sunrise.Model.SoundFlow.Enums.PlaybackState;
@@ -40,14 +39,18 @@ internal static class MediaHelper
         mediaSession.SetMetadata(mediaMetadata);
     }
 
-    public static void SendPlaybackState(MediaSession mediaSession, PlaybackStateCode playbackStateCode, long positionMilliseconds)
+    public static void SendPlaybackState(MediaSession mediaSession,
+        PlaybackStateCode playbackStateCode = PlaybackStateCode.None,
+        long positionMilliseconds = PlaybackState.PlaybackPositionUnknown)
     {
-        const long actions = PlaybackState.ActionPlay | PlaybackState.ActionPause | PlaybackState.ActionPlayPause | PlaybackState.ActionStop
-            | PlaybackState.ActionSkipToNext | PlaybackState.ActionSkipToPrevious | PlaybackState.ActionSeekTo;
+        const long actions = PlaybackState.ActionPlay | PlaybackState.ActionPause
+            | PlaybackState.ActionPlayPause | PlaybackState.ActionStop
+            | PlaybackState.ActionSkipToPrevious | PlaybackState.ActionSkipToNext
+            | PlaybackState.ActionSeekTo | PlaybackState.ActionRewind | PlaybackState.ActionFastForward;
 
         var playbackState = new PlaybackState.Builder()
             !.SetActions(actions)
-            !.SetState(playbackStateCode, positionMilliseconds, 1.0f, SystemClock.ElapsedRealtime())
+            !.SetState(playbackStateCode, positionMilliseconds, 1.0f)
             !.Build();
 
         mediaSession.SetPlaybackState(playbackState);

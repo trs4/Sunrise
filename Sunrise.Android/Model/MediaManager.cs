@@ -45,6 +45,9 @@ internal sealed class MediaManager
         _mediaSession.SetFlags(MediaSessionFlags.HandlesMediaButtons | MediaSessionFlags.HandlesTransportControls);
         _mediaSession.Active = true;
 
+        if (IsBluetoothA2dpOn())
+            MediaHelper.SendPlaybackState(_mediaSession);
+
         var mediaPlayer = MainViewModel.TrackPlay.Player.Media;
         mediaPlayer.StateChanged -= MediaPlayer_StateChanged;
         mediaPlayer.StateChanged += MediaPlayer_StateChanged;
@@ -77,16 +80,14 @@ internal sealed class MediaManager
                 case Keycode.MediaStop:
                     await MainViewModel.TrackPlay.PauseTrackAsync();
                     break;
-                case Keycode.MediaNext:
-                    await MainViewModel.TrackPlay.GoToNextTrackAsync();
-                    break;
                 case Keycode.MediaPrevious:
                     await MainViewModel.TrackPlay.GoToPrevTrackAsync();
                     break;
+                case Keycode.MediaNext:
+                    await MainViewModel.TrackPlay.GoToNextTrackAsync();
+                    break;
                 case Keycode.Back:
-                    await MainViewModel.BackAsync();
-
-                    if (!MainViewModel.CanBack())
+                    if (!await MainViewModel.BackAsync())
                         Hide();
 
                     break;
@@ -159,6 +160,7 @@ internal sealed class MediaManager
         MainViewModel.TrackPlay.Player.Media.StateChanged -= MediaPlayer_StateChanged;
         CurrentTrack = null;
         _currentProductName = null;
+        _mediaSession.Active = false;
         _mediaSession.Release();
     }
 
