@@ -25,9 +25,11 @@ public partial class App : Application
 
     public override async void OnFrameworkInitializationCompleted()
     {
+        static string getDeviceName() => AppServices.Get<IAppEnvironment>().MachineName;
+
         SetCurrentCulture();
         InitExceptionHandlers();
-        var player = await Player.InitAsync();
+        var player = await Player.InitAsync(getDeviceName);
         var viewModel = InitApplication(player);
         await viewModel.ReloadTracksAsync();
         base.OnFrameworkInitializationCompleted();

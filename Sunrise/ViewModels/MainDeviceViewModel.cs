@@ -14,6 +14,7 @@ using Sunrise.Model.Common;
 using Sunrise.Model.Communication;
 using Sunrise.Model.Discovery;
 using Sunrise.Model.Resources;
+using Sunrise.Services;
 
 namespace Sunrise.ViewModels;
 
@@ -64,7 +65,8 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     private void StartDiscoveryServer()
     {
-        var discoveryServer = _discoveryServer = new DiscoveryServer("Android", OnDeviceDetected);
+        string deviceName = AppServices.Get<IAppEnvironment>().MachineName;
+        var discoveryServer = _discoveryServer = new DiscoveryServer(deviceName, OnDeviceDetected);
         discoveryServer.Start();
     }
 
@@ -77,7 +79,8 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         {
             _client?.Dispose();
             _client = null;
-            var client = _client = SyncClient.Create("Android", TrackPlay.Player, deviceInfo.IPAddress, deviceInfo.Port, ReloadTracksAsync, OnException);
+            string deviceName = AppServices.Get<IAppEnvironment>().MachineName;
+            var client = _client = SyncClient.Create(deviceName, TrackPlay.Player, deviceInfo.IPAddress, deviceInfo.Port, ReloadTracksAsync, OnException);
             client.Connect();
 
             if (SettingsDisplayed)

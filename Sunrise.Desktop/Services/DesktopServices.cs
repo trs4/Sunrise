@@ -8,6 +8,7 @@ internal static class DesktopServices
     public static void Configure() => AppServices.Configure(Register);
     
     private static void Register(ServiceCollection services) => services
+        .AddSingleton<IAppEnvironment, AppEnvironment>()
         .AddSingleton<IAppSyncService, AppSyncService>()
         .AddSingleton<ISystemDialogsService, SystemDialogsService>();
 }

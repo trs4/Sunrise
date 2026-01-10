@@ -8,6 +8,7 @@ using Avalonia.Android;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using Sunrise.Android.Model;
+using Sunrise.Android.Services;
 using Sunrise.Model.Common;
 
 namespace Sunrise.Android;
@@ -24,7 +25,7 @@ public class MainActivity : AvaloniaMainActivity<App>
 
     public MainActivity()
         => AndroidEnvironment.UnhandledExceptionRaiser += AndroidEnvironment_UnhandledExceptionRaiser;
-     
+
     private static async void AndroidEnvironment_UnhandledExceptionRaiser(object? sender, RaiseThrowableEventArgs e)
     {
         string message = ExceptionHandler.GetString(e.Exception);
@@ -33,8 +34,12 @@ public class MainActivity : AvaloniaMainActivity<App>
     }
 
     protected override AppBuilder CustomizeAppBuilder(AppBuilder builder)
-        => base.CustomizeAppBuilder(builder)
-        .WithInterFont();
+    {
+        AndroidServices.Configure();
+
+        return base.CustomizeAppBuilder(builder)
+            .WithInterFont();
+    }
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
     protected override void OnCreate(Bundle? savedInstanceState)

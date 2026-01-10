@@ -54,7 +54,7 @@ public sealed class Player
 
     public string TracksPath { get; }
 
-    public static async Task<Player> InitAsync(string? rootFolder = null, CancellationToken token = default)
+    public static async Task<Player> InitAsync(Func<string> getDeviceName, string? rootFolder = null, CancellationToken token = default)
     {
         bool isDevice = OperatingSystem.IsAndroid();
         rootFolder ??= Environment.GetFolderPath(isDevice ? Environment.SpecialFolder.LocalApplicationData : Environment.SpecialFolder.MyMusic);
@@ -69,7 +69,7 @@ public sealed class Player
         var connection = SQLiteDatabaseConnection.Create(connectionString);
 
         if (!System.IO.File.Exists(databaseFilePath))
-            await CreateDatabaseAsync(connection, token);
+            await CreateDatabaseAsync(connection, getDeviceName, token);
 
         return new Player(folderPath, tracksPath, connection);
     }
@@ -84,10 +84,10 @@ public sealed class Player
         ClearPlaylists();
     }
 
-    private static async Task CreateDatabaseAsync(DatabaseConnection connection, CancellationToken token)
+    private static async Task CreateDatabaseAsync(DatabaseConnection connection, Func<string> getDeviceName, CancellationToken token)
     {
         await connection.Schema.CreateTableWithParseQuery<Devices>().RunAsync(token);
-        await AppendMainDeviceAsync(connection, token);
+        await AppendMainDeviceAsync(connection, getDeviceName, token);
 
         await connection.Schema.CreateTableWithParseQuery<Updates>().RunAsync(token);
         await AppendUpdateAsync(connection, token);
@@ -107,14 +107,11 @@ public sealed class Player
         await connection.Schema.CreateTableWithParseQuery<TrackReproduceds>().RunAsync(token);
     }
 
-    private static Task<int> AppendMainDeviceAsync(DatabaseConnection connection, CancellationToken token)
+    private static Task<int> AppendMainDeviceAsync(DatabaseConnection connection, Func<string> getDeviceName, CancellationToken token)
     {
-        bool isDevice = OperatingSystem.IsAndroid();
-        string deviceName = isDevice ? "Android" : Environment.MachineName;
-
         return connection.Insert.CreateQuery<Devices>() // Текущее устройство
             .AddColumn(Devices.Guid, Guid.NewGuid())
-            .AddColumn(Devices.Name, deviceName)
+            .AddColumn(Devices.Name, getDeviceName())
             .AddColumn(Devices.IsMain, true)
             .RunAsync(token);
     }
