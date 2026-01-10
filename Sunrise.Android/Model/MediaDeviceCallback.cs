@@ -17,7 +17,7 @@ internal sealed class MediaDeviceCallback : AudioDeviceCallback
     public override void OnAudioDevicesRemoved(AudioDeviceInfo[]? removedDevices)
     {
         if (!_manager.IsBluetoothA2dpOn()) // При отключении гарнитуры ставим на паузу трек
-            _manager.Execute(Keycode.MediaStop);
+            _manager.Execute(Keycode.MediaPause);
     }
 
 }
