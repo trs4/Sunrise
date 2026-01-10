@@ -26,6 +26,7 @@ public class MainActivity : AvaloniaMainActivity<App>
 #pragma warning disable CA2000 // Dispose objects before losing scope
     protected override void OnCreate(Bundle? savedInstanceState)
     {
+        RequestedOrientation = ScreenOrientation.Portrait;
         base.OnCreate(savedInstanceState);
         _manager = new MediaManager(this);
     }
