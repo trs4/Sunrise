@@ -13,9 +13,9 @@ internal static class PlayHelper
             var trackSourceHistory = mainViewModel.TrackSourceHistory;
             var ownerTrackSource = trackSourceHistory.Count >= 2 ? trackSourceHistory[^1] as TrackSourceViewModel : null;
 
-            var ownerRubric = (ownerTrackSource is not null
+            var ownerRubric = ownerTrackSource is not null
                 ? trackSourceHistory[^2]
-                : trackSourceHistory.Count == 1 ? trackSourceHistory[0] : null) as RubricViewModel;
+                : trackSourceHistory.Count == 1 ? trackSourceHistory[0] : null;
 
             return (ownerRubric ?? mainViewModel.SelectedRubrick, ownerTrackSource);
         });

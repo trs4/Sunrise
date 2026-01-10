@@ -140,7 +140,7 @@ public sealed class MainDesktopViewModel : MainViewModel
 
     protected override TrackPlayViewModel CreateTrackPlay(Player player) => new TrackPlayDesktopViewModel(this, player);
 
-    protected override Task SelectTracksAsync(object tracksOwner, bool changeTracks = true, CancellationToken token = default)
+    protected override Task SelectTracksAsync(RubricViewModel tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
         var pickedColumn = TracksColumns.First(c => c.Name == nameof(TrackViewModel.Picked));
         pickedColumn.IsVisible = tracksOwner is SongsRubricViewModel;

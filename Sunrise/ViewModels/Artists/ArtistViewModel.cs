@@ -38,5 +38,11 @@ public sealed class ArtistViewModel : TrackSourceViewModel
     protected override Track? GetTrackWithPicture()
         => _tracksByAlbums.Values.SelectMany(s => s).FirstOrDefault(t => t.HasPicture);
 
+    public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
+
+    public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null) => GetTracks();
+
+    public override IReadOnlyList<Track>? GetCurrentTracks() => GetTracks();
+
     public override string ToString() => Name;
 }

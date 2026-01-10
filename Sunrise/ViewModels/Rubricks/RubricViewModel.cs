@@ -1,9 +1,10 @@
 ﻿using System.Collections.Generic;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Sunrise.Model;
 
 namespace Sunrise.ViewModels;
 
-public abstract class RubricViewModel
+public abstract class RubricViewModel : ObservableObject
 {
     protected RubricViewModel(Player player, object? icon, string name)
     {
@@ -14,7 +15,7 @@ public abstract class RubricViewModel
 
     public Player Player { get; }
 
-    public object? Icon { get; }
+    public virtual object? Icon { get; set; }
 
     public string Name { get; }
 

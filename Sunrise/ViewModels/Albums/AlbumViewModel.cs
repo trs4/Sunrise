@@ -20,4 +20,10 @@ public sealed class AlbumViewModel : TrackSourceViewModel
     protected override Track? GetTrackWithPicture() => Tracks.FirstOrDefault(t => t.HasPicture);
 
     public override string ToString() => $"{Artist} - {Name}";
+
+    public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
+
+    public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null) => Tracks;
+
+    public override IReadOnlyList<Track>? GetCurrentTracks() => Tracks;
 }

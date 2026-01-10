@@ -49,7 +49,8 @@ public partial class MainWindow : Window
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
 
-        await mainViewModel.ChangeTracksAsync(playlistViewModel);
+        var rubricViewModel = mainViewModel.GetPlaylistViewModel(playlistViewModel.Playlist);
+        await mainViewModel.ChangeTracksAsync(rubricViewModel);
     }
 
     private void Playlist_DoubleTapped(object? sender, TappedEventArgs e)

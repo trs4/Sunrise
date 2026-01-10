@@ -19,7 +19,10 @@ public partial class PlaylistsTabView : UserControl
 
         mainViewModel.SelectedPlaylist = playlistViewModel;
         mainViewModel.IsPlaylistsVisible = false;
-        await mainViewModel.ChangeTracksAsync(playlistViewModel);
+
+        var rubricViewModel = mainViewModel.GetPlaylistViewModel(playlistViewModel.Playlist);
+        mainViewModel.TrackPlay.ChangeOwnerRubric(rubricViewModel);
+        await mainViewModel.ChangeTracksAsync(rubricViewModel);
     }
 
     private async void Track_Tapped(object? sender, TappedEventArgs e)
@@ -34,8 +37,13 @@ public partial class PlaylistsTabView : UserControl
 
         mainViewModel.IsShortTrackVisible = true;
         var trackPlay = mainViewModel.TrackPlay;
-        var rubricViewModel = new PlaylistRubricViewModel(trackPlay.Player, mainViewModel.SelectedPlaylist?.Playlist);
-        trackPlay.ChangeOwnerRubric(rubricViewModel);
+        var playlist = mainViewModel.SelectedPlaylist?.Playlist;
+
+        if (playlist is not null)
+        {
+            var rubricViewModel = mainViewModel.GetPlaylistViewModel(playlist);
+            trackPlay.ChangeOwnerRubric(rubricViewModel);
+        }
 
         if (trackViewModel.IsPlaying == true)
             return;
@@ -51,7 +59,10 @@ public partial class PlaylistsTabView : UserControl
             return;
 
         mainViewModel.IsPlaylistsVisible = false;
-        await mainViewModel.ChangeTracksAsync(playlistViewModel);
+
+        var rubricViewModel = mainViewModel.GetPlaylistViewModel(playlistViewModel.Playlist);
+        mainViewModel.TrackPlay.ChangeOwnerRubric(rubricViewModel);
+        await mainViewModel.ChangeTracksAsync(rubricViewModel);
     }
 
     private void TrackIcon_Tapped(object? sender, TappedEventArgs e)

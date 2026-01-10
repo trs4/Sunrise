@@ -15,5 +15,11 @@ public sealed class GenreViewModel : TrackSourceViewModel
 
     protected override Track? GetTrackWithPicture() => Tracks.FirstOrDefault(t => t.HasPicture);
 
+    public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
+
+    public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null) => Tracks;
+
+    public override IReadOnlyList<Track>? GetCurrentTracks() => Tracks;
+
     public override string ToString() => Name;
 }

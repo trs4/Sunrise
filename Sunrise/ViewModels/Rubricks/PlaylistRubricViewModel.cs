@@ -5,19 +5,20 @@ namespace Sunrise.ViewModels;
 
 public sealed class PlaylistRubricViewModel : RubricViewModel
 {
-    private readonly Playlist _playlist;
     private List<Track>? _currentTracks;
 
     public PlaylistRubricViewModel(Player player, Playlist playlist)
         : base(player, null, playlist.Name)
-        => _playlist = playlist;
+        => Playlist = playlist;
+
+    public Playlist Playlist { get; }
 
     public override bool IsDependent => true;
 
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 
     public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => _currentTracks = _playlist.Tracks;
+        => _currentTracks = Playlist.Tracks;
 
     public override IReadOnlyList<Track>? GetCurrentTracks() => _currentTracks;
 }

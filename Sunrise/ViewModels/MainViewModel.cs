@@ -22,6 +22,7 @@ public abstract class MainViewModel : ObservableObject
     private bool _isReadOnlyTracks = true;
     private TrackViewModel? _selectedTrack;
     private readonly Dictionary<int, TrackViewModel> _trackMap = [];
+    private readonly Dictionary<int, PlaylistRubricViewModel> _playlistMap = [];
     private string? _searchText;
     private bool _settingsDisplayed;
     private string? _info;
@@ -116,7 +117,7 @@ public abstract class MainViewModel : ObservableObject
 
     #endregion
 
-    public object TracksOwner { get; set; }
+    public RubricViewModel TracksOwner { get; set; }
 
     public ObservableCollection<TrackSourceViewModel> TrackSources { get; } = [];
 
@@ -177,6 +178,7 @@ public abstract class MainViewModel : ObservableObject
     public async Task ReloadTracksAsync(CancellationToken token = default)
     {
         _trackMap.Clear();
+        _playlistMap.Clear();
         var rubricViewModel = Songs;
         var playlists = await TrackPlay.Player.GetPlaylistsAsync(token);
         var categoriesScreenshot = await TrackPlay.Player.GetCategoriesAsync(token);
@@ -194,7 +196,7 @@ public abstract class MainViewModel : ObservableObject
     public Task SelectSongsAsync(CancellationToken token = default)
         => ChangeTracksAsync(Songs, token: token);
 
-    public Task ChangeTracksAsync(object tracksOwner, bool changeTracks = true, CancellationToken token = default)
+    public Task ChangeTracksAsync(RubricViewModel tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
         if (Equals(TracksOwner, tracksOwner))
             return Task.CompletedTask;
@@ -202,23 +204,21 @@ public abstract class MainViewModel : ObservableObject
         return SelectTracksAsync(tracksOwner, changeTracks, token);
     }
 
-    protected virtual async Task SelectTracksAsync(object tracksOwner, bool changeTracks = true, CancellationToken token = default)
+    protected virtual async Task SelectTracksAsync(RubricViewModel tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
         TracksOwner = tracksOwner;
         IEnumerable<Track> tracks;
 
-        if (tracksOwner is PlaylistViewModel playlistViewModel)
+        if (tracksOwner is TrackSourceViewModel trackSourceViewModel)
         {
-            tracks = playlistViewModel.Playlist.Tracks;
-            IsTrackSourcesVisible = false;
-            TrackSources.Clear();
-            ChangePlaylist(playlistViewModel.Playlist);
+            var tracksScreenshot = await TrackPlay.Player.GetTracksAsync(token);
+            tracks = trackSourceViewModel.Rubric.GetTracks(tracksScreenshot, trackSourceViewModel);
         }
-        else if (tracksOwner is RubricViewModel rubricViewModel)
+        else
         {
             var selectedTrackSource = SelectedTrackSource;
             var tracksScreenshot = await TrackPlay.Player.GetTracksAsync(token);
-            var trackSources = rubricViewModel.GetTrackSources(tracksScreenshot);
+            var trackSources = tracksOwner.GetTrackSources(tracksScreenshot);
             IsTrackSourcesVisible = trackSources is not null;
             TrackSources.Clear();
 
@@ -231,19 +231,15 @@ public abstract class MainViewModel : ObservableObject
                     SelectedTrackSource = selectedTrackSource = trackSources.Count > 0 ? trackSources[0] : null;
             }
 
-            SelectedTrackSource = rubricViewModel is SongsRubricViewModel ? null : selectedTrackSource;
-            tracks = CanAddRubricTracks(rubricViewModel) ? rubricViewModel.GetTracks(tracksScreenshot, selectedTrackSource) : [];
-        }
-        else if (tracksOwner is TrackSourceViewModel trackSourceViewModel)
-        {
-            var tracksScreenshot = await TrackPlay.Player.GetTracksAsync(token);
-            tracks = trackSourceViewModel.Rubric.GetTracks(tracksScreenshot, trackSourceViewModel);
-        }
-        else
-        {
-            tracks = [];
-            IsTrackSourcesVisible = false;
-            TrackSources.Clear();
+            SelectedTrackSource = tracksOwner is SongsRubricViewModel ? null : selectedTrackSource;
+
+            if (tracksOwner is PlaylistRubricViewModel playlistRubricViewModel)
+            {
+                tracks = playlistRubricViewModel.Playlist.Tracks;
+                ChangePlaylist(playlistRubricViewModel.Playlist);
+            }
+            else
+                tracks = CanAddRubricTracks(tracksOwner) ? tracksOwner.GetTracks(tracksScreenshot, selectedTrackSource) : [];
         }
 
         if (changeTracks)
@@ -271,6 +267,16 @@ public abstract class MainViewModel : ObservableObject
 
     public TrackViewModel? GetTrackViewModelWithCheck(Track? track)
         => track is null ? null : GetTrackViewModel(track);
+
+    public PlaylistRubricViewModel GetPlaylistViewModel(Playlist playlist)
+    {
+        if (_playlistMap.TryGetValue(playlist.Id, out var playlistViewModel))
+            return playlistViewModel;
+
+        playlistViewModel = new PlaylistRubricViewModel(TrackPlay.Player, playlist);
+        _playlistMap.Add(playlist.Id, playlistViewModel);
+        return playlistViewModel;
+    }
 
     public virtual void ChangePlaylists(IEnumerable<Playlist> playlists)
     {
@@ -310,7 +316,10 @@ public abstract class MainViewModel : ObservableObject
         var playlistViewModel = new PlaylistViewModel(playlist, TrackPlay.Player);
         Playlists.Insert(0, playlistViewModel);
         SelectedPlaylist = playlistViewModel;
-        await ChangeTracksAsync(playlistViewModel);
+
+        var rubricViewModel = GetPlaylistViewModel(playlist);
+        TrackPlay.ChangeOwnerRubric(rubricViewModel);
+        await ChangeTracksAsync(rubricViewModel);
     }
 
     protected abstract Task DeletePlaylistAsync();
@@ -352,6 +361,7 @@ public abstract class MainViewModel : ObservableObject
             return;
 
         int playlistId = playlist.Id;
+        _playlistMap.Remove(playlistId);
 
         for (int i = Playlists.Count - 1; i >= 0; i--)
         {

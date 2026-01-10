@@ -1,29 +1,26 @@
 ﻿using System;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Sunrise.Model;
 
 namespace Sunrise.ViewModels;
 
-public abstract class TrackSourceViewModel : ObservableObject
+public abstract class TrackSourceViewModel : RubricViewModel
 {
     private object? _icon;
     private bool _iconLoaded;
 
     protected TrackSourceViewModel(RubricViewModel rubric, string name, string description)
+        : base(rubric.Player, null, name)
     {
         Rubric = rubric ?? throw new ArgumentNullException(nameof(rubric));
-        Name = name;
         Description = description;
     }
 
     public RubricViewModel Rubric { get; }
 
-    public string Name { get; }
-
     public string Description { get; }
 
     /// <summary>Иконка</summary>
-    public object? Icon
+    public sealed override object? Icon
     {
         get
         {
@@ -41,6 +38,8 @@ public abstract class TrackSourceViewModel : ObservableObject
         }
         set => SetProperty(ref _icon, value);
     }
+
+    public override bool IsDependent => true;
 
     protected abstract Track? GetTrackWithPicture();
 }
