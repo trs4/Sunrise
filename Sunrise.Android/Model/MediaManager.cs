@@ -18,6 +18,7 @@ namespace Sunrise.Android.Model;
 internal sealed class MediaManager
 #pragma warning restore CA1001 // Types that own disposable fields should be disposable
 {
+    private const int _rewindSeconds = 10;
     private readonly AvaloniaMainActivity _activity;
     private readonly AudioManager _audioManager;
     private readonly MediaSession _mediaSession;
@@ -86,6 +87,12 @@ internal sealed class MediaManager
                 case Keycode.MediaNext:
                     await MainViewModel.TrackPlay.GoToNextTrackAsync();
                     break;
+                case Keycode.MediaRewind:
+                    Rewind(-_rewindSeconds);
+                    break;
+                case Keycode.MediaFastForward:
+                    Rewind(_rewindSeconds);
+                    break;
                 case Keycode.Back:
                     if (!await MainViewModel.BackAsync())
                         Hide();
@@ -97,6 +104,18 @@ internal sealed class MediaManager
         {
             MainViewModel.WriteInfo(e);
         }
+    }
+
+    private void Rewind(int rewindSeconds)
+    {
+        var track = CurrentTrack;
+
+        if (track is null)
+            return;
+
+        var trackPlay = MainViewModel.TrackPlay;
+        double position = trackPlay.Position.Add(TimeSpan.FromSeconds(rewindSeconds)).TotalMilliseconds / track.Duration.TotalMilliseconds;
+        trackPlay.ChangePositionDelay(position);
     }
 
 #pragma warning disable CA1416 // Validate platform compatibility

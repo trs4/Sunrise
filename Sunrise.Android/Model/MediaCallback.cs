@@ -7,7 +7,6 @@ namespace Sunrise.Android.Model;
 
 internal sealed class MediaCallback : MediaSession.Callback
 {
-    private const int _rewindSeconds = 10;
     private readonly MediaManager _manager;
 
     public MediaCallback(MediaManager manager)
@@ -47,20 +46,9 @@ internal sealed class MediaCallback : MediaSession.Callback
         _manager.MainViewModel.TrackPlay.ChangePositionDelay(position);
     }
 
-    public override void OnRewind() => Rewind(-_rewindSeconds);
-    
-    public override void OnFastForward() => Rewind(_rewindSeconds);
-    
-    private void Rewind(int rewindSeconds)
-    {
-        var track = _manager.CurrentTrack;
+    public override void OnRewind()
+        => _manager.Execute(Keycode.MediaRewind);
 
-        if (track is null)
-            return;
-
-        var trackPlay = _manager.MainViewModel.TrackPlay;
-        double position = trackPlay.Position.Add(TimeSpan.FromSeconds(rewindSeconds)).TotalMilliseconds / track.Duration.TotalMilliseconds;
-        trackPlay.ChangePositionDelay(position);
-    }
-
+    public override void OnFastForward()
+        => _manager.Execute(Keycode.MediaFastForward);
 }
