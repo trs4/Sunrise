@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Android.Content;
 using Android.Media;
 using Android.Media.Session;
+using Android.Telephony;
 using Android.Views;
 using Avalonia;
 using Avalonia.Android;
@@ -21,7 +22,10 @@ internal sealed class MediaManager
     private const int _rewindSeconds = 10;
     private readonly AvaloniaMainActivity _activity;
     private readonly AudioManager _audioManager;
+    private readonly TelephonyManager _telephonyManager;
     private readonly MediaSession _mediaSession;
+    private readonly MediaDeviceCallback _mediaDeviceCallback;
+    private readonly MediaTelephonyCallback _telephonyCallback;
     private string? _currentProductName;
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
@@ -35,10 +39,17 @@ internal sealed class MediaManager
         _audioManager = (AudioManager)activity.GetSystemService(Context.AudioService)
             ?? throw new InvalidOperationException(nameof(AudioManager));
 
+        _telephonyManager = (TelephonyManager)activity.GetSystemService(Context.TelephonyService)
+            ?? throw new InvalidOperationException(nameof(AudioManager));
+
         _mediaSession = new MediaSession(activity, "SunrisePlayerMediaSession");
 
 #pragma warning disable CA1416 // Validate platform compatibility
-        _audioManager.RegisterAudioDeviceCallback(new MediaDeviceCallback(this), null);
+        _telephonyCallback = new MediaTelephonyCallback(MainViewModel);
+        _telephonyManager.RegisterTelephonyCallback(activity.MainExecutor, _telephonyCallback);
+
+        _mediaDeviceCallback = new MediaDeviceCallback(this);
+        _audioManager.RegisterAudioDeviceCallback(_mediaDeviceCallback, null);
 #pragma warning restore CA1416 // Validate platform compatibility
 
         _mediaSession.SetCallback(new MediaCallback(this));
@@ -179,6 +190,10 @@ internal sealed class MediaManager
         MainViewModel.TrackPlay.Player.Media.StateChanged -= MediaPlayer_StateChanged;
         CurrentTrack = null;
         _currentProductName = null;
+#pragma warning disable CA1416 // Validate platform compatibility
+        _audioManager.UnregisterAudioDeviceCallback(_mediaDeviceCallback);
+        _telephonyManager.UnregisterTelephonyCallback(_telephonyCallback);
+#pragma warning restore CA1416 // Validate platform compatibility
         _mediaSession.Active = false;
         _mediaSession.Release();
     }

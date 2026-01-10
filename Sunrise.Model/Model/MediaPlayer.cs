@@ -55,6 +55,8 @@ public sealed class MediaPlayer : IDisposable
         }
     }
 
+    public bool IsPlaying => _wavePlayer?.State == PlaybackState.Playing;
+
     public bool IsEnd
     {
         get
