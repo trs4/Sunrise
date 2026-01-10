@@ -75,11 +75,11 @@ internal sealed class MediaManager
                     await MainViewModel.TrackPlay.PlayTrackAsync();
                     break;
                 case Keycode.MediaPause:
-                case Keycode.MediaPlayPause:
-                    await MainViewModel.TrackPlay.PlayPauseTrackAsync();
-                    break;
                 case Keycode.MediaStop:
                     await MainViewModel.TrackPlay.PauseTrackAsync();
+                    break;
+                case Keycode.MediaPlayPause:
+                    await MainViewModel.TrackPlay.PlayPauseTrackAsync();
                     break;
                 case Keycode.MediaPrevious:
                     await MainViewModel.TrackPlay.GoToPrevTrackAsync();
