@@ -11,6 +11,7 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using Sunrise.Model;
 using Sunrise.Model.Common;
+using Sunrise.Services;
 
 namespace Sunrise.ViewModels;
 
@@ -386,8 +387,9 @@ public abstract class MainViewModel : ObservableObject
         => Info ??= BuildInfo();
 
     private static string BuildInfo()
-        => Environments.GetPlatformName() + Environment.NewLine
-        + $"MachineIP: {Network.GetMachineIPAddress()}" + Environment.NewLine + Environment.NewLine
+        => AppServices.Get<IAppEnvironment>().MachineName + Environment.NewLine
+        + Environments.GetPlatformName() + Environment.NewLine
+        + Network.GetMachineIPAddress() + Environment.NewLine + Environment.NewLine
         + string.Join(Environment.NewLine, Network.GetAvailableIPAddresses()
             .Select(p => $"{p.IPAddress} {p.NetworkInterface.Name} {p.NetworkInterface.Description}"));
 
