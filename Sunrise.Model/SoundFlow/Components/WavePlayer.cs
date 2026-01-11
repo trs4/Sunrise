@@ -34,6 +34,9 @@ public static class WavePlayer
     private static AudioPlaybackDevice? _playbackDevice;
     private static readonly object _initializeSync = new();
 
+    public static void Prepare()
+        => _playbackDevice ??= Initialize();
+
     public static SoundPlayer Create(string filePath)
     {
         var playbackDevice = _playbackDevice ??= Initialize();

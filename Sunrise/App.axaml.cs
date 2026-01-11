@@ -12,6 +12,7 @@ using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
 using Sunrise.Model;
 using Sunrise.Model.Common;
+using Sunrise.Model.SoundFlow.Components;
 using Sunrise.Services;
 using Sunrise.ViewModels;
 using Sunrise.Views;
@@ -32,6 +33,7 @@ public partial class App : Application
         var player = await Player.InitAsync(getDeviceName);
         var viewModel = InitApplication(player);
         await viewModel.ReloadTracksAsync();
+        _ = Tasks.StartOnDefaultScheduler(WavePlayer.Prepare);
         base.OnFrameworkInitializationCompleted();
     }
 
