@@ -57,7 +57,8 @@ public static class Network
                 .FirstOrDefault(ni => !ni.Description.Contains("virtual", StringComparison.OrdinalIgnoreCase)) // Без виртуальных машин
             : networkInterfaces.FirstOrDefault(ni => ni.Description?.StartsWith("wlan", StringComparison.OrdinalIgnoreCase) ?? false); // Через Wi-Fi
 
-        return networkInterface ?? networkInterfaces.FirstOrDefault();
+        return networkInterface ?? networkInterfaces.FirstOrDefault(ni => ni.GetIPProperties().UnicastAddresses
+            .Any(a => a.Address.AddressFamily == AddressFamily.InterNetwork && a.Address != IPAddress.Broadcast));
     }
 
     private static int KeySelector(NetworkInterface networkInterface)
@@ -65,7 +66,7 @@ public static class Network
         if (!RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             return 0;
 
-        var address = networkInterface.GetIPProperties().UnicastAddresses.FirstOrDefault(x => x.Address.AddressFamily == AddressFamily.InterNetwork);
+        var address = networkInterface.GetIPProperties().UnicastAddresses.FirstOrDefault(a => a.Address.AddressFamily == AddressFamily.InterNetwork);
         return address is null ? 0 : (int)address.PrefixOrigin;
     }
 
