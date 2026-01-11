@@ -12,6 +12,7 @@ using MsBox.Avalonia.Enums;
 using Sunrise.Model;
 using Sunrise.Model.Common;
 using Sunrise.Services;
+using Sunrise.ViewModels.Interfaces;
 
 namespace Sunrise.ViewModels;
 
@@ -153,6 +154,8 @@ public abstract class MainViewModel : ObservableObject
         get => _searchText;
         set => SetProperty(ref _searchText, value);
     }
+
+    public IPlaylistsView PlaylistsView { get; set; }
 
     public bool SettingsDisplayed
     {

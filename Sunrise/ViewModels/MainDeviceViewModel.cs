@@ -390,8 +390,11 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         TrackSourceHistory.RemoveAt(TrackSourceHistory.Count - 1);
         var tracksOwner = TrackSourceHistory.Count > 0 ? TrackSourceHistory[^1] : null;
 
-        if (currentTracksOwner is PlaylistRubricViewModel)
+        if (currentTracksOwner is PlaylistRubricViewModel playlistRubricViewModel)
+        {
             GoToPlaylists();
+            PlaylistsView?.ScrollIntoView(playlistRubricViewModel.Playlist);
+        }
         else
         {
             if (tracksOwner is not not PlaylistRubricViewModel)
@@ -584,6 +587,30 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         {
             if (!IsPlaylistsVisible)
                 CancelChangePlaylist();
+        }
+        else if (e.PropertyName == nameof(SelectedPlaylist))
+        {
+            if (!IsPlaylistCaptionVisible)
+            {
+
+
+
+            }
+
+            var q = SelectedTrack;
+
+
+
+
+        }
+        else if (e.PropertyName == nameof(IsPlaylistCaptionVisible))
+        {
+            if (IsPlaylistCaptionVisible)
+            {
+
+
+
+            }
         }
     }
 

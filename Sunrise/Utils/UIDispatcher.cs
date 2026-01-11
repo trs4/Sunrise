@@ -26,4 +26,6 @@ internal static class UIDispatcher
         return operation.Result;
     }
 
+    public static void RunBackground(Action action)
+        => Dispatcher.UIThread.InvokeAsync(action, DispatcherPriority.Background);
 }

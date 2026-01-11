@@ -235,14 +235,14 @@
 					</StackPanel>
 				</Button>
 
-				<ListBox Grid.Row="6"
+				<ListBox Grid.Row="6" x:Name="tracksBox"
 						 ItemsSource="{Binding Tracks, Mode=OneWay}"
 						 SelectedItem="{Binding SelectedTrack, Mode=TwoWay}"
 						 IsVisible="{Binding !IsPlaylistsVisible, Mode=OneWay}"
 						 ItemTemplate="{StaticResource TrackTemplate}"
 						 Tapped="Track_Tapped" />
 
-				<ListBox Grid.Row="7"
+				<ListBox Grid.Row="7" x:Name="playlistsBox"
 						 ItemsSource="{Binding Playlists, Mode=OneWay}"
 						 SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}"
 						 IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}"
