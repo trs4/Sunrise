@@ -208,7 +208,7 @@ public abstract class TrackPlayViewModel : ObservableObject
         }
     }
 
-    private void Change(TrackViewModel trackViewModel)
+    protected void Change(TrackViewModel trackViewModel)
     {
         bool isPlaying = false;
         var currentTrack = _currentTrack;
@@ -474,13 +474,13 @@ public abstract class TrackPlayViewModel : ObservableObject
                 await PlayCoreAsync(currentTrack);
             }
             else
-                OnTracksEnded();
+                await OnTracksEndedAsync();
         }
         else
             await PlayCoreAsync(nextTrack);
     }
 
-    protected abstract void OnTracksEnded();
+    protected abstract ValueTask OnTracksEndedAsync();
 
     private Task OnNextListAsync() => Owner.OnNextListAsync();
 

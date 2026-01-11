@@ -73,5 +73,10 @@ public sealed class TrackPlayDesktopViewModel : TrackPlayViewModel
         await Owner.ReloadTracksAsync(token);
     }
 
-    protected override void OnTracksEnded() => Clear();
+    protected override ValueTask OnTracksEndedAsync()
+    {
+        Clear();
+        return default;
+    }
+
 }

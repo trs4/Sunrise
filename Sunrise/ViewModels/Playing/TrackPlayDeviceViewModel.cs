@@ -117,5 +117,13 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         await Owner.RemoveAsync(currentTrack.Track);
     }
 
-    protected override void OnTracksEnded() => Stop();
+    protected override async ValueTask OnTracksEndedAsync()
+    {
+        Stop();
+        var track = await Strategy.GetFirstAsync();
+
+        if (track is not null)
+            Change(track);
+    }
+
 }
