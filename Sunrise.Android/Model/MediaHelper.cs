@@ -2,6 +2,7 @@
 using Android.Content;
 using Android.Media;
 using Android.Media.Session;
+using Android.OS;
 using Sunrise.Model;
 using Sunrise.Model.Common;
 using State = Sunrise.Model.SoundFlow.Enums.PlaybackState;
@@ -67,5 +68,18 @@ internal static class MediaHelper
 
         return CacheStringBuilder.ToString(builder);
     }
+
+#pragma warning disable CA1416 // Validate platform compatibility
+#pragma warning disable CA1422 // Validate platform compatibility
+    public static T? GetParcelableExtra<T>(Intent intent, string? name)
+        where T : Java.Lang.Object
+    {
+        if (Build.VERSION.SdkInt >= BuildVersionCodes.Tiramisu) // Android 13 (API 33)
+            return (T)intent.GetParcelableExtra(name, Java.Lang.Class.FromType(typeof(T)));
+        else
+            return (T)intent.GetParcelableExtra(name);
+    }
+#pragma warning restore CA1422 // Validate platform compatibility
+#pragma warning restore CA1416 // Validate platform compatibility
 
 }

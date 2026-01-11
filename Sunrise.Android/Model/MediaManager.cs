@@ -70,10 +70,10 @@ internal sealed class MediaManager
 
     public Track? CurrentTrack { get; private set; }
 
-    public void Execute(Keycode key, [CallerMemberName] string? propertyName = null)
+    public bool Execute(Keycode key, [CallerMemberName] string? propertyName = null)
         => Tasks.Execute(ExecuteAsync(key, propertyName));
 
-    public async Task ExecuteAsync(Keycode key, [CallerMemberName] string? propertyName = null)
+    public async Task<bool> ExecuteAsync(Keycode key, [CallerMemberName] string? propertyName = null)
     {
         try
         {
@@ -85,12 +85,12 @@ internal sealed class MediaManager
                 case Keycode.MediaPlay:
                     await MainViewModel.TrackPlay.PlayTrackAsync();
                     break;
+                case Keycode.MediaPlayPause:
                 case Keycode.MediaPause:
+                    await MainViewModel.TrackPlay.PlayPauseTrackAsync();
+                    break;
                 case Keycode.MediaStop:
                     await MainViewModel.TrackPlay.PauseTrackAsync();
-                    break;
-                case Keycode.MediaPlayPause:
-                    await MainViewModel.TrackPlay.PlayPauseTrackAsync();
                     break;
                 case Keycode.MediaPrevious:
                     await MainViewModel.TrackPlay.GoToPrevTrackAsync();
@@ -109,12 +109,16 @@ internal sealed class MediaManager
                         Hide();
 
                     break;
+                default:
+                    return false;
             }
         }
         catch (Exception e)
         {
             MainViewModel.WriteInfo(e);
         }
+
+        return true;
     }
 
     private void Rewind(int rewindSeconds)

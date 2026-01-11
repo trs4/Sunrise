@@ -21,7 +21,7 @@ internal sealed class MediaTelephonyCallback : TelephonyCallback, TelephonyCallb
             return;
 
         if (_mainViewModel.SettingsDisplayed)
-            _mainViewModel.WriteInfo($"OnCallStateChanged: {_lastCallState} -> {callState} lastPlaying:{_lastPlayingState}");
+            _mainViewModel.WriteInfo($"~OnCallState: {_lastCallState} -> {callState} lastPlaying:{_lastPlayingState}");
 
         var trackPlay = _mainViewModel.TrackPlay;
 

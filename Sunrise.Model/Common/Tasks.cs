@@ -19,6 +19,23 @@ public static class Tasks
         }
     }
 
+    public static TResult Execute<TResult>(Task<TResult> task)
+    {
+        if (task.Status == TaskStatus.RanToCompletion)
+            return task.Result;
+
+        try
+        {
+            return Task.Run(async () => await task.ConfigureAwait(false)).Result;
+        }
+        catch (AggregateException e)
+        {
+            ExceptionDispatchInfo.Capture(e.InnerException).Throw();
+        }
+
+        return default;
+    }
+
     public static Task StartOnDefaultScheduler(Action action)
         => Task.Factory.StartNew(action, CancellationToken.None, TaskCreationOptions.None, TaskScheduler.Default);
 

@@ -15,8 +15,13 @@ internal sealed class MediaCallback : MediaSession.Callback
     public override bool OnMediaButtonEvent(Intent mediaButtonIntent)
     {
         if (_manager.MainViewModel.SettingsDisplayed)
-            _manager.MainViewModel.WriteInfo($"OnMediaButtonEvent: {MediaHelper.Serialize(mediaButtonIntent)}");
+            _manager.MainViewModel.WriteInfo($"~OnMediaButton: {MediaHelper.Serialize(mediaButtonIntent)}");
 
+        var keyEvent = MediaHelper.GetParcelableExtra<KeyEvent>(mediaButtonIntent, Intent.ExtraKeyEvent);
+
+        if (keyEvent is not null && keyEvent.Action == KeyEventActions.Down && _manager.Execute(keyEvent.KeyCode))
+            return true;
+    
         return base.OnMediaButtonEvent(mediaButtonIntent);
     }
 
