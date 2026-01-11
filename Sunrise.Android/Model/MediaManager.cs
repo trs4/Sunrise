@@ -27,6 +27,8 @@ internal sealed class MediaManager
     private readonly MediaDeviceCallback _mediaDeviceCallback;
     private readonly MediaTelephonyCallback _telephonyCallback;
     private string? _currentProductName;
+    private DateTime _lastPlayPauseTime;
+    private static readonly TimeSpan _delay = TimeSpan.FromSeconds(1);
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
     public MediaManager(AvaloniaMainActivity activity)
@@ -83,10 +85,16 @@ internal sealed class MediaManager
             switch (key)
             {
                 case Keycode.MediaPlay:
+                    if (!CanPlayPauseExecute())
+                        return true;
+
                     await MainViewModel.TrackPlay.PlayTrackAsync();
                     break;
                 case Keycode.MediaPlayPause:
                 case Keycode.MediaPause:
+                    if (!CanPlayPauseExecute())
+                        return true;
+
                     await MainViewModel.TrackPlay.PlayPauseTrackAsync();
                     break;
                 case Keycode.MediaStop:
@@ -119,6 +127,14 @@ internal sealed class MediaManager
         }
 
         return true;
+    }
+
+    private bool CanPlayPauseExecute()
+    {
+        var now = DateTime.Now;
+        bool result = now.Subtract(_lastPlayPauseTime) >= _delay;
+        _lastPlayPauseTime = now;
+        return result;
     }
 
     private void Rewind(int rewindSeconds)
