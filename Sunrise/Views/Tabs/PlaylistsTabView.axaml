@@ -46,13 +46,81 @@
 		</Button>
 
 		<ScrollViewer Grid.Row="1"
-					  Margin="0 5 0 0">
+					  Margin="0 5 0 0"
+					  IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}">
 			<Grid>
 				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
+					<RowDefinition />
+				</Grid.RowDefinitions>
+
+				<ListBox Grid.Row="0"
+						 ItemsSource="{Binding ChangedCategories}"
+						 IsVisible="{Binding IsPlaylistChanging}">
+					<ListBox.ItemTemplate>
+						<DataTemplate DataType="svm:CategoryViewModel">
+							<CheckBox IsChecked="{Binding IsChecked}"
+									  Content="{Binding Name, Mode=OneWay}"
+									  Background="Transparent" />
+						</DataTemplate>
+					</ListBox.ItemTemplate>
+				</ListBox>
+
+				<Button Grid.Row="1"
+						Theme="{StaticResource MaterialFlatButton}"
+						Command="{Binding RecentlyAddedPlaylistsCommand, Mode=OneWay}"
+						Height="48"
+						HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
+					<TextBlock Text="{x:Static res:Texts.RecentlyAddedButton}"
+							   FontSize="14" />
+				</Button>
+
+				<ListBox Grid.Row="2"
+						 ItemsSource="{Binding RecentlyAddedPlaylists, Mode=OneWay}"
+						 ItemTemplate="{StaticResource RecentlyAddedPlaylistTemplate}"
+						 Tapped="RecentlyAddedPlaylist_Tapped"
+						 Height="125"
+						 IsVisible="{Binding RecentlyAddedPlaylists, Mode=OneWay, Converter={x:Static scv:AnyConverter.Instance}}"
+						 ScrollViewer.HorizontalScrollBarVisibility="Auto">
+					<ListBox.ItemsPanel>
+						<ItemsPanelTemplate>
+							<StackPanel Orientation="Horizontal" />
+						</ItemsPanelTemplate>
+					</ListBox.ItemsPanel>
+				</ListBox>
+
+				<Button Grid.Row="3"
+						Theme="{StaticResource MaterialFlatButton}"
+						Command="{Binding AddPlaylistCommand, Mode=OneWay}"
+						Height="48"
+						HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
+					<StackPanel Orientation="Horizontal">
+						<Image Source="{su:FromIcon PlusSquare}"
+							   Height="24" Width="24"
+							   Margin="0 0 10 0"
+							   OpacityMask="Gray" Opacity="0.2"
+							   HorizontalAlignment="Left" VerticalAlignment="Center" />
+
+						<TextBlock Text="{x:Static res:Texts.NewPlaylist}"
+								   HorizontalAlignment="Left" VerticalAlignment="Center" />
+					</StackPanel>
+				</Button>
+
+				<ListBox Grid.Row="4" x:Name="playlistsBox"
+						 ItemsSource="{Binding Playlists, Mode=OneWay}"
+						 SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}"
+						 ItemTemplate="{StaticResource PlaylistTemplate}"
+						 Tapped="Playlist_Tapped" />
+			</Grid>
+		</ScrollViewer>
+		<ScrollViewer Grid.Row="1"
+					  Margin="0 5 0 0"
+					  IsVisible="{Binding !IsPlaylistsVisible, Mode=OneWay}">
+			<Grid>
+				<Grid.RowDefinitions>
 					<RowDefinition Height="Auto" />
 					<RowDefinition Height="Auto" />
 					<RowDefinition />
@@ -151,19 +219,7 @@
 					</Grid>
 				</Grid>
 
-				<ListBox Grid.Row="1"
-						 ItemsSource="{Binding ChangedCategories}"
-						 IsVisible="{Binding IsPlaylistChanging}">
-					<ListBox.ItemTemplate>
-						<DataTemplate DataType="svm:CategoryViewModel">
-							<CheckBox IsChecked="{Binding IsChecked}"
-									  Content="{Binding Name, Mode=OneWay}"
-									  Background="Transparent" />
-						</DataTemplate>
-					</ListBox.ItemTemplate>
-				</ListBox>
-
-				<Button Grid.Row="2"
+				<Button Grid.Row="1"
 						Theme="{StaticResource MaterialFlatButton}"
 						Command="{Binding RandomPlayRunCommand, Mode=OneWay}"
 						IsVisible="{Binding IsPlaylistCaptionVisible, Mode=OneWay}"
@@ -188,68 +244,12 @@
 					</Grid>
 				</Button>
 
-				<Button Grid.Row="3"
-						Theme="{StaticResource MaterialFlatButton}"
-						Command="{Binding RecentlyAddedPlaylistsCommand, Mode=OneWay}"
-						IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}"
-						Height="48"
-						HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
-					<TextBlock Text="{x:Static res:Texts.RecentlyAddedButton}"
-							   FontSize="14" />
-				</Button>
-
-				<ListBox Grid.Row="4"
-						 ItemsSource="{Binding RecentlyAddedPlaylists, Mode=OneWay}"
-						 ItemTemplate="{StaticResource RecentlyAddedPlaylistTemplate}"
-						 Tapped="RecentlyAddedPlaylist_Tapped"
-						 Height="125"
-						 ScrollViewer.HorizontalScrollBarVisibility="Auto">
-					<ListBox.IsVisible>
-						<MultiBinding Mode="OneWay" Converter="{x:Static BoolConverters.And}">
-							<Binding Path="IsPlaylistsVisible" Mode="OneWay" />
-							<Binding Path="RecentlyAddedPlaylists" Mode="OneWay" Converter="{x:Static scv:AnyConverter.Instance}" />
-						</MultiBinding>
-					</ListBox.IsVisible>
-					<ListBox.ItemsPanel>
-						<ItemsPanelTemplate>
-							<StackPanel Orientation="Horizontal" />
-						</ItemsPanelTemplate>
-					</ListBox.ItemsPanel>
-				</ListBox>
-
-				<Button Grid.Row="5"
-						Theme="{StaticResource MaterialFlatButton}"
-						Command="{Binding AddPlaylistCommand, Mode=OneWay}"
-						IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}"
-						Height="48"
-						HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
-					<StackPanel Orientation="Horizontal">
-						<Image Source="{su:FromIcon PlusSquare}"
-							   Height="24" Width="24"
-							   Margin="0 0 10 0"
-							   OpacityMask="Gray" Opacity="0.2"
-							   HorizontalAlignment="Left" VerticalAlignment="Center" />
-
-						<TextBlock Text="{x:Static res:Texts.NewPlaylist}"
-								   HorizontalAlignment="Left" VerticalAlignment="Center" />
-					</StackPanel>
-				</Button>
-
-				<ListBox Grid.Row="6" x:Name="tracksBox"
+				<ListBox Grid.Row="2" x:Name="tracksBox"
 						 ItemsSource="{Binding Tracks, Mode=OneWay}"
 						 SelectedItem="{Binding SelectedTrack, Mode=TwoWay}"
-						 IsVisible="{Binding !IsPlaylistsVisible, Mode=OneWay}"
 						 ItemTemplate="{StaticResource TrackTemplate}"
 						 Tapped="Track_Tapped" />
-
-				<ListBox Grid.Row="7" x:Name="playlistsBox"
-						 ItemsSource="{Binding Playlists, Mode=OneWay}"
-						 SelectedItem="{Binding SelectedPlaylist, Mode=TwoWay}"
-						 IsVisible="{Binding IsPlaylistsVisible, Mode=OneWay}"
-						 ItemTemplate="{StaticResource PlaylistTemplate}"
-						 Tapped="Playlist_Tapped" />
 			</Grid>
 		</ScrollViewer>
-
 	</Grid>
 </UserControl>

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Input;
@@ -68,6 +69,11 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         var rubricViewModel = mainViewModel.GetPlaylistViewModel(playlistViewModel.Playlist);
         mainViewModel.TrackPlay.ChangeOwnerRubric(rubricViewModel);
         await mainViewModel.ChangeTracksAsync(rubricViewModel);
+
+        var selectedTrack = mainViewModel.Tracks.FirstOrDefault(t => t.IsPlaying ?? false);
+
+        if (selectedTrack is not null)
+            mainViewModel.PlaylistsView?.ScrollIntoView(selectedTrack.Track);
     }
 
     private void TrackIcon_Tapped(object? sender, TappedEventArgs e)
@@ -97,12 +103,16 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         int id = track.Id;
         var tracks = mainViewModel.Tracks;
         int index = -1;
+        TrackViewModel selectedTrackViewModel = null;
 
         for (int i = 0; i < tracks.Count; i++)
         {
-            if (tracks[i].Track.Id == id)
+            var trackViewModel = tracks[i];
+
+            if (trackViewModel.Track.Id == id)
             {
                 index = i;
+                selectedTrackViewModel = trackViewModel;
                 break;
             }
         }
@@ -110,7 +120,11 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         if (index == -1)
             return;
 
-        UIDispatcher.RunBackground(() => tracksBox.ScrollIntoView(index));
+        UIDispatcher.RunBackground(() =>
+        {
+            tracksBox.ScrollIntoView(index);
+            mainViewModel.SelectedTrack = selectedTrackViewModel;
+        });
     }
 
     void IPlaylistsView.ScrollIntoView(Playlist playlist)
@@ -121,12 +135,16 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         int id = playlist.Id;
         var playlists = mainViewModel.Playlists;
         int index = -1;
+        PlaylistViewModel? selectedPlaylistViewModel = null;
 
         for (int i = 0; i < playlists.Count; i++)
         {
-            if (playlists[i].Playlist.Id == id)
+            var playlistViewModel = playlists[i];
+
+            if (playlistViewModel.Playlist.Id == id)
             {
                 index = i;
+                selectedPlaylistViewModel = playlistViewModel;
                 break;
             }
         }
@@ -134,7 +152,11 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         if (index == -1)
             return;
 
-        UIDispatcher.RunBackground(() => playlistsBox.ScrollIntoView(index));
+        UIDispatcher.RunBackground(() =>
+        {
+            playlistsBox.ScrollIntoView(index);
+            mainViewModel.SelectedPlaylist = selectedPlaylistViewModel;
+        });
     }
 
     #endregion
