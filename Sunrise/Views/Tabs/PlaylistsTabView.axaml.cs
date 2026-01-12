@@ -16,7 +16,7 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
 
     private async void RecentlyAddedPlaylist_Tapped(object? sender, TappedEventArgs e)
     {
-        var playlistViewModel = e.GetDataContext<PlaylistViewModel>();
+        var playlistViewModel = e.GetDataContextWithCheck<PlaylistViewModel>();
 
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
@@ -34,7 +34,7 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
 
     private async Task PlayTrack(TappedEventArgs e)
     {
-        var trackViewModel = e.GetDataContext<TrackViewModel>();
+        var trackViewModel = e.GetDataContextWithCheck<TrackViewModel>();
 
         if (trackViewModel is null || DataContext is not MainDeviceViewModel mainViewModel)
             return;
@@ -46,6 +46,7 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         if (playlist is not null)
         {
             var rubricViewModel = mainViewModel.GetPlaylistViewModel(playlist);
+            mainViewModel.TrackPlay.ChangeOwnerRubric(rubricViewModel);
             trackPlay.ChangeOwnerRubric(rubricViewModel);
         }
 
@@ -57,7 +58,7 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
 
     private async void Playlist_Tapped(object? sender, TappedEventArgs e)
     {
-        var playlistViewModel = e.GetDataContext<PlaylistViewModel>();
+        var playlistViewModel = e.GetDataContextWithCheck<PlaylistViewModel>();
 
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;

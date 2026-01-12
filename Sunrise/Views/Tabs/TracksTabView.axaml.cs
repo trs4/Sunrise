@@ -23,7 +23,7 @@ public partial class TracksTabView : UserControl
 
     private async void TrackSource_Tapped(object? sender, TappedEventArgs e)
     {
-        var trackSourceViewModel = e.GetDataContext<TrackSourceViewModel>();
+        var trackSourceViewModel = e.GetDataContextWithCheck<TrackSourceViewModel>();
 
         if (trackSourceViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;

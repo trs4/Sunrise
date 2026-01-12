@@ -269,6 +269,9 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     protected override TrackPlayViewModel CreateTrackPlay(Player player) => new TrackPlayDeviceViewModel(this, player);
 
+    protected override bool CanChangeTracks(RubricViewModel tracksOwner)
+        => TrackSourceHistory.Count == 0 || !ReferenceEquals(TrackSourceHistory[^1], tracksOwner);
+
     protected override async Task SelectTracksAsync(RubricViewModel tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
         string trackSourceCaption = null;
@@ -318,9 +321,6 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
             if (!tracksOwner.IsDependent)
                 IsTrackListVisible = false;
         }
-
-        if (changeTracks)
-            IsPlaylistCaptionVisible = tracksOwner is PlaylistRubricViewModel;
     }
 
     protected override bool CanAddRubricTracks(RubricViewModel rubricViewModel)
@@ -331,6 +331,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         BackPlaylistCaption = Texts.Playlists;
         PlaylistCaption = playlist.Name;
         PlaylistDescription = string.Format(Texts.SongsFormat, playlist.Tracks.Count);
+        IsPlaylistCaptionVisible = true;
         IsPlaylistsVisible = false;
     }
 

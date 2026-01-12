@@ -202,11 +202,13 @@ public abstract class MainViewModel : ObservableObject
 
     public Task ChangeTracksAsync(RubricViewModel tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
-        if (Equals(TracksOwner, tracksOwner))
+        if (!CanChangeTracks(tracksOwner))
             return Task.CompletedTask;
 
         return SelectTracksAsync(tracksOwner, changeTracks, token);
     }
+
+    protected virtual bool CanChangeTracks(RubricViewModel tracksOwner) => !Equals(TracksOwner, tracksOwner);
 
     protected virtual async Task SelectTracksAsync(RubricViewModel tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
