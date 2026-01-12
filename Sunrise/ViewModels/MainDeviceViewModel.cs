@@ -589,30 +589,6 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
             if (!IsPlaylistsVisible)
                 CancelChangePlaylist();
         }
-        else if (e.PropertyName == nameof(SelectedPlaylist))
-        {
-            if (!IsPlaylistCaptionVisible)
-            {
-
-
-
-            }
-
-            var q = SelectedTrack;
-
-
-
-
-        }
-        else if (e.PropertyName == nameof(IsPlaylistCaptionVisible))
-        {
-            if (IsPlaylistCaptionVisible)
-            {
-
-
-
-            }
-        }
     }
 
     private async ValueTask UpdateSearchResultsAsync()
