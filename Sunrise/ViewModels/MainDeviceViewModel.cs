@@ -270,7 +270,15 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     protected override TrackPlayViewModel CreateTrackPlay(Player player) => new TrackPlayDeviceViewModel(this, player);
 
     protected override bool CanChangeTracks(RubricViewModel tracksOwner)
-        => TrackSourceHistory.Count == 0 || !ReferenceEquals(TrackSourceHistory[^1], tracksOwner);
+    {
+        if (TrackSourceHistory.Count == 0 || !ReferenceEquals(TrackSourceHistory[^1], tracksOwner))
+            return true;
+
+        if (!ReferenceEquals(TrackPlay.OwnerRubric, tracksOwner))
+            return true;
+
+        return false;
+    }
 
     protected override async Task SelectTracksAsync(RubricViewModel tracksOwner, bool changeTracks = true, CancellationToken token = default)
     {
@@ -394,6 +402,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         if (currentTracksOwner is PlaylistRubricViewModel playlistRubricViewModel)
         {
             GoToPlaylists();
+            TrackPlay.ChangeOwnerRubric((RubricViewModel)null);
             PlaylistsView?.ScrollIntoView(playlistRubricViewModel.Playlist);
         }
         else
