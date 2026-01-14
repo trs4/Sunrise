@@ -1,10 +1,15 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Sunrise.Model;
 
 namespace Sunrise.ViewModels;
 
-public sealed class PlaylistRubricViewModel : RubricViewModel
+public class PlaylistRubricViewModel : RubricViewModel
 {
+    private bool? _isPlaying;
+    private object? _icon;
+    private bool _iconLoaded;
+    private bool _editing;
     private List<Track>? _currentTracks;
 
     public PlaylistRubricViewModel(Player player, Playlist playlist)
@@ -12,6 +17,39 @@ public sealed class PlaylistRubricViewModel : RubricViewModel
         => Playlist = playlist;
 
     public Playlist Playlist { get; }
+
+    /// <summary>Воспроизводится</summary>
+    public bool? IsPlaying
+    {
+        get => _isPlaying;
+        set => SetProperty(ref _isPlaying, value);
+    }
+
+    /// <summary>Иконка</summary>
+    public override object? Icon
+    {
+        get
+        {
+            if (!_iconLoaded)
+            {
+                var track = Playlist.Tracks.OrderByDescending(t => t.Reproduced).FirstOrDefault(t => t.HasPicture);
+
+                if (track is not null)
+                    TrackIconHelper.SetPicture(Player, track, icon => Icon = icon);
+
+                _iconLoaded = true;
+            }
+
+            return _icon;
+        }
+        set => SetProperty(ref _icon, value);
+    }
+
+    public bool Editing
+    {
+        get => _editing;
+        set => SetProperty(ref _editing, value);
+    }
 
     public override bool IsDependent => true;
 

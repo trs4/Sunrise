@@ -25,6 +25,7 @@ public abstract class TrackPlayViewModel : ObservableObject
     private object _playIcon = _playIconSource;
 
     private TrackViewModel? _currentTrack;
+    private PlaylistRubricViewModel? _currentPlaylist;
     private readonly DispatcherTimer _playerTimer = new() { Interval = TimeSpan.FromMilliseconds(500) };
     private TimeSpan _position;
     private bool _randomPlay;
@@ -77,6 +78,12 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         get => _currentTrack;
         set => SetProperty(ref _currentTrack, value);
+    }
+
+    public PlaylistRubricViewModel? CurrentPlaylist
+    {
+        get => _currentPlaylist;
+        set => SetProperty(ref _currentPlaylist, value);
     }
 
     public TimeSpan Position
@@ -175,20 +182,30 @@ public abstract class TrackPlayViewModel : ObservableObject
     protected virtual void PlayCore(TrackViewModel trackViewModel, bool toStart = false)
     {
         var currentTrack = _currentTrack;
+        var currentPlaylist = _currentPlaylist;
         bool change = toStart || currentTrack != trackViewModel;
 
         if (change)
         {
-            if (currentTrack is not null)
-                currentTrack.IsPlaying = null;
+            currentTrack?.IsPlaying = null;
 
             Position = default;
             TrackIcon = null;
             CurrentTrack = trackViewModel;
+
+            var nextPlaylist = OwnerRubric as PlaylistRubricViewModel;
+
+            if (currentPlaylist != nextPlaylist)
+            {
+                currentPlaylist?.IsPlaying = null;
+                CurrentPlaylist = nextPlaylist;
+            }
         }
 
         PlayIcon = _pauseIconSource;
         trackViewModel.IsPlaying = true;
+        _currentPlaylist?.IsPlaying = true;
+
         Player.Media.Play(trackViewModel.Track);
         _playerTimer.Start();
 
@@ -212,11 +229,20 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         bool isPlaying = false;
         var currentTrack = _currentTrack;
+        var currentPlaylist = _currentPlaylist;
 
         if (currentTrack is not null)
         {
             isPlaying = currentTrack.IsPlaying ?? false;
             currentTrack.IsPlaying = null;
+
+            var nextPlaylist = OwnerRubric as PlaylistRubricViewModel;
+
+            if (currentPlaylist != nextPlaylist)
+            {
+                currentPlaylist?.IsPlaying = null;
+                CurrentPlaylist = nextPlaylist;
+            }
         }
 
         Position = default;
@@ -224,6 +250,7 @@ public abstract class TrackPlayViewModel : ObservableObject
         CurrentTrack = trackViewModel;
         PlayIcon = isPlaying ? _pauseIconSource : _playIconSource;
         trackViewModel.IsPlaying = isPlaying;
+        _currentPlaylist?.IsPlaying = isPlaying;
 
         if (isPlaying)
         {
@@ -243,10 +270,8 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         Position = default;
         PlayIcon = _playIconSource;
-
-        if (_currentTrack is { } currentTrack)
-            currentTrack.IsPlaying = false;
-
+        _currentTrack?.IsPlaying = false;
+        _currentPlaylist?.IsPlaying = false;
         _playerTimer.Stop();
     }
 
@@ -277,17 +302,15 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         PlayIcon = _playIconSource;
         trackViewModel.IsPlaying = false;
+        _currentPlaylist?.IsPlaying = false;
         Player.Media.Pause();
         _playerTimer.Stop();
     }
 
     public void Clear()
     {
-        var currentTrack = _currentTrack;
-
-        if (currentTrack is not null)
-            currentTrack.IsPlaying = null;
-
+        _currentTrack?.IsPlaying = null;
+        _currentPlaylist?.IsPlaying = null;
         CurrentTrack = null;
         Position = default;
         TrackIcon = null;

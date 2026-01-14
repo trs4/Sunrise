@@ -17,7 +17,7 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
 
     private async void RecentlyAddedPlaylist_Tapped(object? sender, TappedEventArgs e)
     {
-        var playlistViewModel = e.GetDataContextWithCheck<PlaylistViewModel>();
+        var playlistViewModel = e.GetDataContextWithCheck<PlaylistRubricViewModel>();
 
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
@@ -25,9 +25,8 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         mainViewModel.SelectedPlaylist = playlistViewModel;
         mainViewModel.IsPlaylistsVisible = false;
 
-        var rubricViewModel = mainViewModel.GetPlaylistViewModel(playlistViewModel.Playlist);
-        mainViewModel.TrackPlay.ChangeOwnerRubric(rubricViewModel);
-        await mainViewModel.ChangeTracksAsync(rubricViewModel);
+        mainViewModel.TrackPlay.ChangeOwnerRubric(playlistViewModel);
+        await mainViewModel.ChangeTracksAsync(playlistViewModel);
     }
 
     private async void Track_Tapped(object? sender, TappedEventArgs e)
@@ -59,16 +58,15 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
 
     private async void Playlist_Tapped(object? sender, TappedEventArgs e)
     {
-        var playlistViewModel = e.GetDataContextWithCheck<PlaylistViewModel>();
+        var playlistViewModel = e.GetDataContextWithCheck<PlaylistRubricViewModel>();
 
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
 
         mainViewModel.IsPlaylistsVisible = false;
 
-        var rubricViewModel = mainViewModel.GetPlaylistViewModel(playlistViewModel.Playlist);
-        mainViewModel.TrackPlay.ChangeOwnerRubric(rubricViewModel);
-        await mainViewModel.ChangeTracksAsync(rubricViewModel);
+        mainViewModel.TrackPlay.ChangeOwnerRubric(playlistViewModel);
+        await mainViewModel.ChangeTracksAsync(playlistViewModel);
 
         var selectedTrack = mainViewModel.Tracks.FirstOrDefault(t => t.IsPlaying ?? false);
 
@@ -135,7 +133,7 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         int id = playlist.Id;
         var playlists = mainViewModel.Playlists;
         int index = -1;
-        PlaylistViewModel? selectedPlaylistViewModel = null;
+        PlaylistRubricViewModel? selectedPlaylistViewModel = null;
 
         for (int i = 0; i < playlists.Count; i++)
         {

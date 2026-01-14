@@ -72,7 +72,7 @@
 					  IsVisible="{Binding IsSelectPlaylist}"
 					  HorizontalAlignment="Right" VerticalAlignment="Top">
 				<ComboBox.ItemTemplate>
-					<DataTemplate DataType="svm:PlaylistViewModel">
+					<DataTemplate DataType="svm:PlaylistRubricViewModel">
 						<TextBlock Text="{Binding Name, Mode=OneWay}"
 								   VerticalAlignment="Center" />
 					</DataTemplate>

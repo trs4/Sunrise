@@ -70,12 +70,12 @@ public abstract class MainViewModel : ObservableObject
 
     #region Playlists
 
-    private PlaylistViewModel? _selectedPlaylist;
+    private PlaylistRubricViewModel? _selectedPlaylist;
     private bool _isPlaylistsVisible = true;
 
-    public ObservableCollection<PlaylistViewModel> Playlists { get; } = [];
+    public ObservableCollection<PlaylistRubricViewModel> Playlists { get; } = [];
 
-    public PlaylistViewModel? SelectedPlaylist
+    public PlaylistRubricViewModel? SelectedPlaylist
     {
         get => _selectedPlaylist;
         set => SetProperty(ref _selectedPlaylist, value);
@@ -290,7 +290,7 @@ public abstract class MainViewModel : ObservableObject
 
         foreach (var playlist in playlists.OrderBy(p => p.Name, NaturalSortComparer.Instance))
         {
-            var playlistViewModel = new PlaylistViewModel(playlist, TrackPlay.Player);
+            var playlistViewModel = GetPlaylistViewModel(playlist);
             Playlists.Add(playlistViewModel);
         }
     }
@@ -319,13 +319,12 @@ public abstract class MainViewModel : ObservableObject
     private async Task AddPlaylistAsync()
     {
         var playlist = await TrackPlay.Player.AddPlaylistAsync();
-        var playlistViewModel = new PlaylistViewModel(playlist, TrackPlay.Player);
+        var playlistViewModel = GetPlaylistViewModel(playlist);
         Playlists.Insert(0, playlistViewModel);
         SelectedPlaylist = playlistViewModel;
 
-        var rubricViewModel = GetPlaylistViewModel(playlist);
-        TrackPlay.ChangeOwnerRubric(rubricViewModel);
-        await ChangeTracksAsync(rubricViewModel);
+        TrackPlay.ChangeOwnerRubric(playlistViewModel);
+        await ChangeTracksAsync(playlistViewModel);
     }
 
     protected abstract Task DeletePlaylistAsync();

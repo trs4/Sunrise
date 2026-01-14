@@ -151,7 +151,7 @@
 		</Grid>
 	</DataTemplate>
 
-	<DataTemplate x:Key="PlaylistTemplate" DataType="svm:PlaylistViewModel">
+	<DataTemplate x:Key="PlaylistTemplate" DataType="svm:PlaylistRubricViewModel">
 		<Grid>
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="5" />
@@ -167,10 +167,16 @@
 
 			<Image Grid.Column="1" Grid.RowSpan="2"
 				   Source="{su:FromIcon Track}"
-				   IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
 				   OpacityMask="Gray" Opacity="0.15"
 				   VerticalAlignment="Center" HorizontalAlignment="Center"
-				   Height="48" Width="48" />
+				   Height="48" Width="48">
+				<Image.IsVisible>
+					<MultiBinding Converter="{x:Static BoolConverters.And}" Mode="OneWay">
+						<Binding Path="Icon" Mode="OneWay" Converter="{x:Static ObjectConverters.IsNull}" />
+						<Binding Path="IsPlaying" Mode="OneWay" Converter="{x:Static ObjectConverters.IsNull}" />
+					</MultiBinding>
+				</Image.IsVisible>
+			</Image>
 			<Border Grid.Column="1" Grid.RowSpan="2"
 					IsVisible="{Binding Icon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
 					ClipToBounds="True" CornerRadius="5"
@@ -180,6 +186,21 @@
 					   Stretch="UniformToFill"
 					   VerticalAlignment="Center" HorizontalAlignment="Center"
 					   Height="64" Width="64" />
+			</Border>
+			<Border Grid.Column="1" Grid.RowSpan="2"
+					IsVisible="{Binding IsPlaying, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+					VerticalAlignment="Center" HorizontalAlignment="Center"
+					Background="White"
+					Opacity="0.8"
+					Height="40" Width="40"
+					CornerRadius="20"
+					BorderThickness="1"
+					BorderBrush="LightGray"
+					Tapped="TrackIcon_Tapped">
+				<Image Source="{Binding IsPlaying, Mode=OneWay, Converter={x:Static scv:IsPlayingToIconTrackConverter.Instance}}"
+					   VerticalAlignment="Center" HorizontalAlignment="Center"
+					   OpacityMask="Gray" Opacity="0.8"
+					   Height="20" Width="20" />
 			</Border>
 
 			<!--  Название  -->
@@ -229,7 +250,7 @@
 		</Grid>
 	</DataTemplate>
 
-	<DataTemplate x:Key="RecentlyAddedPlaylistTemplate" DataType="svm:PlaylistViewModel">
+	<DataTemplate x:Key="RecentlyAddedPlaylistTemplate" DataType="svm:PlaylistRubricViewModel">
 		<Grid Width="85">
 			<Grid.RowDefinitions>
 				<RowDefinition Height="70" />

@@ -6,6 +6,8 @@ namespace Sunrise.ViewModels;
 
 public abstract class RubricViewModel : ObservableObject
 {
+    private string _name;
+
     protected RubricViewModel(Player player, object? icon, string name)
     {
         Player = player;
@@ -17,7 +19,11 @@ public abstract class RubricViewModel : ObservableObject
 
     public virtual object? Icon { get; set; }
 
-    public string Name { get; }
+    public string Name
+    {
+        get => _name;
+        set => SetProperty(ref _name, value);
+    }
 
     public virtual bool IsDependent => false;
 

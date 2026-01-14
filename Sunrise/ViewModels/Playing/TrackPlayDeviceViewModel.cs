@@ -9,7 +9,7 @@ namespace Sunrise.ViewModels;
 public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
 {
     private bool _isChanging;
-    private PlaylistViewModel? _selectedPlaylist;
+    private PlaylistRubricViewModel? _selectedPlaylist;
     private string _changingText = Texts.Change;
     private bool _isSelectPlaylist;
 
@@ -31,7 +31,7 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         set => SetProperty(ref _isChanging, value);
     }
 
-    public PlaylistViewModel? SelectedPlaylist
+    public PlaylistRubricViewModel? SelectedPlaylist
     {
         get => _selectedPlaylist;
         set => SetProperty(ref _selectedPlaylist, value);

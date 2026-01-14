@@ -34,7 +34,7 @@ public partial class MainWindow : Window
 
     private void Playlist_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
-        var playlistViewModel = e.GetSelectedItem<PlaylistViewModel>();
+        var playlistViewModel = e.GetSelectedItem<PlaylistRubricViewModel>();
 
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
@@ -44,18 +44,17 @@ public partial class MainWindow : Window
 
     private async void Playlist_Tapped(object? sender, TappedEventArgs e)
     {
-        var playlistViewModel = e.GetDataContext<PlaylistViewModel>();
+        var playlistViewModel = e.GetDataContext<PlaylistRubricViewModel>();
 
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
 
-        var rubricViewModel = mainViewModel.GetPlaylistViewModel(playlistViewModel.Playlist);
-        await mainViewModel.ChangeTracksAsync(rubricViewModel);
+        await mainViewModel.ChangeTracksAsync(playlistViewModel);
     }
 
     private void Playlist_DoubleTapped(object? sender, TappedEventArgs e)
     {
-        var playlistViewModel = e.GetDataContext<PlaylistViewModel>();
+        var playlistViewModel = e.GetDataContext<PlaylistRubricViewModel>();
 
         if (playlistViewModel is null)
             return;
@@ -74,7 +73,7 @@ public partial class MainWindow : Window
 
     private async Task OnPlaylistNameChanged(RoutedEventArgs e)
     {
-        var playlistViewModel = e.GetDataContext<PlaylistViewModel>();
+        var playlistViewModel = e.GetDataContext<PlaylistRubricViewModel>();
 
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;

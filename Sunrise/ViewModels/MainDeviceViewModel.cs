@@ -222,7 +222,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     public ObservableCollection<TrackViewModel> RecentlyAddedTracks { get; } = [];
 
-    public ObservableCollection<PlaylistViewModel> RecentlyAddedPlaylists { get; } = [];
+    public ObservableCollection<PlaylistRubricViewModel> RecentlyAddedPlaylists { get; } = [];
 
     public List<RubricViewModel> TrackSourceHistory { get; } = [];
 
@@ -423,14 +423,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     }
 
     private static IReadOnlyList<Track>? GetCurrentTracks(object tracksOwner)
-    {
-        if (tracksOwner is PlaylistViewModel playlistViewModel)
-            return playlistViewModel.Playlist.Tracks;
-        else if (tracksOwner is RubricViewModel rubricViewModel && rubricViewModel.IsDependent)
-            return rubricViewModel.GetCurrentTracks();
-
-        return null;
-    }
+        => tracksOwner is RubricViewModel rubricViewModel && rubricViewModel.IsDependent ? rubricViewModel.GetCurrentTracks() : null;
 
     private async Task OnRandomPlayRunAsync()
     {
@@ -474,9 +467,8 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         SelectedPlaylist = playlistViewModel;
         IsPlaylistsVisible = false;
 
-        var rubricViewModel = GetPlaylistViewModel(playlistViewModel.Playlist);
-        TrackPlay.ChangeOwnerRubric(rubricViewModel);
-        await ChangeTracksAsync(rubricViewModel);
+        TrackPlay.ChangeOwnerRubric(playlistViewModel);
+        await ChangeTracksAsync(playlistViewModel);
     }
 
     protected async override void OnPropertyChanging(PropertyChangingEventArgs e)
