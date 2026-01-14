@@ -28,6 +28,16 @@ public static class DataContextExtensions
         return null;
     }
 
+    public static T? FindDataContextWithCheck<T>(this TappedEventArgs e)
+        where T : class
+    {
+        if (_prevTimestamp == e.Timestamp)
+            return null;
+
+        _prevTimestamp = e.Timestamp;
+        return e.FindDataContext<T>();
+    }
+
     public static T? GetDataContext<T>(this RoutedEventArgs e)
         where T : class
         => (e.Source as StyledElement)?.DataContext as T ?? (e.Source as ContentPresenter)?.Content as T;
@@ -39,7 +49,7 @@ public static class DataContextExtensions
             return null;
 
         _prevTimestamp = e.Timestamp;
-        return (e.Source as StyledElement)?.DataContext as T ?? (e.Source as ContentPresenter)?.Content as T;
+        return e.GetDataContext<T>();
     }
 
     public static T? GetSelectedItem<T>(this SelectionChangedEventArgs e)

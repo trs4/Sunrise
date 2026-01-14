@@ -8,7 +8,7 @@ public partial class DeviceStyles : ResourceDictionary
 {
     private void TrackIcon_Tapped(object? sender, TappedEventArgs e)
     {
-        var mainViewModel = e.FindDataContext<MainDeviceViewModel>();
+        var mainViewModel = e.FindDataContextWithCheck<MainDeviceViewModel>();
 
         if (mainViewModel is null)
             return;
