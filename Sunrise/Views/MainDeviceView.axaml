@@ -27,8 +27,7 @@
 
 	<Grid>
 		<TabControl TabStripPlacement="Bottom"
-					SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}"
-					IsVisible="{Binding !IsTrackVisible}">
+					SelectedIndex="{Binding SelectedTabIndex, Mode=TwoWay}">
 			<TabControl.Styles>
 				<Style Selector="TabControl">
 					<Setter Property="Template">

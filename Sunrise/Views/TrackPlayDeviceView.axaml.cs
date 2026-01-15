@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Input;
@@ -8,8 +9,54 @@ namespace Sunrise.Views;
 
 public partial class TrackPlayDeviceView : UserControl
 {
+    private double _startPositionY;
+
     public TrackPlayDeviceView()
         => InitializeComponent();
+
+    private void TrackIcon_PointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        var parent = (Control)Parent!;
+        var point = e.GetCurrentPoint(parent);
+        _startPositionY = point.Position.Y;
+    }
+
+    private void TrackIcon_PointerMoved(object? sender, PointerEventArgs e)
+    {
+        var parent = (Control)Parent!;
+        var point = e.GetCurrentPoint(parent);
+
+        if (!point.Properties.IsLeftButtonPressed)
+            return;
+
+        double offset = point.Position.Y - _startPositionY;
+
+        if (offset < 0)
+        {
+            offset = -Math.Log(-offset, 1.05);
+            Opacity = 1;
+        }
+        else
+            Opacity = 1 - 0.2 * (point.Position.Y / parent.Bounds.Height);
+
+        Margin = new Avalonia.Thickness(0, offset, 0, -offset);
+    }
+
+    private void TrackIcon_PointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        var parent = (Control)Parent!;
+        var point = e.GetCurrentPoint(parent);
+
+        if (point.Position.Y > parent.Bounds.Height * 0.9 && DataContext is TrackPlayViewModel viewModel)
+        {
+            var mainViewModel = (MainDeviceViewModel)viewModel.Owner;
+            mainViewModel.HideTrackPage();
+        }
+
+        Opacity = 1;
+        Margin = default;
+        _startPositionY = 0;
+    }
 
     private void Track_Tapped(object? sender, TappedEventArgs e)
     {

@@ -10,7 +10,8 @@
 			 x:DataType="svm:TrackPlayDeviceViewModel"
 			 x:CompileBindings="False"
 			 mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="450"
-			 x:Class="Sunrise.Views.TrackPlayDeviceView">
+			 x:Class="Sunrise.Views.TrackPlayDeviceView"
+			 Background="White">
 	<Design.DataContext>
 		<svm:TrackPlayDeviceViewModel />
 	</Design.DataContext>
@@ -122,16 +123,20 @@
 			</Button>
 		</Grid>
 
-		<Image Grid.Row="1" Source="{su:FromIcon Track}"
-			   IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
-			   Margin="70"
-			   OpacityMask="Gray" Opacity="0.15" />
-		<Border Grid.Row="1"
-				IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
-				Margin="15"
-				ClipToBounds="True" CornerRadius="20">
-			<Image Source="{Binding TrackIcon, Mode=OneWay}" />
-		</Border>
+		<Grid Grid.Row="1" Background="Transparent"
+			  PointerPressed="TrackIcon_PointerPressed"
+			  PointerMoved="TrackIcon_PointerMoved"
+			  PointerReleased="TrackIcon_PointerReleased">
+			<Image Source="{su:FromIcon Track}"
+				   IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNull}}"
+				   Margin="70"
+				   OpacityMask="Gray" Opacity="0.15" />
+			<Border IsVisible="{Binding TrackIcon, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
+					Margin="15"
+					ClipToBounds="True" CornerRadius="20">
+				<Image Source="{Binding TrackIcon, Mode=OneWay}" />
+			</Border>
+		</Grid>
 
 		<!--  Track  -->
 		<Grid Grid.Row="2" Background="Transparent"
