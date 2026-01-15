@@ -187,7 +187,8 @@ public abstract class TrackPlayViewModel : ObservableObject
 
         if (change)
         {
-            currentTrack?.IsPlaying = null;
+            if (currentTrack is not null)
+                currentTrack.IsPlaying = null;
 
             Position = default;
             TrackIcon = null;
@@ -197,14 +198,19 @@ public abstract class TrackPlayViewModel : ObservableObject
 
             if (currentPlaylist != nextPlaylist)
             {
-                currentPlaylist?.IsPlaying = null;
+                if (currentPlaylist is not null)
+                    currentPlaylist.IsPlaying = null;
+
                 CurrentPlaylist = nextPlaylist;
             }
         }
 
         PlayIcon = _pauseIconSource;
         trackViewModel.IsPlaying = true;
-        _currentPlaylist?.IsPlaying = true;
+        currentPlaylist = _currentPlaylist;
+
+        if (currentPlaylist is not null)
+            currentPlaylist.IsPlaying = true;
 
         Player.Media.Play(trackViewModel.Track);
         _playerTimer.Start();
@@ -240,7 +246,9 @@ public abstract class TrackPlayViewModel : ObservableObject
 
             if (currentPlaylist != nextPlaylist)
             {
-                currentPlaylist?.IsPlaying = null;
+                if (currentPlaylist is not null)
+                    currentPlaylist.IsPlaying = null;
+
                 CurrentPlaylist = nextPlaylist;
             }
         }
@@ -250,7 +258,10 @@ public abstract class TrackPlayViewModel : ObservableObject
         CurrentTrack = trackViewModel;
         PlayIcon = isPlaying ? _pauseIconSource : _playIconSource;
         trackViewModel.IsPlaying = isPlaying;
-        _currentPlaylist?.IsPlaying = isPlaying;
+        currentPlaylist = _currentPlaylist;
+
+        if (currentPlaylist is not null)
+            currentPlaylist.IsPlaying = isPlaying;
 
         if (isPlaying)
         {
@@ -270,8 +281,15 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         Position = default;
         PlayIcon = _playIconSource;
-        _currentTrack?.IsPlaying = false;
-        _currentPlaylist?.IsPlaying = false;
+        var currentTrack = _currentTrack;
+        var currentPlaylist = _currentPlaylist;
+
+        if (currentTrack is not null)
+            currentTrack.IsPlaying = false;
+
+        if (currentPlaylist is not null)
+            currentPlaylist.IsPlaying = false;
+
         _playerTimer.Stop();
     }
 
@@ -302,15 +320,26 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         PlayIcon = _playIconSource;
         trackViewModel.IsPlaying = false;
-        _currentPlaylist?.IsPlaying = false;
+        var currentPlaylist = _currentPlaylist;
+
+        if (currentPlaylist is not null)
+            currentPlaylist.IsPlaying = false;
+
         Player.Media.Pause();
         _playerTimer.Stop();
     }
 
     public void Clear()
     {
-        _currentTrack?.IsPlaying = null;
-        _currentPlaylist?.IsPlaying = null;
+        var currentTrack = _currentTrack;
+        var currentPlaylist = _currentPlaylist;
+
+        if (currentTrack is not null)
+            currentTrack.IsPlaying = null;
+
+        if (currentPlaylist is not null)
+            currentPlaylist.IsPlaying = null;
+
         CurrentTrack = null;
         Position = default;
         TrackIcon = null;
