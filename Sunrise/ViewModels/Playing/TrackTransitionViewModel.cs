@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
+using Sunrise.ViewModels.Cards;
 
 namespace Sunrise.ViewModels;
 
@@ -32,6 +33,7 @@ public class InPlaylistTrackTransitionViewModel : TrackTransitionViewModel
 
     public override Task OnTapAsync()
     {
+        Owner.CardDialog = new InPlaylistDeviceCardViewModel(Owner);
         Owner.ShowCard = true;
         return Task.CompletedTask;
     }
@@ -141,12 +143,8 @@ public class InformationTrackTransitionViewModel : TrackTransitionViewModel
 
     public override Task OnTapAsync()
     {
-
-
-
-
-
-        // %%TODO
+        Owner.CardDialog = new InformationDeviceCardViewModel(Owner);
+        Owner.ShowCard = true;
         return Task.CompletedTask;
     }
 

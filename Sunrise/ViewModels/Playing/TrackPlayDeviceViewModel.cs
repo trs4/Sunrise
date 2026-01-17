@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
+using Sunrise.ViewModels.Cards;
 
 namespace Sunrise.ViewModels;
 
@@ -16,6 +17,7 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
     private bool _isSelectPlaylist;
     private bool _showLyrics;
     private bool _showCard;
+    private DeviceCardViewModel? _cardDialog;
 
     public TrackPlayDeviceViewModel() { } // For designer
 
@@ -25,7 +27,6 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         ChangeTrackCommand = new RelayCommand(OnChangeTrack);
         AddTrackInPlaylistCommand = new AsyncRelayCommand(OnAddTrackInPlaylistAsync);
         DeleteTrackCommand = new AsyncRelayCommand(OnDeleteTrackAsync);
-        CancelCardCommand = new RelayCommand(OnCancelCard);
     }
 
     public new MainDeviceViewModel Owner => (MainDeviceViewModel)base.Owner;
@@ -68,7 +69,11 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         set => SetProperty(ref _showCard, value);
     }
 
-    public IRelayCommand CancelCardCommand { get; }
+    public DeviceCardViewModel? CardDialog
+    {
+        get => _cardDialog;
+        set => SetProperty(ref _cardDialog, value);
+    }
 
     public IRelayCommand AddTrackInPlaylistCommand { get; }
 
@@ -104,9 +109,6 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         SelectedPlaylist = null;
         ChangingText = Texts.Change;
     }
-
-    private void OnCancelCard()
-        => ShowCard = false;
 
     private async Task OnAddTrackInPlaylistAsync()
     {

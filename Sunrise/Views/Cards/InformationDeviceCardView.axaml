@@ -1,0 +1,47 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
+			 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
+			 xmlns:sc="clr-namespace:Sunrise.ViewModels.Cards"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+			 x:DataType="sc:InformationDeviceCardViewModel"
+			 x:Class="Sunrise.InformationDeviceCardView">
+	<controls:Card Margin="20">
+		<Grid>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition />
+				<RowDefinition Height="Auto" />
+			</Grid.RowDefinitions>
+
+			<TextBlock Grid.Row="0"
+					   Classes="Headline6"
+					   HorizontalAlignment="Center"
+					   Text="{x:Static res:Texts.Information}" />
+
+			<!--<ListBox Grid.Row="1"
+			ItemsSource="{Binding Owner.Playlists}"
+			Margin="0 20"
+			Tapped="AddInPlaylist_Tapped">
+			<ListBox.ItemTemplate>
+			<DataTemplate DataType="svm:PlaylistRubricViewModel">
+			<TextBlock Text="{Binding Name, Mode=OneWay}"
+			VerticalAlignment="Center"
+			FontSize="18"
+			FontWeight="Bold" />
+			</DataTemplate>
+			</ListBox.ItemTemplate>
+			</ListBox>-->
+
+			<Button Grid.Row="2"
+					Command="{Binding CloseCardCommand, Mode=OneWay}"
+					HorizontalAlignment="Stretch">
+				<TextBlock Text="{x:Static res:Texts.Close}"
+						   Classes="Body2" />
+			</Button>
+
+		</Grid>
+	</controls:Card>
+</UserControl>

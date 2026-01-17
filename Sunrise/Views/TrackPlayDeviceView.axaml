@@ -3,11 +3,11 @@
 			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:svm="clr-namespace:Sunrise.ViewModels"
+			 xmlns:sc="clr-namespace:Sunrise.ViewModels.Cards"
 			 xmlns:sb="clr-namespace:Sunrise.Behaviors"
 			 xmlns:scv="clr-namespace:Sunrise.Converters"
 			 xmlns:su="clr-namespace:Sunrise.Utils"
 			 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
-			 xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
 			 x:DataType="svm:TrackPlayDeviceViewModel"
 			 x:CompileBindings="False"
 			 mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="450"
@@ -308,45 +308,9 @@
 			</ListBox.ItemsPanel>
 		</ListBox>
 
-		<Grid Grid.RowSpan="99"
-			  IsVisible="{Binding ShowCard}"
-			  Background="White">
-			<controls:Card Margin="20">
-				<Grid>
-					<Grid.RowDefinitions>
-						<RowDefinition Height="Auto" />
-						<RowDefinition />
-						<RowDefinition Height="Auto" />
-					</Grid.RowDefinitions>
-
-					<TextBlock Grid.Row="0"
-							   Classes="Headline6"
-							   HorizontalAlignment="Center"
-							   Text="{x:Static res:Texts.AddInPlaylist}" />
-
-					<ListBox Grid.Row="1"
-							 ItemsSource="{Binding Owner.Playlists}"
-							 Tapped="AddInPlaylist_Tapped">
-						<ListBox.ItemTemplate>
-							<DataTemplate DataType="svm:PlaylistRubricViewModel">
-								<TextBlock Text="{Binding Name, Mode=OneWay}"
-										   VerticalAlignment="Center"
-										   FontSize="18"
-										   FontWeight="Bold" />
-							</DataTemplate>
-						</ListBox.ItemTemplate>
-					</ListBox>
-
-					<Button Grid.Row="2"
-							Command="{Binding CancelCardCommand, Mode=OneWay}"
-							HorizontalAlignment="Stretch">
-						<TextBlock Text="{x:Static res:Texts.Cancel}"
-								   Classes="Body2" />
-					</Button>
-
-				</Grid>
-			</controls:Card>
-		</Grid>
-
+		<ContentControl Grid.RowSpan="99"
+						Content="{Binding CardDialog}" ContentTemplate="{x:Static sc:CardsViewLocator.Instance}"
+						IsVisible="{Binding ShowCard}"
+						Background="White" />
 	</Grid>
 </UserControl>

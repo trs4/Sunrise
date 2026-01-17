@@ -300,4 +300,7 @@
   <data name="History" xml:space="preserve">
     <value>История</value>
   </data>
+  <data name="Close" xml:space="preserve">
+    <value>Закрыть</value>
+  </data>
 </root>
