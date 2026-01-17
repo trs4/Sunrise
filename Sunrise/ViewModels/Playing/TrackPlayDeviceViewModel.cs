@@ -15,6 +15,7 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
     private string _changingText = Texts.Change;
     private bool _isSelectPlaylist;
     private bool _showLyrics;
+    private bool _showCard;
 
     public TrackPlayDeviceViewModel() { } // For designer
 
@@ -24,6 +25,7 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         ChangeTrackCommand = new RelayCommand(OnChangeTrack);
         AddTrackInPlaylistCommand = new AsyncRelayCommand(OnAddTrackInPlaylistAsync);
         DeleteTrackCommand = new AsyncRelayCommand(OnDeleteTrackAsync);
+        CancelCardCommand = new RelayCommand(OnCancelCard);
     }
 
     public new MainDeviceViewModel Owner => (MainDeviceViewModel)base.Owner;
@@ -60,6 +62,14 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         set => SetProperty(ref _showLyrics, value);
     }
 
+    public bool ShowCard
+    {
+        get => _showCard;
+        set => SetProperty(ref _showCard, value);
+    }
+
+    public IRelayCommand CancelCardCommand { get; }
+
     public IRelayCommand AddTrackInPlaylistCommand { get; }
 
     public IRelayCommand DeleteTrackCommand { get; }
@@ -94,6 +104,9 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         SelectedPlaylist = null;
         ChangingText = Texts.Change;
     }
+
+    private void OnCancelCard()
+        => ShowCard = false;
 
     private async Task OnAddTrackInPlaylistAsync()
     {

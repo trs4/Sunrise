@@ -32,9 +32,7 @@ public class InPlaylistTrackTransitionViewModel : TrackTransitionViewModel
 
     public override Task OnTapAsync()
     {
-
-
-        // %%TODO
+        Owner.ShowCard = true;
         return Task.CompletedTask;
     }
 

@@ -114,4 +114,27 @@ public partial class TrackPlayDeviceView : UserControl
         mainViewModel.HideTrackPage();
     }
 
+    private async void AddInPlaylist_Tapped(object? sender, TappedEventArgs e)
+    {
+        var playlistViewModel = e.GetDataContextWithCheck<PlaylistRubricViewModel>();
+
+        if (playlistViewModel is null || DataContext is not TrackPlayDeviceViewModel viewModel)
+            return;
+
+        var currentTrack = viewModel.CurrentTrack?.Track;
+
+        if (currentTrack is null)
+            return;
+
+        var tracks = playlistViewModel.Playlist.Tracks;
+
+        if (tracks.Count == 0 || tracks[^1] != currentTrack)
+        {
+            await viewModel.Player.AddTrackInPlaylistAsync(playlistViewModel.Playlist, currentTrack);
+            tracks.Add(currentTrack);
+        }
+
+        viewModel.ShowCard = false;
+    }
+
 }
