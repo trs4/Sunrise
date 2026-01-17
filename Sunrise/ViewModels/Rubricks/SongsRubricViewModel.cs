@@ -4,6 +4,7 @@ using Sunrise.Model;
 using Sunrise.Model.Common;
 using Sunrise.Model.Resources;
 using Sunrise.Utils;
+using Sunrise.ViewModels.Rubricks;
 
 namespace Sunrise.ViewModels;
 
@@ -13,6 +14,8 @@ public sealed class SongsRubricViewModel : RubricViewModel
     private List<Track>? _tracks;
 
     public SongsRubricViewModel(Player player) : base(player, IconSource.From(nameof(Icons.Song)), Texts.Songs) { }
+
+    public override RubricTypes Type => RubricTypes.Songs;
 
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 

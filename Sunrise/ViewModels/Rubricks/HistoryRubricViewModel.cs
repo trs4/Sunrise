@@ -5,17 +5,18 @@ using Sunrise.ViewModels.Rubricks;
 
 namespace Sunrise.ViewModels;
 
-public sealed class SearchRubricViewModel : RubricViewModel
+/// <summary>История воспроизведения</summary>
+public sealed class HistoryRubricViewModel : RubricViewModel
 {
-    private readonly IReadOnlyList<Track> _tracks;
+    private readonly List<Track> _tracks = [];
 
-    public SearchRubricViewModel(Player player, IReadOnlyList<Track> tracks)
-        : base(player, null, Texts.Search)
-        => _tracks = tracks;
+    public HistoryRubricViewModel(Player player) : base(player, null, Texts.History) { }
 
-    public override RubricTypes Type => RubricTypes.Search;
+    public override RubricTypes Type => RubricTypes.History;
 
     public override bool IsDependent => true;
+
+    public void Add(Track track) => _tracks.Add(track);
 
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 

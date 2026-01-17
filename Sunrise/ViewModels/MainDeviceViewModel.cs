@@ -345,8 +345,16 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     private void AddTrackSourceHistory(RubricViewModel tracksOwner)
     {
-        if (TrackSourceHistory.Count > 0 && ReferenceEquals(TrackSourceHistory[^1], tracksOwner))
-            return;
+        if (TrackSourceHistory.Count > 0)
+        {
+            var lastTrackSource = TrackSourceHistory[^1];
+
+            if (ReferenceEquals(lastTrackSource, tracksOwner))
+                return;
+
+            if (lastTrackSource.Type == tracksOwner.Type)
+                TrackSourceHistory.RemoveAt(TrackSourceHistory.Count - 1);
+        }
 
         TrackSourceHistory.Add(tracksOwner);
     }
@@ -398,11 +406,11 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         var currentTracksOwner = TrackSourceHistory[^1];
         TrackSourceHistory.RemoveAt(TrackSourceHistory.Count - 1);
         var tracksOwner = TrackSourceHistory.Count > 0 ? TrackSourceHistory[^1] : null;
+        TrackPlay.ChangeOwnerRubric((RubricViewModel)null);
 
         if (currentTracksOwner is PlaylistRubricViewModel playlistRubricViewModel)
         {
             GoToPlaylists();
-            TrackPlay.ChangeOwnerRubric((RubricViewModel)null);
             PlaylistsView?.ScrollIntoView(playlistRubricViewModel.Playlist);
         }
         else
@@ -623,12 +631,12 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     public async override Task OnNextListAsync()
     {
         var currentRubric = TrackPlay.CurrentRubric;
-        var tracksOwner = TrackPlay.CurrentTrackSource ?? TrackPlay.CurrentRubric;
+        var currentTrackSource = TrackPlay.CurrentTrackSource ?? TrackPlay.CurrentRubric;
 
-        if (currentRubric is null || tracksOwner is null)
+        if (currentRubric is null || currentTrackSource is null)
             return;
 
-        var prevTracksOwner = tracksOwner;
+        var prevTracksOwner = currentTrackSource;
 
         if (currentRubric is RandomizeRubricViewModel)
             prevTracksOwner = TrackSourceHistory.Count > 0 ? TrackSourceHistory[^1] : null;
@@ -640,8 +648,11 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         }
         else
         {
-            if (!IsTrackVisible && ReferenceEquals(SelectedRubrick, currentRubric))
+            if (!IsTrackVisible && !IsTrackSourcesVisible && ReferenceEquals(TrackSourceHistory[^1], currentRubric)
+                && ReferenceEquals(SelectedRubrick, currentRubric) && ReferenceEquals(SelectedTrackSource, currentTrackSource))
+            {
                 return;
+            }
             else if (currentRubric is SearchRubricViewModel)
             {
                 HideTrackPage();
@@ -656,7 +667,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
         OnExit();
         TrackPlay.ChangeOwnerRubric(currentRubric, TrackPlay.OwnerTrackSource);
-        await SelectTracksAsync(tracksOwner);
+        await SelectTracksAsync(currentTrackSource);
         SelectedTrack = TrackPlay.CurrentTrack;
     }
 

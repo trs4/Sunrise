@@ -285,4 +285,19 @@
   <data name="WiFiDisabled" xml:space="preserve">
     <value>Wi-Fi выключен</value>
   </data>
+  <data name="Information" xml:space="preserve">
+    <value>Сведения</value>
+  </data>
+  <data name="Text" xml:space="preserve">
+    <value>Текст</value>
+  </data>
+  <data name="InPlaylist" xml:space="preserve">
+    <value>В плейлист</value>
+  </data>
+  <data name="DeleteFromPlaylist" xml:space="preserve">
+    <value>Удалить из плейлиста</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>История</value>
+  </data>
 </root>

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
+using Sunrise.ViewModels.Rubricks;
 
 namespace Sunrise.ViewModels;
 
@@ -13,6 +14,8 @@ public sealed class RandomizeRubricViewModel : RubricViewModel
     public RandomizeRubricViewModel(Player player, IReadOnlyList<Track>? tracks = null)
         : base(player, null, Texts.Randomize)
         => _inputTracks = tracks;
+
+    public override RubricTypes Type => RubricTypes.Randomize;
 
     public override bool IsDependent => true;
 

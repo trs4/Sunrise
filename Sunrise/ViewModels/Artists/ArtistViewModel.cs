@@ -3,6 +3,7 @@ using System.Linq;
 using Sunrise.Model;
 using Sunrise.Model.Common;
 using Sunrise.Model.Resources;
+using Sunrise.ViewModels.Rubricks;
 
 namespace Sunrise.ViewModels;
 
@@ -23,6 +24,8 @@ public sealed class ArtistViewModel : TrackSourceViewModel
         int tracksCount = tracksByAlbums.Sum(p => p.Value.Count);
         return new ArtistViewModel(rubric, name, tracksByAlbums, tracksCount);
     }
+
+    public override RubricTypes Type => RubricTypes.Artist;
 
     public List<Track> GetTracks()
     {

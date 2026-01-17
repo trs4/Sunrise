@@ -2,6 +2,7 @@
 using System.Linq;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
+using Sunrise.ViewModels.Rubricks;
 
 namespace Sunrise.ViewModels;
 
@@ -12,6 +13,8 @@ public sealed class GenreViewModel : TrackSourceViewModel
         => Tracks = tracks;
 
     public List<Track> Tracks { get; }
+
+    public override RubricTypes Type => RubricTypes.Genre;
 
     protected override Track? GetTrackWithPicture() => Tracks.FirstOrDefault(t => t.HasPicture);
 

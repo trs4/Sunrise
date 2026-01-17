@@ -2,6 +2,7 @@
 using System.Linq;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
+using Sunrise.ViewModels.Rubricks;
 
 namespace Sunrise.ViewModels;
 
@@ -12,6 +13,8 @@ public sealed class RecentlyAddedRubricViewModel : RubricViewModel
     private List<Track>? _tracks;
 
     public RecentlyAddedRubricViewModel(Player player) : base(player, null, Texts.RecentlyAdded) { }
+
+    public override RubricTypes Type => RubricTypes.RecentlyAdded;
 
     public override bool IsDependent => true;
 

@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Sunrise.Model;
+using Sunrise.ViewModels.Rubricks;
 
 namespace Sunrise.ViewModels;
 
@@ -16,6 +17,8 @@ public sealed class AlbumViewModel : TrackSourceViewModel
     public string Artist { get; }
 
     public List<Track> Tracks { get; }
+
+    public override RubricTypes Type => RubricTypes.Album;
 
     protected override Track? GetTrackWithPicture() => Tracks.FirstOrDefault(t => t.HasPicture);
 

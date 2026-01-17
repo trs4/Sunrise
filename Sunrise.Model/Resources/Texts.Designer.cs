@@ -250,6 +250,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Удалить из плейлиста.
+        /// </summary>
+        public static string DeleteFromPlaylist {
+            get {
+                return ResourceManager.GetString("DeleteFromPlaylist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Устройства.
         /// </summary>
         public static string Devices {
@@ -322,6 +331,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to История.
+        /// </summary>
+        public static string History {
+            get {
+                return ResourceManager.GetString("History", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Импортировать из iTunes.
         /// </summary>
         public static string ImportFromITunes {
@@ -336,6 +354,24 @@ namespace Sunrise.Model.Resources {
         public static string Info {
             get {
                 return ResourceManager.GetString("Info", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Сведения.
+        /// </summary>
+        public static string Information {
+            get {
+                return ResourceManager.GetString("Information", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to В плейлист.
+        /// </summary>
+        public static string InPlaylist {
+            get {
+                return ResourceManager.GetString("InPlaylist", resourceCulture);
             }
         }
         
@@ -525,6 +561,15 @@ namespace Sunrise.Model.Resources {
         public static string SynchronizePlaylists {
             get {
                 return ResourceManager.GetString("SynchronizePlaylists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Текст.
+        /// </summary>
+        public static string Text {
+            get {
+                return ResourceManager.GetString("Text", resourceCulture);
             }
         }
         

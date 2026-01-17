@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Sunrise.Model;
+using Sunrise.ViewModels.Rubricks;
 
 namespace Sunrise.ViewModels;
 
@@ -24,6 +25,8 @@ public abstract class RubricViewModel : ObservableObject
         get => _name;
         set => SetProperty(ref _name, value);
     }
+
+    public abstract RubricTypes Type { get; }
 
     public virtual bool IsDependent => false;
 

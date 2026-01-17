@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Sunrise.Model;
+using Sunrise.ViewModels.Rubricks;
 
 namespace Sunrise.ViewModels;
 
@@ -50,6 +51,8 @@ public class PlaylistRubricViewModel : RubricViewModel
         get => _editing;
         set => SetProperty(ref _editing, value);
     }
+
+    public override RubricTypes Type => RubricTypes.Playlist;
 
     public override bool IsDependent => true;
 
