@@ -20,8 +20,7 @@ public sealed class Player
     private static readonly HashSet<string> _updateTracksExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
     {
         nameof(Tracks.Guid), nameof(Tracks.Path), nameof(Tracks.Picked), nameof(Tracks.Rating), nameof(Tracks.Reproduced),
-        nameof(Tracks.Added), nameof(Tracks.Updated), nameof(Tracks.RootFolder), nameof(Tracks.RelationFolder), nameof(Tracks.OriginalText),
-        nameof(Tracks.TranslateText), nameof(Tracks.Language)
+        nameof(Tracks.Added), nameof(Tracks.Updated), nameof(Tracks.OriginalText), nameof(Tracks.TranslateText)
     };
 
     private static readonly HashSet<string> _updatePlaylistsExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
@@ -70,6 +69,13 @@ public sealed class Player
 
         if (!System.IO.File.Exists(databaseFilePath))
             await CreateDatabaseAsync(connection, getDeviceName, token);
+        else
+        {
+            int lastVersion = await GetLastUpdateAsync(connection, token);
+
+            if (lastVersion != SyncServiceManager.Version)
+                await UpdateDatabaseAsync(connection, lastVersion, token);
+        }
 
         return new Player(folderPath, tracksPath, connection);
     }
@@ -121,6 +127,25 @@ public sealed class Player
             .AddColumn(Updates.Version, SyncServiceManager.Version)
             .AddColumn(Updates.Date, DateTime.Now)
             .RunAsync(token);
+
+    private static Task<int> GetLastUpdateAsync(DatabaseConnection connection, CancellationToken token)
+        => connection.Select.CreateQuery<Updates>()
+            .TakeFirst()
+            .AddColumn(Updates.Version)
+            .OrderBy(Updates.Id, SelectQueryOrder.Descending)
+            .GetAsync<int>(token);
+
+    private static async Task UpdateDatabaseAsync(DatabaseConnection connection, int lastVersion, CancellationToken token)
+    {
+        if (lastVersion < 2)
+        {
+            await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("RootFolder").RunAsync(token);
+            await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("RelationFolder").RunAsync(token);
+            await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("Language").RunAsync(token);
+        }
+
+        await AppendUpdateAsync(connection, token);
+    }
 
     #region Devices
 

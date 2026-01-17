@@ -57,5 +57,11 @@ public class TrackElement
     /// <summary>Имеется ли рисунок</summary>
     public bool HasPicture { get; set; }
 
+    /// <summary>Текст</summary>
+    public string OriginalText { get; set; }
+
+    /// <summary>Перевод</summary>
+    public string TranslateText { get; set; }
+
     public override string ToString() => $"{Artist} - {Title}";
 }

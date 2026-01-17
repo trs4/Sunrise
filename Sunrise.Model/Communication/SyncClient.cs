@@ -175,6 +175,8 @@ public sealed class SyncClient : SyncService.Client, IDisposable
         var hasPictureColumn = (BooleanDataColumn)tracksDataTable[nameof(Tracks.HasPicture)];
         var mimeTypeColumn = (StringDataColumn)tracksDataTable[nameof(TrackPictures.MimeType)];
         var pictureColumn = (ByteArrayDataColumn)tracksDataTable[nameof(TrackPictures.Data)];
+        var originalTextColumn = (StringDataColumn)tracksDataTable[nameof(Tracks.OriginalText)];
+        var translateTextColumn = (StringDataColumn)tracksDataTable[nameof(Tracks.TranslateText)];
         var tracks = new List<Track>(tracksDataTable.RowCount);
         bool isDevice = OperatingSystem.IsAndroid();
 
@@ -204,6 +206,8 @@ public sealed class SyncClient : SyncService.Client, IDisposable
                 Size = sizeColumn.Get(row),
                 LastWrite = lastWriteColumn.Get(row),
                 HasPicture = hasPicture,
+                OriginalText = originalTextColumn.Get(row),
+                TranslateText = translateTextColumn.Get(row),
             };
 
             if (hasPicture)

@@ -26,9 +26,6 @@ public enum Tracks
     [Column(ColumnType.Long)] Size,
     [Column(ColumnType.DateTime)] LastWrite,
     [Column(ColumnType.Boolean)] HasPicture,
-    [Column(ColumnType.String, size: 255)] RootFolder,
-    [Column(ColumnType.String, size: 255)] RelationFolder,
     [Column(ColumnType.String, size: 255)] OriginalText,
     [Column(ColumnType.String, size: 255)] TranslateText,
-    [Column(ColumnType.String, size: 255)] Language,
 }

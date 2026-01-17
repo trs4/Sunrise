@@ -71,6 +71,12 @@ public class Track
     /// <summary>Имеется ли рисунок</summary>
     public bool HasPicture { get; set; }
 
+    /// <summary>Текст</summary>
+    public string? OriginalText { get; set; }
+
+    /// <summary>Перевод</summary>
+    public string? TranslateText { get; set; }
+
     /// <summary>Рисунок</summary>
     public TrackPicture? Picture { get; set; }
 
