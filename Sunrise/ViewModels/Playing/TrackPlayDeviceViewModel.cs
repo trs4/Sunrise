@@ -14,6 +14,7 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
     private PlaylistRubricViewModel? _selectedPlaylist;
     private string _changingText = Texts.Change;
     private bool _isSelectPlaylist;
+    private bool _showLyrics;
 
     public TrackPlayDeviceViewModel() { } // For designer
 
@@ -53,6 +54,12 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         set => SetProperty(ref _isSelectPlaylist, value);
     }
 
+    public bool ShowLyrics
+    {
+        get => _showLyrics;
+        set => SetProperty(ref _showLyrics, value);
+    }
+
     public IRelayCommand AddTrackInPlaylistCommand { get; }
 
     public IRelayCommand DeleteTrackCommand { get; }
@@ -65,6 +72,12 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
             Owner.IsShortTrackVisible = true;
 
         base.PlayCore(trackViewModel, toStart);
+    }
+
+    protected override void OnChangeTrack(TrackViewModel trackViewModel)
+    {
+        base.OnChangeTrack(trackViewModel);
+        ShowLyrics = false;
     }
 
     private void OnChangeTrack()

@@ -34,6 +34,7 @@ public class InPlaylistTrackTransitionViewModel : TrackTransitionViewModel
     {
 
 
+        // %%TODO
         return Task.CompletedTask;
     }
 
@@ -45,8 +46,7 @@ public class LyricsTrackTransitionViewModel : TrackTransitionViewModel
 
     public override Task OnTapAsync()
     {
-
-
+        Owner.ShowLyrics = !Owner.ShowLyrics;
         return Task.CompletedTask;
     }
 
@@ -148,7 +148,7 @@ public class InformationTrackTransitionViewModel : TrackTransitionViewModel
 
 
 
-
+        // %%TODO
         return Task.CompletedTask;
     }
 

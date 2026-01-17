@@ -194,7 +194,7 @@ public abstract class TrackPlayViewModel : ObservableObject
         bool change = toStart || changeTrack;
 
         if (changeTrack)
-            Owner.History.Add(trackViewModel.Track);
+            OnChangeTrack(trackViewModel);
 
         if (change)
         {
@@ -223,6 +223,9 @@ public abstract class TrackPlayViewModel : ObservableObject
         if (change)
             SetPicture(trackViewModel.Track);
     }
+
+    protected virtual void OnChangeTrack(TrackViewModel trackViewModel)
+        => Owner.History.Add(trackViewModel.Track);
 
     private static void ChangeTrackPlaying(TrackViewModel? currentTrack, bool? isPlaying)
     {
@@ -255,7 +258,7 @@ public abstract class TrackPlayViewModel : ObservableObject
         var currentRubric = _currentRubric;
 
         if (currentTrack != trackViewModel)
-            Owner.History.Add(trackViewModel.Track);
+            OnChangeTrack(trackViewModel);
 
         if (currentTrack is not null)
         {

@@ -132,6 +132,7 @@
 		</Grid>
 
 		<Grid Grid.Row="1" Background="Transparent"
+			  IsVisible="{Binding !ShowLyrics, Mode=OneWay}"
 			  PointerPressed="TrackIcon_PointerPressed"
 			  PointerMoved="TrackIcon_PointerMoved"
 			  PointerReleased="TrackIcon_PointerReleased">
@@ -145,6 +146,20 @@
 				<Image Source="{Binding TrackIcon, Mode=OneWay}" />
 			</Border>
 		</Grid>
+
+		<TextBox Grid.Row="1"
+				 Classes="solo" Theme="{StaticResource SoloTextBox}"
+				 Text="{Binding CurrentTrack.Lyrics, Mode=OneWay}"
+				 IsVisible="{Binding ShowLyrics, Mode=OneWay}"
+				 IsReadOnly="True"
+				 Margin="10 0"
+				 TextWrapping="WrapWithOverflow"
+				 Background="Transparent"
+				 FontSize="16"
+				 LineHeight="25"
+				 MaxHeight="450"
+				 ScrollViewer.VerticalScrollBarVisibility="Hidden"
+				 ScrollViewer.HorizontalScrollBarVisibility="Disabled" />
 
 		<!--  Track  -->
 		<Grid Grid.Row="2" Background="Transparent"

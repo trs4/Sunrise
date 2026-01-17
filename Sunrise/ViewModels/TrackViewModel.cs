@@ -26,6 +26,7 @@ public class TrackViewModel : ObservableObject
     private DateTime _updated;
     private double _bitrate;
     private long _size;
+    private string? _lyrics;
     private string? _extension;
 
     public TrackViewModel(Track track, Player player)
@@ -46,6 +47,7 @@ public class TrackViewModel : ObservableObject
         _updated = track.Updated;
         _bitrate = track.Bitrate;
         _size = track.Size;
+        _lyrics = track.Lyrics;
     }
 
     public Track Track { get; }
@@ -175,6 +177,13 @@ public class TrackViewModel : ObservableObject
     {
         get => _size;
         set => SetProperty(ref _size, value);
+    }
+
+    /// <summary>Текст</summary>
+    public string? Lyrics
+    {
+        get => _lyrics;
+        set => SetProperty(ref _lyrics, value);
     }
 
     /// <summary>Расширение</summary>
