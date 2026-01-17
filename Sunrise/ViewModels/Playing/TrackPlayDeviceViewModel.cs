@@ -1,4 +1,6 @@
-﻿using System.Linq;
+﻿using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Sunrise.Model;
@@ -22,6 +24,8 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         AddTrackInPlaylistCommand = new AsyncRelayCommand(OnAddTrackInPlaylistAsync);
         DeleteTrackCommand = new AsyncRelayCommand(OnDeleteTrackAsync);
     }
+
+    public new MainDeviceViewModel Owner => (MainDeviceViewModel)base.Owner;
 
     public IRelayCommand ChangeTrackCommand { get; }
 
@@ -52,6 +56,8 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
     public IRelayCommand AddTrackInPlaylistCommand { get; }
 
     public IRelayCommand DeleteTrackCommand { get; }
+
+    public ObservableCollection<TrackTransitionViewModel> Transitions { get; } = [];
 
     protected override void PlayCore(TrackViewModel trackViewModel, bool toStart = false)
     {
@@ -124,6 +130,40 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
 
         if (track is not null)
             Change(track);
+    }
+
+    private void FillTransitions(Track track)
+    {
+        var currentRubric = CurrentRubric;
+        Transitions.Add(new InPlaylistTrackTransitionViewModel(this, track));
+
+        if (!string.IsNullOrEmpty(track.Lyrics) || !string.IsNullOrEmpty(track.Translate))
+            Transitions.Add(new LyricsTrackTransitionViewModel(this, track));
+
+        Transitions.Add(new ArtistTrackTransitionViewModel(this, track));
+
+        if (!string.IsNullOrEmpty(track.Album))
+            Transitions.Add(new AlbumTrackTransitionViewModel(this, track));
+
+        if (currentRubric is not null)
+            Transitions.Add(new CurrentRubricTrackTransitionViewModel(this, track, currentRubric));
+
+        Transitions.Add(new HistoryTrackTransitionViewModel(this, track));
+        Transitions.Add(new InformationTrackTransitionViewModel(this, track));
+    }
+
+    protected override void OnPropertyChanged(PropertyChangedEventArgs e)
+    {
+        base.OnPropertyChanged(e);
+
+        if (e.PropertyName == nameof(CurrentTrack))
+        {
+            Transitions.Clear();
+            var currentTrack = CurrentTrack;
+
+            if (currentTrack is not null)
+                FillTransitions(currentTrack.Track);
+        }
     }
 
 }

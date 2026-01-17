@@ -279,4 +279,21 @@
 		</Grid>
 	</DataTemplate>
 
+	<DataTemplate x:Key="TrackTransitionTemplate" DataType="svm:TrackTransitionViewModel">
+		<Button Theme="{StaticResource MaterialOutlineButton}"
+				Classes="light"
+				CornerRadius="12"
+				VerticalAlignment="Center"
+				HorizontalAlignment="Center"
+				VerticalContentAlignment="Center"
+				HorizontalContentAlignment="Center"
+				Tapped="TrackTransition_Tapped">
+			<TextBlock Text="{Binding Name, Mode=OneWay}"
+					   VerticalAlignment="Center"
+					   HorizontalAlignment="Center"
+					   FontWeight="Light"
+					   FontSize="16" />
+		</Button>
+	</DataTemplate>
+
 </ResourceDictionary>

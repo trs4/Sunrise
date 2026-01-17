@@ -15,6 +15,13 @@
 	<Design.DataContext>
 		<svm:TrackPlayDeviceViewModel />
 	</Design.DataContext>
+	<UserControl.Resources>
+		<ResourceDictionary>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceInclude Source="/Views/DeviceStyles.axaml"/>
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+	</UserControl.Resources>
 	<UserControl.Styles>
 		<Style Selector="Button.TrackBtn">
 			<Setter Property="VerticalAlignment" Value="Center" />
@@ -42,6 +49,7 @@
 			<RowDefinition Height="48" />
 			<RowDefinition Height="48" />
 			<RowDefinition Height="48" />
+			<RowDefinition Height="10" />
 		</Grid.RowDefinitions>
 
 		<!--  Back  -->
@@ -271,6 +279,18 @@
 			</Button>
 
 		</Grid>
+
+		<ListBox Grid.Row="7"
+				 ItemsSource="{Binding Transitions, Mode=OneWay}"
+				 ItemTemplate="{StaticResource TrackTransitionTemplate}"
+				 ScrollViewer.VerticalScrollBarVisibility="Disabled"
+				 ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+			<ListBox.ItemsPanel>
+				<ItemsPanelTemplate>
+					<StackPanel Orientation="Horizontal" />
+				</ItemsPanelTemplate>
+			</ListBox.ItemsPanel>
+		</ListBox>
 
 	</Grid>
 </UserControl>

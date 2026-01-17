@@ -38,6 +38,8 @@ public abstract class MainViewModel : ObservableObject
         Songs = new SongsRubricViewModel(player);
         Genres = new GenresRubricViewModel(player);
 
+        History = new HistoryRubricViewModel(player);
+
         TrackPlay = CreateTrackPlay(player);
 
         SettingsCommand = new RelayCommand(OnSettings);
@@ -59,6 +61,8 @@ public abstract class MainViewModel : ObservableObject
     public SongsRubricViewModel Songs { get; }
 
     public GenresRubricViewModel Genres { get; }
+
+    public HistoryRubricViewModel History { get; }
 
     public ObservableCollection<RubricViewModel> Rubricks { get; }
 

@@ -190,8 +190,11 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         var currentTrack = _currentTrack;
         var currentRubric = _currentRubric;
-        var currentTrackSource = _currentTrackSource;
-        bool change = toStart || currentTrack != trackViewModel;
+        bool changeTrack = currentTrack != trackViewModel;
+        bool change = toStart || changeTrack;
+
+        if (changeTrack)
+            Owner.History.Add(trackViewModel.Track);
 
         if (change)
         {
@@ -250,6 +253,9 @@ public abstract class TrackPlayViewModel : ObservableObject
         bool isPlaying = false;
         var currentTrack = _currentTrack;
         var currentRubric = _currentRubric;
+
+        if (currentTrack != trackViewModel)
+            Owner.History.Add(trackViewModel.Track);
 
         if (currentTrack is not null)
         {

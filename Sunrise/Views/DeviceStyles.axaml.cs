@@ -17,4 +17,15 @@ public partial class DeviceStyles : ResourceDictionary
         e.Handled = true;
     }
 
+    private async void TrackTransition_Tapped(object? sender, TappedEventArgs e)
+    {
+        var trackTransitionViewModel = e.FindDataContextWithCheck<TrackTransitionViewModel>();
+
+        if (trackTransitionViewModel is null)
+            return;
+
+        await trackTransitionViewModel.OnTapAsync();
+        e.Handled = true;
+    }
+
 }
