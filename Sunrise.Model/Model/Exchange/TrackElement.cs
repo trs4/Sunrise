@@ -58,10 +58,10 @@ public class TrackElement
     public bool HasPicture { get; set; }
 
     /// <summary>Текст</summary>
-    public string OriginalText { get; set; }
+    public string Lyrics { get; set; }
 
     /// <summary>Перевод</summary>
-    public string TranslateText { get; set; }
+    public string Translate { get; set; }
 
     public override string ToString() => $"{Artist} - {Title}";
 }

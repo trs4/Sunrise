@@ -42,6 +42,10 @@ internal sealed class TrackManager
         var properties = tfile.Properties;
         var pictures = tfile.Tag.Pictures;
         int year = (int)tfile.Tag.Year;
+        string lyrics = tfile.Tag.Lyrics;
+
+        if (string.IsNullOrWhiteSpace(lyrics))
+            lyrics = null;
 
         var track = new Track()
         {
@@ -57,6 +61,7 @@ internal sealed class TrackManager
             Updated = added,
             Size = file.Length,
             LastWrite = file.LastWriteTime,
+            Lyrics = lyrics,
         };
 
         if (string.IsNullOrWhiteSpace(track.Title))

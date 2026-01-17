@@ -339,8 +339,8 @@ public sealed class SyncDispatcher
         tracksDataTable.AddInt64Column(nameof(Tracks.Size)).Values.AddRange(tracks.Select(t => t.Size));
         tracksDataTable.AddDateTimeColumn(nameof(Tracks.LastWrite)).Values.AddRange(tracks.Select(t => t.LastWrite));
         tracksDataTable.AddBooleanColumn(nameof(Tracks.HasPicture)).Values.AddRange(tracks.Select(t => t.HasPicture));
-        tracksDataTable.AddStringColumn(nameof(Tracks.OriginalText)).Values.AddRange(tracks.Select(t => t.OriginalText));
-        tracksDataTable.AddStringColumn(nameof(Tracks.TranslateText)).Values.AddRange(tracks.Select(t => t.TranslateText));
+        tracksDataTable.AddStringColumn(nameof(Tracks.Lyrics)).Values.AddRange(tracks.Select(t => t.Lyrics));
+        tracksDataTable.AddStringColumn(nameof(Tracks.Translate)).Values.AddRange(tracks.Select(t => t.Translate));
         var mimeTypeColumn = tracksDataTable.AddStringColumn(nameof(TrackPictures.MimeType));
         var pictureColumn = tracksDataTable.AddByteArrayColumn(nameof(TrackPictures.Data));
         int row = 0;

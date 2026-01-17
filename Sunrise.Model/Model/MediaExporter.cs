@@ -81,8 +81,8 @@ public static class MediaExporter
                 Size = track.Size,
                 LastWrite = track.LastWrite,
                 HasPicture = track.HasPicture,
-                OriginalText = track.OriginalText ?? string.Empty,
-                TranslateText = track.TranslateText ?? string.Empty,
+                Lyrics = track.Lyrics ?? string.Empty,
+                Translate = track.Translate ?? string.Empty,
             };
 
             trackElements.Add(trackElement);

@@ -26,6 +26,6 @@ public enum Tracks
     [Column(ColumnType.Long)] Size,
     [Column(ColumnType.DateTime)] LastWrite,
     [Column(ColumnType.Boolean)] HasPicture,
-    [Column(ColumnType.String, size: 255)] OriginalText,
-    [Column(ColumnType.String, size: 255)] TranslateText,
+    [Column(ColumnType.String)] Lyrics,
+    [Column(ColumnType.String)] Translate,
 }

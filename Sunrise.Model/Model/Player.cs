@@ -3,6 +3,7 @@ using System.Text;
 using IcyRain.Tables;
 using RedLight;
 using RedLight.SQLite;
+using Sunrise.Model.Common;
 using Sunrise.Model.Communication;
 using Sunrise.Model.Resources;
 using Sunrise.Model.Schemes;
@@ -19,8 +20,8 @@ public sealed class Player
 
     private static readonly HashSet<string> _updateTracksExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
     {
-        nameof(Tracks.Guid), nameof(Tracks.Path), nameof(Tracks.Picked), nameof(Tracks.Rating), nameof(Tracks.Reproduced),
-        nameof(Tracks.Added), nameof(Tracks.Updated), nameof(Tracks.OriginalText), nameof(Tracks.TranslateText)
+        nameof(Tracks.Guid), nameof(Tracks.Path), nameof(Tracks.Picked), nameof(Tracks.Reproduced), nameof(Tracks.SelfReproduced),
+        nameof(Tracks.Added), nameof(Tracks.Updated)
     };
 
     private static readonly HashSet<string> _updatePlaylistsExcludedColumns = new(StringComparer.OrdinalIgnoreCase)
@@ -142,6 +143,16 @@ public sealed class Player
             await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("RootFolder").RunAsync(token);
             await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("RelationFolder").RunAsync(token);
             await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("Language").RunAsync(token);
+        }
+
+        if (lastVersion < 3)
+        {
+            await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("OriginalText").RunAsync(token);
+            await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("TranslateText").RunAsync(token);
+
+            var table = TableGenerator.From<Tracks>();
+            await connection.Schema.CreateColumnQuery<Tracks>().WithColumn(table.FindColumn(nameof(Tracks.Lyrics))).RunAsync(token);
+            await connection.Schema.CreateColumnQuery<Tracks>().WithColumn(table.FindColumn(nameof(Tracks.Translate))).RunAsync(token);
         }
 
         await AppendUpdateAsync(connection, token);
@@ -866,8 +877,8 @@ public sealed class Player
         double step = 100d / files.Count;
         const int tracksInPacket = 1_000;
         var addTracks = new List<Track>(tracksInPacket);
-        var updateTracks = new List<Track>(tracksInPacket);
-        var removePictureIds = new List<int>(tracksInPacket);
+        var updateTracks = new Dictionary<int, Track>(tracksInPacket);
+        var removePictureIds = new HashSet<int>(tracksInPacket);
         var pictures = new List<TrackPicture>(tracksInPacket);
         var now = DateTime.Now;
         var artistCache = new ConcurrentDictionary<string, string>();
@@ -891,7 +902,7 @@ public sealed class Player
                 if (track.LastWrite == existingTrack.LastWrite)
                     continue;
 
-                updateTracks.Add(track);
+                updateTracks[track.Id] = track;
 
                 if (existingTrack.HasPicture)
                     removePictureIds.Add(track.Id);
@@ -929,8 +940,8 @@ public sealed class Player
         double step = 100d / tracks.Count;
         const int tracksInPacket = 1_000;
         var addTracks = new List<Track>(tracksInPacket);
-        var updateTracks = new List<Track>(tracksInPacket);
-        var removePictureIds = new List<int>(tracksInPacket);
+        var updateTracks = new Dictionary<int, Track>(tracksInPacket);
+        var removePictureIds = new HashSet<int>(tracksInPacket);
         var pictures = new List<TrackPicture>(tracksInPacket);
         var now = DateTime.Now;
 
@@ -978,7 +989,7 @@ public sealed class Player
             {
                 UpdateIdProperties(track, existingTrack);
 
-                if (!NeedUpdateTrack(track, existingTrack, withAppName, withAppNameId, trackReproducedsMap))
+                if (!await NeedUpdateTrackAsync(track, existingTrack, withAppName, withAppNameId, trackReproducedsMap, token))
                 {
                     UpdatePostProperties(track, existingTrack);
                     continue;
@@ -988,7 +999,7 @@ public sealed class Player
                     track.LastPlay = existingTrack.LastPlay;
 
                 track.SelfReproduced = existingTrack.SelfReproduced;
-                updateTracks.Add(track);
+                updateTracks[track.Id] = track;
 
                 if (existingTrack.HasPicture)
                     removePictureIds.Add(track.Id);
@@ -1067,13 +1078,25 @@ public sealed class Player
         track.SelfReproduced = existingTrack.SelfReproduced;
     }
 
-    private static bool NeedUpdateTrack(Track track, Track existingTrack,
-        string? withAppName, int? withAppNameId, Dictionary<int, Dictionary<int, int>> trackReproducedsMap)
+    private async ValueTask<bool> NeedUpdateTrackAsync(Track track, Track existingTrack,
+        string? withAppName, int? withAppNameId, Dictionary<int, Dictionary<int, int>> trackReproducedsMap, CancellationToken token)
     {
-        if (track.LastWrite != existingTrack.LastWrite)
+        if (!DataHelper.Equals(track.Title, existingTrack.Title) || track.Year != existingTrack.Year
+            || track.Duration != existingTrack.Duration || track.Rating != existingTrack.Rating
+            || !DataHelper.Equals(track.Artist, existingTrack.Artist) || !DataHelper.Equals(track.Artists, existingTrack.Artists)
+            || !DataHelper.Equals(track.Genre, existingTrack.Genre) || !DataHelper.Equals(track.LastPlay, existingTrack.LastPlay)
+            || !DataHelper.Equals(track.Album, existingTrack.Album) || !DataHelper.Equals(track.Created, existingTrack.Created)
+            || track.Bitrate != existingTrack.Bitrate || track.Size != existingTrack.Size
+            || !DataHelper.Equals(track.LastWrite, existingTrack.LastWrite) || track.HasPicture != existingTrack.HasPicture
+            || !DataHelper.Equals(track.Lyrics, existingTrack.Lyrics) || !DataHelper.Equals(track.Translate, existingTrack.Translate))
+        {
             return true;
+        }
 
-        if (track.LastPlay != existingTrack.LastPlay)
+        if (existingTrack.HasPicture || existingTrack.Picture is null)
+            existingTrack.Picture = await LoadPictureAsync(track, token);
+
+        if (!DataHelper.EqualBytesLongUnrolled(track.Picture?.Data ?? [], existingTrack.Picture?.Data ?? []))
             return true;
 
         if (withAppNameId.HasValue && track[withAppName] is int reproduceds && (!trackReproducedsMap.TryGetValue(track.Id, out var appReproducedsMap)
@@ -1107,7 +1130,7 @@ public sealed class Player
         tracks.Clear();
     }
 
-    private async Task UpdateTracksAsync(List<Track> tracks, List<TrackPicture> pictures, List<int> removePictureIds, CancellationToken token)
+    private async Task UpdateTracksAsync(Dictionary<int, Track> tracks, List<TrackPicture> pictures, HashSet<int> removePictureIds, CancellationToken token)
     {
         if (removePictureIds.Count > 0)
         {
@@ -1115,10 +1138,10 @@ public sealed class Player
             removePictureIds.Clear();
         }
 
-        await _connection.Update.CreateWithParseMultiQuery<Track, Tracks>(tracks, _updateTracksExcludedColumns).RunAsync(token);
+        await _connection.Update.CreateWithParseMultiQuery<Track, Tracks>(tracks.Values, _updateTracksExcludedColumns).RunAsync(token);
         pictures.Clear();
 
-        foreach (var track in tracks)
+        foreach (var track in tracks.Values)
         {
             var picture = track.Picture;
 

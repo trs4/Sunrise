@@ -72,10 +72,10 @@ public class Track
     public bool HasPicture { get; set; }
 
     /// <summary>Текст</summary>
-    public string? OriginalText { get; set; }
+    public string? Lyrics { get; set; }
 
     /// <summary>Перевод</summary>
-    public string? TranslateText { get; set; }
+    public string? Translate { get; set; }
 
     /// <summary>Рисунок</summary>
     public TrackPicture? Picture { get; set; }
