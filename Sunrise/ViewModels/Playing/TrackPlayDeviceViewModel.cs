@@ -61,10 +61,8 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
 
     protected override void PlayCore(TrackViewModel trackViewModel, bool toStart = false)
     {
-        var owner = (MainDeviceViewModel)Owner;
-
-        if (!owner.IsShortTrackVisible && !owner.IsTrackVisible)
-            owner.IsShortTrackVisible = true;
+        if (!Owner.IsShortTrackVisible && !Owner.IsTrackVisible)
+            Owner.IsShortTrackVisible = true;
 
         base.PlayCore(trackViewModel, toStart);
     }
@@ -140,7 +138,8 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
         if (!string.IsNullOrEmpty(track.Lyrics) || !string.IsNullOrEmpty(track.Translate))
             Transitions.Add(new LyricsTrackTransitionViewModel(this, track));
 
-        Transitions.Add(new ArtistTrackTransitionViewModel(this, track));
+        if (!string.IsNullOrEmpty(track.Artist))
+            Transitions.Add(new ArtistTrackTransitionViewModel(this, track));
 
         if (!string.IsNullOrEmpty(track.Album))
             Transitions.Add(new AlbumTrackTransitionViewModel(this, track));

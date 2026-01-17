@@ -9,7 +9,7 @@ namespace Sunrise.ViewModels;
 public abstract class TrackTransitionViewModel : ObservableObject
 {
     protected TrackTransitionViewModel(TrackPlayDeviceViewModel owner, string name, Track track)
-    { 
+    {
         Owner = owner;
         Name = name;
         Track = track;
@@ -56,11 +56,25 @@ public class ArtistTrackTransitionViewModel : TrackTransitionViewModel
 {
     public ArtistTrackTransitionViewModel(TrackPlayDeviceViewModel owner, Track track) : base(owner, Texts.Artist, track) { }
 
-    public override Task OnTapAsync()
+    public override async Task OnTapAsync()
     {
+        var mainViewModel = Owner.Owner;
+        var ownerRubric = mainViewModel.Artists;
+        var tracksScreenshot = await Owner.Player.GetTracksAsync();
 
+        if (!tracksScreenshot.TracksByArtist.TryGetValue(Track.Artist, out var tracksByAlbums))
+            return;
 
-        return Task.CompletedTask;
+        mainViewModel.TrackSourceHistory.Clear();
+        mainViewModel.TrackSourceHistory.Add(ownerRubric);
+
+        var ownerTrackSource = ArtistViewModel.Create(ownerRubric, Track.Artist, tracksByAlbums);
+        mainViewModel.SelectedRubrick = ownerRubric;
+        mainViewModel.SelectedTab = DeviceTabs.Tracks;
+        mainViewModel.HideTrackPage();
+
+        Owner.ChangeOwnerRubric(ownerTrackSource);
+        await mainViewModel.ChangeTracksAsync(ownerTrackSource);
     }
 
 }
@@ -69,11 +83,28 @@ public class AlbumTrackTransitionViewModel : TrackTransitionViewModel
 {
     public AlbumTrackTransitionViewModel(TrackPlayDeviceViewModel owner, Track track) : base(owner, Texts.Album, track) { }
 
-    public override Task OnTapAsync()
+    public override async Task OnTapAsync()
     {
+        var mainViewModel = Owner.Owner;
+        var ownerRubric = mainViewModel.Albums;
+        var tracksScreenshot = await Owner.Player.GetTracksAsync();
 
+        if (!tracksScreenshot.TracksByArtist.TryGetValue(Track.Artist, out var tracksByAlbums)
+            || !tracksByAlbums.TryGetValue(Track.Album, out var tracks))
+        {
+            return;
+        }
 
-        return Task.CompletedTask;
+        mainViewModel.TrackSourceHistory.Clear();
+        mainViewModel.TrackSourceHistory.Add(ownerRubric);
+
+        var ownerTrackSource = new AlbumViewModel(ownerRubric, Track.Album, Track.Artist, tracks);
+        mainViewModel.SelectedRubrick = ownerRubric;
+        mainViewModel.SelectedTab = DeviceTabs.Tracks;
+        mainViewModel.HideTrackPage();
+
+        Owner.ChangeOwnerRubric(ownerTrackSource);
+        await mainViewModel.ChangeTracksAsync(ownerTrackSource);
     }
 
 }
@@ -86,13 +117,7 @@ public class CurrentRubricTrackTransitionViewModel : TrackTransitionViewModel
 
     public RubricViewModel Rubric { get; }
 
-    public override Task OnTapAsync()
-    {
-
-
-        return Task.CompletedTask;
-    }
-
+    public override Task OnTapAsync() => Owner.Owner.OnNextListAsync();
 }
 
 public class HistoryTrackTransitionViewModel : TrackTransitionViewModel
@@ -102,12 +127,12 @@ public class HistoryTrackTransitionViewModel : TrackTransitionViewModel
     public override Task OnTapAsync()
     {
         var mainViewModel = Owner.Owner;
-        var rubricViewModel = mainViewModel.History;
+        var ownerRubric = mainViewModel.History;
         mainViewModel.SelectedTab = DeviceTabs.Tracks;
         mainViewModel.HideTrackPage();
 
-        Owner.ChangeOwnerRubric(rubricViewModel);
-        return mainViewModel.ChangeTracksAsync(rubricViewModel);
+        Owner.ChangeOwnerRubric(ownerRubric);
+        return mainViewModel.ChangeTracksAsync(ownerRubric);
     }
 
 }
