@@ -159,6 +159,8 @@ public abstract class MainViewModel : ObservableObject
         set => SetProperty(ref _searchText, value);
     }
 
+    public ITracksView TracksView { get; set; }
+
     public IPlaylistsView PlaylistsView { get; set; }
 
     public bool SettingsDisplayed

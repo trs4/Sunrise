@@ -127,14 +127,14 @@
 						  ItemTemplate="{StaticResource RubricTemplate}"
 						  HorizontalAlignment="Center" />
 
-				<ListBox Grid.Row="5"
+				<ListBox Grid.Row="5" x:Name="tracksBox"
 						 ItemsSource="{Binding Tracks, Mode=OneWay}"
 						 SelectedItem="{Binding SelectedTrack, Mode=TwoWay}"
 						 IsVisible="{Binding !IsTrackSourcesVisible}"
 						 ItemTemplate="{StaticResource TrackTemplate}"
 						 Tapped="Track_Tapped" />
 
-				<ListBox Grid.Row="5"
+				<ListBox Grid.Row="5" x:Name="trackSourcesBox"
 						 ItemsSource="{Binding TrackSources, Mode=OneWay}"
 						 SelectedItem="{Binding SelectedTrackSource}"
 						 IsVisible="{Binding IsTrackSourcesVisible, Mode=OneWay}"

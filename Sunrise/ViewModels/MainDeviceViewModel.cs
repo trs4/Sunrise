@@ -419,6 +419,9 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
                 IsTrackListVisible = TrackSourceHistory.Count > 1;
 
             await ChangeTracksAsync(tracksOwner);
+
+            if (currentTracksOwner is TrackSourceViewModel currentTrackSourceViewModel)
+                TracksView?.ScrollIntoView(currentTrackSourceViewModel.Name);
         }
 
         return true;
