@@ -84,7 +84,7 @@
 						 Tapped="RecentlyAddedPlaylist_Tapped"
 						 Height="125"
 						 IsVisible="{Binding RecentlyAddedPlaylists, Mode=OneWay, Converter={x:Static scv:AnyConverter.Instance}}"
-						 ScrollViewer.HorizontalScrollBarVisibility="Auto">
+						 ScrollViewer.HorizontalScrollBarVisibility="Hidden">
 					<ListBox.ItemsPanel>
 						<ItemsPanelTemplate>
 							<StackPanel Orientation="Horizontal" />

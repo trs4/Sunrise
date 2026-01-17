@@ -106,7 +106,7 @@
 						 ItemTemplate="{StaticResource RecentlyAddedTrackTemplate}"
 						 Tapped="RecentlyAddedTrack_Tapped"
 						 Height="125"
-						 ScrollViewer.HorizontalScrollBarVisibility="Auto">
+						 ScrollViewer.HorizontalScrollBarVisibility="Hidden">
 					<ListBox.IsVisible>
 						<MultiBinding Mode="OneWay" Converter="{x:Static BoolConverters.And}">
 							<Binding Path="!IsTrackListVisible" Mode="OneWay" />
