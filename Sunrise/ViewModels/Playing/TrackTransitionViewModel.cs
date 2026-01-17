@@ -34,7 +34,6 @@ public class InPlaylistTrackTransitionViewModel : TrackTransitionViewModel
     public override Task OnTapAsync()
     {
         Owner.CardDialog = new InPlaylistDeviceCardViewModel(Owner);
-        Owner.ShowCard = true;
         return Task.CompletedTask;
     }
 
@@ -144,7 +143,6 @@ public class InformationTrackTransitionViewModel : TrackTransitionViewModel
     public override Task OnTapAsync()
     {
         Owner.CardDialog = new InformationDeviceCardViewModel(Owner);
-        Owner.ShowCard = true;
         return Task.CompletedTask;
     }
 

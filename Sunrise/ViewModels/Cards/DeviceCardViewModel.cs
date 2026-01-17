@@ -17,9 +17,5 @@ public abstract class DeviceCardViewModel : ObservableObject
     public IRelayCommand CloseCardCommand { get; }
 
     public void CloseCard()
-    {
-        Owner.ShowCard = false;
-        Owner.CardDialog = null;
-    }
-
+        => Owner.CardDialog = null;
 }

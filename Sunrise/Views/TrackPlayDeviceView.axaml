@@ -310,7 +310,7 @@
 
 		<ContentControl Grid.RowSpan="99"
 						Content="{Binding CardDialog}" ContentTemplate="{x:Static sc:CardsViewLocator.Instance}"
-						IsVisible="{Binding ShowCard}"
+						IsVisible="{Binding CardDialog, Mode=OneWay, Converter={x:Static ObjectConverters.IsNotNull}}"
 						Background="White" />
 	</Grid>
 </UserControl>

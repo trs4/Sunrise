@@ -16,7 +16,6 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
     private string _changingText = Texts.Change;
     private bool _isSelectPlaylist;
     private bool _showLyrics;
-    private bool _showCard;
     private DeviceCardViewModel? _cardDialog;
 
     public TrackPlayDeviceViewModel() { } // For designer
@@ -61,12 +60,6 @@ public sealed class TrackPlayDeviceViewModel : TrackPlayViewModel
     {
         get => _showLyrics;
         set => SetProperty(ref _showLyrics, value);
-    }
-
-    public bool ShowCard
-    {
-        get => _showCard;
-        set => SetProperty(ref _showCard, value);
     }
 
     public DeviceCardViewModel? CardDialog
