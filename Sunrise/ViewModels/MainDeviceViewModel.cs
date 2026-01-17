@@ -622,15 +622,15 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
     public async override Task OnNextListAsync()
     {
-        var ownerRubric = TrackPlay.OwnerRubric;
-        var tracksOwner = TrackPlay.OwnerTrackSource ?? TrackPlay.OwnerRubric;
+        var currentRubric = TrackPlay.CurrentRubric;
+        var tracksOwner = TrackPlay.CurrentTrackSource ?? TrackPlay.CurrentRubric;
 
-        if (ownerRubric is null || tracksOwner is null)
+        if (currentRubric is null || tracksOwner is null)
             return;
 
         var prevTracksOwner = tracksOwner;
 
-        if (ownerRubric is RandomizeRubricViewModel)
+        if (currentRubric is RandomizeRubricViewModel)
             prevTracksOwner = TrackSourceHistory.Count > 0 ? TrackSourceHistory[^1] : null;
 
         if (prevTracksOwner is PlaylistRubricViewModel)
@@ -640,9 +640,9 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         }
         else
         {
-            if (!IsTrackVisible && ReferenceEquals(SelectedRubrick, ownerRubric))
+            if (!IsTrackVisible && ReferenceEquals(SelectedRubrick, currentRubric))
                 return;
-            else if (ownerRubric is SearchRubricViewModel)
+            else if (currentRubric is SearchRubricViewModel)
             {
                 HideTrackPage();
                 return;
@@ -650,12 +650,12 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
             SelectedTab = DeviceTabs.Tracks;
 
-            if (!ownerRubric.IsDependent)
-                SelectedRubrick = ownerRubric;
+            if (!currentRubric.IsDependent)
+                SelectedRubrick = currentRubric;
         }
 
         OnExit();
-        TrackPlay.ChangeOwnerRubric(ownerRubric, TrackPlay.OwnerTrackSource);
+        TrackPlay.ChangeOwnerRubric(currentRubric, TrackPlay.OwnerTrackSource);
         await SelectTracksAsync(tracksOwner);
         SelectedTrack = TrackPlay.CurrentTrack;
     }
@@ -838,15 +838,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     }
 
     public override void OnExit()
-    {
-        Tasks.StartOnDefaultScheduler(() =>
-        {
-            _discoveryServer?.Dispose();
-            _discoveryServer = null;
-        });
-
-        HideTrackPage();
-    }
+        => HideTrackPage();
 
     public void Dispose()
     {
