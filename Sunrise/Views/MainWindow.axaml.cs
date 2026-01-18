@@ -14,7 +14,7 @@ public partial class MainWindow : Window
 
     private async void Rubricks_Tapped(object? sender, TappedEventArgs e)
     {
-        var rubricViewModel = e.GetDataContext<RubricViewModel>();
+        var rubricViewModel = e.GetDataContextWithCheck<RubricViewModel>();
 
         if (rubricViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
@@ -26,7 +26,7 @@ public partial class MainWindow : Window
 
     private void Playlists_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is not MainViewModel mainViewModel)
+        if (!e.CanClick() || DataContext is not MainViewModel mainViewModel)
             return;
 
         mainViewModel.IsPlaylistsVisible = !mainViewModel.IsPlaylistsVisible;
@@ -44,7 +44,7 @@ public partial class MainWindow : Window
 
     private async void Playlist_Tapped(object? sender, TappedEventArgs e)
     {
-        var playlistViewModel = e.GetDataContext<PlaylistRubricViewModel>();
+        var playlistViewModel = e.GetDataContextWithCheck<PlaylistRubricViewModel>();
 
         if (playlistViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
@@ -89,7 +89,7 @@ public partial class MainWindow : Window
 
     private void Categories_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is not MainViewModel mainViewModel)
+        if (!e.CanClick() || DataContext is not MainViewModel mainViewModel)
             return;
 
         mainViewModel.IsCategoriesVisible = !mainViewModel.IsCategoriesVisible;
@@ -107,7 +107,7 @@ public partial class MainWindow : Window
 
     private void Category_Tapped(object? sender, TappedEventArgs e)
     {
-        var categoryViewModel = e.GetDataContext<CategoryViewModel>();
+        var categoryViewModel = e.GetDataContextWithCheck<CategoryViewModel>();
 
         if (categoryViewModel is null || DataContext is not MainViewModel mainViewModel)
             return;
@@ -157,7 +157,7 @@ public partial class MainWindow : Window
 
     private async void TrackSource_Tapped(object? sender, TappedEventArgs e)
     {
-        var trackSourceViewModel = e.GetDataContext<TrackSourceViewModel>();
+        var trackSourceViewModel = e.GetDataContextWithCheck<TrackSourceViewModel>();
         await TrySetTrackSourceAsync(trackSourceViewModel);
     }
 

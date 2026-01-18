@@ -11,8 +11,10 @@ public partial class SearchTabView : UserControl
 
     private async void Track_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is MainDeviceViewModel mainViewModel)
-            await PlayHelper.PlaySearchTrackAsync(mainViewModel, e);
+        if (!e.CanClick() || DataContext is not MainDeviceViewModel mainViewModel)
+            return;
+
+        await PlayHelper.PlaySearchTrackAsync(mainViewModel, e);
     }
 
     private async void TrackSource_Tapped(object? sender, TappedEventArgs e)

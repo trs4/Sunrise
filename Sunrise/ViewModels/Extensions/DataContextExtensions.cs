@@ -8,7 +8,8 @@ namespace Sunrise.ViewModels;
 
 public static class DataContextExtensions
 {
-    private static ulong _prevTimestamp;
+    private static int _prevPointerId;
+    private static readonly object _canClickSync = new();
 
     public static T? FindDataContext<T>(this RoutedEventArgs e)
         where T : class
@@ -28,15 +29,20 @@ public static class DataContextExtensions
         return null;
     }
 
+    public static bool CanClick(this TappedEventArgs e)
+    {
+        lock (_canClickSync)
+        {
+            int pointerId = (e.Pointer as Pointer)?.Id ?? 0;
+            bool result = _prevPointerId != pointerId;
+            _prevPointerId = pointerId;
+            return result;
+        }
+    }
+
     public static T? FindDataContextWithCheck<T>(this TappedEventArgs e)
         where T : class
-    {
-        if (_prevTimestamp == e.Timestamp)
-            return null;
-
-        _prevTimestamp = e.Timestamp;
-        return e.FindDataContext<T>();
-    }
+        => CanClick(e) ? e.FindDataContext<T>() : null;
 
     public static T? GetDataContext<T>(this RoutedEventArgs e)
         where T : class
@@ -44,13 +50,7 @@ public static class DataContextExtensions
 
     public static T? GetDataContextWithCheck<T>(this TappedEventArgs e)
         where T : class
-    {
-        if (_prevTimestamp == e.Timestamp)
-            return null;
-
-        _prevTimestamp = e.Timestamp;
-        return e.GetDataContext<T>();
-    }
+        => CanClick(e) ? e.GetDataContext<T>() : null;
 
     public static T? GetSelectedItem<T>(this SelectionChangedEventArgs e)
         where T : class

@@ -333,7 +333,6 @@ public abstract class TrackPlayViewModel : ObservableObject
     {
         PlayIcon = _playIconSource;
         trackViewModel.IsPlaying = false;
-        var currentRubric = _currentRubric;
         ChangePlaylistPlaying(_currentRubric, false);
         Player.Media.Pause();
         _playerTimer.Stop();

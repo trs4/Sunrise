@@ -14,7 +14,6 @@ public partial class DeviceStyles : ResourceDictionary
             return;
 
         mainViewModel.TrackPlay.PlayCommand.Execute(null);
-        e.Handled = true;
     }
 
     private async void TrackTransition_Tapped(object? sender, TappedEventArgs e)
@@ -25,7 +24,6 @@ public partial class DeviceStyles : ResourceDictionary
             return;
 
         await trackTransitionViewModel.OnTapAsync();
-        e.Handled = true;
     }
 
 }

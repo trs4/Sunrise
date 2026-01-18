@@ -74,15 +74,6 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
             mainViewModel.PlaylistsView?.ScrollIntoView(selectedTrack.Track);
     }
 
-    private void TrackIcon_Tapped(object? sender, TappedEventArgs e)
-    {
-        if (DataContext is not MainDeviceViewModel mainViewModel)
-            return;
-
-        mainViewModel.TrackPlay.PlayCommand.Execute(null);
-        e.Handled = true;
-    }
-
     #region IPlaylistsView
 
     protected override void OnDataContextChanged(EventArgs e)

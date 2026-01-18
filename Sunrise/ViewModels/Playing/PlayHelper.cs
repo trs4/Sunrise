@@ -38,7 +38,7 @@ internal static class PlayHelper
 
         if (trackViewModel is null)
             return;
-
+         
         var (ownerRubric, ownerTrackSource) = getOwners(mainViewModel);
         mainViewModel.IsShortTrackVisible = true;
         var trackPlay = mainViewModel.TrackPlay;

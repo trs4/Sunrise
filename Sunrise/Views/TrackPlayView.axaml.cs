@@ -14,7 +14,7 @@ public partial class TrackPlayView : UserControl
 
     private void Volume_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is not TrackPlayDesktopViewModel viewModel)
+        if (!e.CanClick() || DataContext is not TrackPlayDesktopViewModel viewModel)
             return;
 
         double position = e.GetPosition(volumeSlider).X / volumeSlider.Bounds.Width;
@@ -45,7 +45,7 @@ public partial class TrackPlayView : UserControl
 
     private void Track_Tapped(object? sender, TappedEventArgs e)
     {
-        if (!TryGetCurrentTrack(e, out var viewModel, out _))
+        if (!e.CanClick() || !TryGetCurrentTrack(e, out var viewModel, out _))
             return;
 
         double position = e.GetPosition(progressBar).X / progressBar.Bounds.Width;

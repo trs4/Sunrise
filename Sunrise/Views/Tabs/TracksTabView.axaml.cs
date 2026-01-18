@@ -15,14 +15,18 @@ public partial class TracksTabView : UserControl, ITracksView
 
     private async void RecentlyAddedTrack_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is MainDeviceViewModel mainViewModel)
-            await PlayHelper.PlayRecentlyAddedTrackAsync(mainViewModel, e);
+        if (!e.CanClick() || DataContext is not MainDeviceViewModel mainViewModel)
+            return;
+
+        await PlayHelper.PlayRecentlyAddedTrackAsync(mainViewModel, e);
     }
 
     private async void Track_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is MainDeviceViewModel mainViewModel)
-            await PlayHelper.PlayTrackAsync(mainViewModel, e);
+        if (!e.CanClick() || DataContext is not MainDeviceViewModel mainViewModel)
+            return;
+
+        await PlayHelper.PlayTrackAsync(mainViewModel, e);
     }
 
     private async void TrackSource_Tapped(object? sender, TappedEventArgs e)
@@ -38,7 +42,7 @@ public partial class TracksTabView : UserControl, ITracksView
 
     private async void TrackSourceCaption_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is not MainViewModel mainViewModel)
+        if (!e.CanClick() || DataContext is not MainViewModel mainViewModel)
             return;
 
         var selectedTrackSource = mainViewModel.SelectedTrackSource;

@@ -60,7 +60,7 @@ public partial class TrackPlayDeviceView : UserControl
 
     private void Track_Tapped(object? sender, TappedEventArgs e)
     {
-        if (!TryGetCurrentTrack(e, out var viewModel, out _))
+        if (!e.CanClick() || !TryGetCurrentTrack(e, out var viewModel, out _))
             return;
 
         double position = e.GetPosition(progressBar).X / progressBar.Bounds.Width;
@@ -87,7 +87,7 @@ public partial class TrackPlayDeviceView : UserControl
 
     private async void TrackTitle_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is not TrackPlayViewModel viewModel)
+        if (!e.CanClick() || DataContext is not TrackPlayViewModel viewModel)
             return;
 
         var currentTrack = viewModel.CurrentTrack;

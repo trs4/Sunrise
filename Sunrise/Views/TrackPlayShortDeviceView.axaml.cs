@@ -11,7 +11,7 @@ public partial class TrackPlayShortDeviceView : UserControl
 
     private void Track_Tapped(object? sender, TappedEventArgs e)
     {
-        if (DataContext is not TrackPlayViewModel viewModel || viewModel.Owner is not MainDeviceViewModel mainViewModel)
+        if (!e.CanClick() || DataContext is not TrackPlayViewModel viewModel || viewModel.Owner is not MainDeviceViewModel mainViewModel)
             return;
 
         mainViewModel.ShowTrackPage();
