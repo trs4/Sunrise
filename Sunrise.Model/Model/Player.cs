@@ -532,6 +532,19 @@ public sealed class Player
         playlist.Tracks.Add(track);
     }
 
+    public async Task DeleteTrackInPlaylistAsync(Playlist? playlist, Track? track, CancellationToken token = default)
+    {
+        if (playlist is null || track is null)
+            return;
+
+        await _connection.Delete.CreateQuery<PlaylistTracks>()
+            .WithTerm(PlaylistTracks.PlaylistId, playlist.Id)
+            .WithTerm(PlaylistTracks.TrackId, track.Id)
+            .RunAsync(token);
+
+        playlist.Tracks.Remove(track);
+    }
+
     public async Task AddCategoryInPlaylistAsync(Playlist? playlist, Category? category, CancellationToken token = default)
     {
         if (playlist is null || category is null)

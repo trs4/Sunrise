@@ -303,4 +303,13 @@
   <data name="Close" xml:space="preserve">
     <value>Закрыть</value>
   </data>
+  <data name="DeleteFromMedia" xml:space="preserve">
+    <value>Удалить из медиатеки</value>
+  </data>
+  <data name="LastPlay" xml:space="preserve">
+    <value>Последнее воспроизведение</value>
+  </data>
+  <data name="LastPlayShort" xml:space="preserve">
+    <value>Последнее</value>
+  </data>
 </root>

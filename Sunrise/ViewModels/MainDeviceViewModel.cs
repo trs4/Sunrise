@@ -591,11 +591,6 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         }
         else if (e.PropertyName == nameof(SearchText))
             await UpdateSearchResultsAsync();
-        else if (e.PropertyName == nameof(IsTrackVisible))
-        {
-            if (!_isTrackVisible)
-                TrackPlay.CancelChangeTrack();
-        }
         else if (e.PropertyName == nameof(IsPlaylistsVisible))
         {
             if (!IsPlaylistsVisible)

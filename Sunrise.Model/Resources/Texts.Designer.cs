@@ -259,6 +259,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Удалить из медиатеки.
+        /// </summary>
+        public static string DeleteFromMedia {
+            get {
+                return ResourceManager.GetString("DeleteFromMedia", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Удалить из плейлиста.
         /// </summary>
         public static string DeleteFromPlaylist {
@@ -381,6 +390,24 @@ namespace Sunrise.Model.Resources {
         public static string InPlaylist {
             get {
                 return ResourceManager.GetString("InPlaylist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Последнее воспроизведение.
+        /// </summary>
+        public static string LastPlay {
+            get {
+                return ResourceManager.GetString("LastPlay", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Последнее.
+        /// </summary>
+        public static string LastPlayShort {
+            get {
+                return ResourceManager.GetString("LastPlayShort", resourceCulture);
             }
         }
         

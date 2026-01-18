@@ -4,9 +4,11 @@
 			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 			 xmlns:controls="clr-namespace:Material.Styles.Controls;assembly=Material.Styles"
 			 xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
-			 xmlns:sc="clr-namespace:Sunrise.ViewModels.Cards"
+			 xmlns:svmc="clr-namespace:Sunrise.ViewModels.Cards"
+			 xmlns:sc="clr-namespace:Sunrise.Controls"
+			 xmlns:scv="clr-namespace:Sunrise.Converters"
 			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
-			 x:DataType="sc:InformationDeviceCardViewModel"
+			 x:DataType="svmc:InformationDeviceCardViewModel"
 			 x:Class="Sunrise.InformationDeviceCardView">
 	<controls:Card Margin="20">
 		<Grid>
@@ -21,19 +23,151 @@
 					   HorizontalAlignment="Center"
 					   Text="{x:Static res:Texts.Information}" />
 
-			<!--<ListBox Grid.Row="1"
-			ItemsSource="{Binding Owner.Playlists}"
-			Margin="0 20"
-			Tapped="AddInPlaylist_Tapped">
-			<ListBox.ItemTemplate>
-			<DataTemplate DataType="svm:PlaylistRubricViewModel">
-			<TextBlock Text="{Binding Name, Mode=OneWay}"
-			VerticalAlignment="Center"
-			FontSize="18"
-			FontWeight="Bold" />
-			</DataTemplate>
-			</ListBox.ItemTemplate>
-			</ListBox>-->
+			<Grid Grid.Row="1"
+				  Margin="0 20"
+				  ScrollViewer.VerticalScrollBarVisibility="Hidden">
+				<Grid.Styles>
+					<Style Selector="TextBlock">
+						<Setter Property="VerticalAlignment" Value="Center" />
+					</Style>
+
+					<Style Selector="TextBox">
+						<Setter Property="Height" Value="40" />
+						<Setter Property="TextWrapping" Value="WrapWithOverflow" />
+						<Setter Property="VerticalAlignment" Value="Center" />
+						<Setter Property="Theme" Value="{StaticResource FilledTextBox}" />
+					</Style>
+
+					<Style Selector="sc|RatingControl">
+						<Setter Property="Height" Value="40" />
+						<Setter Property="VerticalAlignment" Value="Center" />
+					</Style>
+
+					<Style Selector="Button">
+						<Setter Property="VerticalAlignment" Value="Center" />
+						<Setter Property="Margin" Value="0 10" />
+						<Setter Property="HorizontalAlignment" Value="Left" />
+					</Style>
+
+				</Grid.Styles>
+
+				<Grid.ColumnDefinitions>
+					<ColumnDefinition Width="Auto" />
+					<ColumnDefinition Width="10" />
+					<ColumnDefinition />
+				</Grid.ColumnDefinitions>
+				<Grid.RowDefinitions>
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+
+					<RowDefinition Height="Auto" />
+					<RowDefinition Height="Auto" />
+					<RowDefinition />
+				</Grid.RowDefinitions>
+
+				<TextBlock Grid.Column="0" Grid.Row="0"
+						   Text="{x:Static res:Texts.Title}" />
+
+				<TextBox Grid.Column="2" Grid.Row="0"
+						 Text="{Binding Owner.CurrentTrack.Title}"
+						 IsReadOnly="True" />
+
+
+				<TextBlock Grid.Column="0" Grid.Row="1"
+						   Text="{x:Static res:Texts.Artist}" />
+
+				<TextBox Grid.Column="2" Grid.Row="1"
+						 Text="{Binding Owner.CurrentTrack.Artist}"
+						 IsReadOnly="True" />
+
+
+				<TextBlock Grid.Column="0" Grid.Row="2"
+						   Text="{x:Static res:Texts.Album}" />
+
+				<TextBox Grid.Column="2" Grid.Row="2"
+						 Text="{Binding Owner.CurrentTrack.Album}"
+						 IsReadOnly="True" />
+
+
+				<TextBlock Grid.Column="0" Grid.Row="3"
+						   Text="{x:Static res:Texts.Year}" />
+
+				<TextBox Grid.Column="2" Grid.Row="3"
+						 Text="{Binding Owner.CurrentTrack.Year}"
+						 IsReadOnly="True" />
+
+
+				<TextBlock Grid.Column="0" Grid.Row="4"
+						   Text="{x:Static res:Texts.Duration}" />
+
+				<TextBox Grid.Column="2" Grid.Row="4"
+						 Text="{Binding Owner.CurrentTrack.Duration, Mode=OneWay, Converter={x:Static scv:DurationConverter.Instance}}"
+						 IsReadOnly="True" />
+
+
+				<TextBlock Grid.Column="0" Grid.Row="5"
+						   Text="{x:Static res:Texts.Rating}" />
+
+				<sc:RatingControl Grid.Column="2" Grid.Row="5"
+								  NumberOfStars="5"
+								  Value="{Binding Owner.CurrentTrack.Rating}"
+								  IsEnabled="False" />
+
+
+				<TextBlock Grid.Column="0" Grid.Row="6"
+						   Text="{x:Static res:Texts.Reproduced}" />
+
+				<TextBox Grid.Column="2" Grid.Row="6"
+						 Text="{Binding Owner.CurrentTrack.Reproduced}"
+						 IsReadOnly="True" />
+
+
+				<TextBlock Grid.Column="0" Grid.Row="7"
+						   Text="{x:Static res:Texts.LastPlayShort}" />
+
+				<TextBox Grid.Column="2" Grid.Row="7"
+						 Text="{Binding Owner.CurrentTrack.LastPlay, Mode=OneWay}"
+						 IsReadOnly="True" />
+
+
+				<TextBlock Grid.Column="0" Grid.Row="8"
+						   Text="{x:Static res:Texts.Genre}" />
+
+				<TextBox Grid.Column="2" Grid.Row="8"
+						 Text="{Binding Owner.CurrentTrack.Genre}"
+						 IsReadOnly="True" />
+
+
+				<TextBlock Grid.Column="0" Grid.Row="9"
+						   Text="{x:Static res:Texts.Bitrate}" />
+
+				<TextBox Grid.Column="2" Grid.Row="9"
+						 Text="{Binding Owner.CurrentTrack.Bitrate}"
+						 IsReadOnly="True" />
+
+
+				<Button Grid.Row="10" Grid.ColumnSpan="99"
+						Command="{Binding DeleteFromPlaylistCommand, Mode=OneWay}"
+						IsVisible="{Binding HasPlaylist}">
+					<TextBlock Text="{x:Static res:Texts.DeleteFromPlaylist}"
+							   Classes="Body2" />
+				</Button>
+
+				<Button Grid.Row="11" Grid.ColumnSpan="99"
+						Command="{Binding DeleteFromMediaCommand, Mode=OneWay}">
+					<TextBlock Text="{x:Static res:Texts.DeleteFromMedia}"
+							   Classes="Body2" />
+				</Button>
+
+			</Grid>
 
 			<Button Grid.Row="2"
 					Command="{Binding CloseCardCommand, Mode=OneWay}"

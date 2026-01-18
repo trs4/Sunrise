@@ -1,7 +1,7 @@
 ﻿<ResourceDictionary xmlns="https://github.com/avaloniaui"
-										xmlns:sc="clr-namespace:Sunrise.Controls"
-										xmlns:scv="clr-namespace:Sunrise.Converters"
-										xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+					xmlns:sc="clr-namespace:Sunrise.Controls"
+					xmlns:scv="clr-namespace:Sunrise.Converters"
+					xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
 
 	<!-- Design time preview -->
 	<Design.PreviewWith>
@@ -93,11 +93,11 @@
 					</DataValidationErrors.Styles>
 
 					<ItemsControl x:Name="PART_StarsPresenter"
-												ItemsSource="{TemplateBinding Stars}">
+								  ItemsSource="{TemplateBinding Stars}">
 						<ItemsControl.ItemsPanel>
 							<ItemsPanelTemplate>
 								<StackPanel Orientation="Horizontal"
-														Spacing="1" />
+											Spacing="1" />
 							</ItemsPanelTemplate>
 						</ItemsControl.ItemsPanel>
 
