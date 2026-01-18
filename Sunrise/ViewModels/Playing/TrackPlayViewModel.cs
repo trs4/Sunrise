@@ -308,8 +308,14 @@ public abstract class TrackPlayViewModel : ObservableObject
 
     public void ChangePositionDelay(double position)
     {
+        _playerTimer.Stop();
         ChangePositionCore(ref position);
-        _changePositionQueue.Add(() => Player.Media.Position = position);
+
+        _changePositionQueue.Add(() =>
+        {
+            Player.Media.Position = position;
+            _playerTimer.Start();
+        });
     }
 
     public void ChangePosition(double position)
