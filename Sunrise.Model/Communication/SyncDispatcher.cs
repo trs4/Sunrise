@@ -193,7 +193,8 @@ public sealed class SyncDispatcher
     }
 
     private static UpdatingMedia GetUpdatingMediaCore(TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists,
-        CategoriesScreenshot categoriesScreenshot, List<string> folders, ExistingMedia existingMedia, Predicate<Track>? trackCondition = null)
+        CategoriesScreenshot categoriesScreenshot, List<string> folders, ExistingMedia existingMedia,
+        Predicate<Track>? trackCondition = null, bool forced = false)
     {
         var updatingTracks = new List<List<Track>>(tracksScreenshot.Tracks.Count / _packetSize);
         var updatingTracksPacket = new List<Track>(_packetSize);
@@ -211,7 +212,7 @@ public sealed class SyncDispatcher
             if (trackCondition?.Invoke(track) ?? false)
                 continue;
 
-            if (existingMedia.Tracks.TryGetValue(track.Guid, out var existingTrack) && track.Updated == existingTrack.Updated)
+            if (!forced && existingMedia.Tracks.TryGetValue(track.Guid, out var existingTrack) && track.Updated == existingTrack.Updated)
                 continue;
 
             updatingTracksPacket.Add(track);
@@ -226,7 +227,7 @@ public sealed class SyncDispatcher
 
         foreach (var playlist in playlists.Values)
         {
-            if (existingMedia.Playlists.TryGetValue(playlist.Guid, out var existingPlaylist) && playlist.Updated == existingPlaylist.Updated)
+            if (!forced && existingMedia.Playlists.TryGetValue(playlist.Guid, out var existingPlaylist) && playlist.Updated == existingPlaylist.Updated)
                 continue;
 
             updatingPlaylistsPacket.Add(playlist);
@@ -240,7 +241,7 @@ public sealed class SyncDispatcher
 
         foreach (var category in categoriesScreenshot.Categories)
         {
-            if (existingMedia.Categories.TryGetValue(category.Guid, out var existingCategory) && category.Name == existingCategory.Name)
+            if (!forced && existingMedia.Categories.TryGetValue(category.Guid, out var existingCategory) && category.Name == existingCategory.Name)
                 continue;
 
             updatingCategoriesPacket.Add(category);

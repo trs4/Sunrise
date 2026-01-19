@@ -1130,7 +1130,7 @@ public sealed class Player
         {
             var picture = track.Picture;
 
-            if (picture is null)
+            if (picture?.Data is null)
                 continue;
 
             picture.Id = track.Id;
@@ -1158,7 +1158,7 @@ public sealed class Player
         {
             var picture = track.Picture;
 
-            if (picture is null)
+            if (picture?.Data is null)
                 continue;
 
             picture.Id = track.Id;
