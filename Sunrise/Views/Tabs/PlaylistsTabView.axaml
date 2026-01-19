@@ -30,7 +30,7 @@
 				Theme="{StaticResource MaterialFlatButton}"
 				Command="{Binding BackCommand, Mode=OneWay}"
 				IsVisible="{Binding !IsPlaylistsVisible, Mode=OneWay}"
-				Height="48"
+				Height="52"
 				HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
 			<StackPanel Orientation="Horizontal">
 				<Image Source="{su:FromIcon LeftCircle}"
@@ -105,7 +105,8 @@
 							   HorizontalAlignment="Left" VerticalAlignment="Center" />
 
 						<TextBlock Text="{x:Static res:Texts.NewPlaylist}"
-								   HorizontalAlignment="Left" VerticalAlignment="Center" />
+								   HorizontalAlignment="Left" VerticalAlignment="Center"
+								   FontSize="18" />
 					</StackPanel>
 				</Button>
 

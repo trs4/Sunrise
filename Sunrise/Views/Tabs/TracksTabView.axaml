@@ -30,7 +30,7 @@
 				Theme="{StaticResource MaterialFlatButton}"
 				Command="{Binding BackCommand, Mode=OneWay}"
 				IsVisible="{Binding IsTrackListVisible, Mode=OneWay}"
-				Height="48"
+				Height="52"
 				HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center">
 			<StackPanel Orientation="Horizontal">
 				<Image Source="{su:FromIcon LeftCircle}"

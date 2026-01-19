@@ -33,10 +33,10 @@
 					Theme="{StaticResource MaterialFlatButton}"
 					Command="{Binding SettingsCommand, Mode=OneWay}"
 					Height="32"
-					Margin="5 0 0 0"
+					Margin="5 0 0 15"
 					HorizontalContentAlignment="Left" VerticalContentAlignment="Center">
 				<TextBlock Text="{x:Static res:Texts.Settings}"
-						   FontSize="12" />
+						   FontSize="16" />
 			</Button>
 
 			<Button Grid.Row="1" Grid.Column="0"
@@ -52,7 +52,8 @@
 						   HorizontalAlignment="Left" VerticalAlignment="Center" />
 
 					<TextBlock Text="{x:Static res:Texts.NewCategory}"
-							   HorizontalAlignment="Left" VerticalAlignment="Center" />
+							   HorizontalAlignment="Left" VerticalAlignment="Center"
+							   FontSize="18" />
 				</StackPanel>
 			</Button>
 
@@ -65,7 +66,7 @@
 					HorizontalAlignment="Right"
 					HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
 				<TextBlock Text="{x:Static res:Texts.Apply}"
-						   FontSize="11" />
+						   FontSize="14" />
 			</Button>
 
 			<Button Grid.Row="1" Grid.Column="3"
@@ -88,7 +89,7 @@
 					HorizontalAlignment="Right"
 					HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
 				<TextBlock Text="{Binding ChangingCategoryText, Mode=OneWay}"
-						   FontSize="11" />
+						   FontSize="14" />
 			</Button>
 
 			<ListBox Grid.Row="2" Grid.ColumnSpan="9"
@@ -98,10 +99,13 @@
 					<DataTemplate>
 						<Grid>
 							<CheckBox IsChecked="{Binding IsChecked}"
-									  Content="{Binding Name, Mode=OneWay}"
-									  IsVisible="{Binding !Editing}" />
+									  IsVisible="{Binding !Editing}">
+								<TextBlock Text="{Binding Name, Mode=OneWay}"
+										   FontSize="18" />
+							</CheckBox>
 							<TextBox Text="{Binding Name}"
-									 Height="14"
+									 FontSize="16"
+									 Height="16"
 									 AcceptsReturn="True"
 									 AcceptsTab="True"
 									 IsVisible="{Binding Editing}"
@@ -111,6 +115,7 @@
 					</DataTemplate>
 				</ListBox.ItemTemplate>
 			</ListBox>
+
 
 			<Grid Grid.Row="3" Grid.ColumnSpan="9"
 				  IsVisible="{Binding SettingsDisplayed}"
