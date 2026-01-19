@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Controls.Presenters;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using ExCSS;
 using Sunrise.ViewModels;
 
 namespace Sunrise.Views;
@@ -37,7 +38,14 @@ public partial class TrackPlayDeviceView : UserControl
             Opacity = 1;
         }
         else
-            Opacity = 1 - 0.2 * (point.Position.Y / parent.Bounds.Height);
+        {
+            double ratio = point.Position.Y / parent.Bounds.Height;
+
+            if (CanHide(parent, ref point))
+                ratio *= 3;
+
+            Opacity = 1 - 0.2 * ratio;
+        }
 
         Margin = new Avalonia.Thickness(0, offset, 0, -offset);
     }
@@ -47,7 +55,7 @@ public partial class TrackPlayDeviceView : UserControl
         var parent = (Control)Parent!;
         var point = e.GetCurrentPoint(parent);
 
-        if (point.Position.Y > parent.Bounds.Height * 0.9 && DataContext is TrackPlayViewModel viewModel)
+        if (CanHide(parent, ref point) && DataContext is TrackPlayViewModel viewModel)
         {
             var mainViewModel = (MainDeviceViewModel)viewModel.Owner;
             mainViewModel.HideTrackPage();
@@ -56,6 +64,17 @@ public partial class TrackPlayDeviceView : UserControl
         Opacity = 1;
         Margin = default;
         _startPositionY = 0;
+    }
+
+    private bool CanHide(Control parent, ref PointerPoint point)
+    {
+        double height = parent.Bounds.Height;
+
+        if (point.Position.Y > height * 0.9)
+            return true;
+
+        double offset = point.Position.Y - _startPositionY;
+        return offset > 0 && offset >= height * 0.4;
     }
 
     private void Track_Tapped(object? sender, TappedEventArgs e)
