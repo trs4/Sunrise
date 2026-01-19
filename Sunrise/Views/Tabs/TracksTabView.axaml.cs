@@ -72,10 +72,21 @@ public partial class TracksTabView : UserControl, ITracksView
             mainViewModel.TracksView = this;
     }
 
-    void ITracksView.ScrollIntoView(Track track)
+    void ITracksView.ScrollIntoView(Track? track)
     {
         if (DataContext is not MainViewModel mainViewModel)
             return;
+
+        if (track is null)
+        {
+            UIDispatcher.RunBackground(() =>
+            {
+                tracksScroll.ScrollToHome();
+                mainViewModel.SelectedTrack = null;
+            });
+
+            return;
+        }
 
         int id = track.Id;
         var tracks = mainViewModel.Tracks;
@@ -104,10 +115,21 @@ public partial class TracksTabView : UserControl, ITracksView
         });
     }
 
-    void ITracksView.ScrollIntoView(string trackSource)
+    void ITracksView.ScrollIntoView(string? trackSource)
     {
         if (DataContext is not MainViewModel mainViewModel)
             return;
+
+        if (trackSource is null)
+        {
+            UIDispatcher.RunBackground(() =>
+            {
+                tracksScroll.ScrollToHome();
+                mainViewModel.SelectedTrackSource = null;
+            });
+
+            return;
+        }
 
         var trackSources = mainViewModel.TrackSources;
         int index = -1;

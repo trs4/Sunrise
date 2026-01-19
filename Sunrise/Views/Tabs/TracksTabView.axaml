@@ -45,7 +45,7 @@
 			</StackPanel>
 		</Button>
 
-		<ScrollViewer Grid.Row="1"
+		<ScrollViewer Grid.Row="1" x:Name="tracksScroll"
 					  Margin="0 5 0 0">
 			<Grid>
 				<Grid.RowDefinitions>

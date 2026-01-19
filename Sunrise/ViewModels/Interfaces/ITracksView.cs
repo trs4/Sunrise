@@ -4,7 +4,7 @@ namespace Sunrise.ViewModels.Interfaces;
 
 public interface ITracksView
 {
-    void ScrollIntoView(Track track);
+    void ScrollIntoView(Track? track);
 
-    void ScrollIntoView(string trackSource);
+    void ScrollIntoView(string? trackSource);
 }

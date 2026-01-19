@@ -68,10 +68,8 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         mainViewModel.TrackPlay.ChangeOwnerRubric(playlistViewModel);
         await mainViewModel.ChangeTracksAsync(playlistViewModel);
 
-        var selectedTrack = mainViewModel.Tracks.FirstOrDefault(t => t.IsPlaying ?? false);
-
-        if (selectedTrack is not null)
-            mainViewModel.PlaylistsView?.ScrollIntoView(selectedTrack.Track);
+        var selectedTrack = mainViewModel.Tracks.FirstOrDefault(t => t.IsPlaying is not null);
+        mainViewModel.PlaylistsView?.ScrollIntoView(selectedTrack?.Track);
     }
 
     #region IPlaylistsView
@@ -84,10 +82,21 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
             mainViewModel.PlaylistsView = this;
     }
 
-    void IPlaylistsView.ScrollIntoView(Track track)
+    void IPlaylistsView.ScrollIntoView(Track? track)
     {
         if (DataContext is not MainViewModel mainViewModel)
             return;
+
+        if (track is null)
+        {
+            UIDispatcher.RunBackground(() =>
+            {
+                tracksScroll.ScrollToHome();
+                mainViewModel.SelectedTrack = null;
+            });
+
+            return;
+        }
 
         int id = track.Id;
         var tracks = mainViewModel.Tracks;
@@ -116,10 +125,21 @@ public partial class PlaylistsTabView : UserControl, IPlaylistsView
         });
     }
 
-    void IPlaylistsView.ScrollIntoView(Playlist playlist)
+    void IPlaylistsView.ScrollIntoView(Playlist? playlist)
     {
         if (DataContext is not MainViewModel mainViewModel)
             return;
+
+        if (playlist is null)
+        {
+            UIDispatcher.RunBackground(() =>
+            {
+                playlistsScroll.ScrollToHome();
+                mainViewModel.SelectedPlaylist = null;
+            });
+
+            return;
+        }
 
         int id = playlist.Id;
         var playlists = mainViewModel.Playlists;
