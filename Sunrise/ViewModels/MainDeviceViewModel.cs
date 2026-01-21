@@ -396,12 +396,19 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         IsTrackVisible = false;
     }
 
-    public bool CanBack() => TrackSourceHistory.Count > 1;
+    public bool CanBack()
+        => CanGoToPlaylists() || TrackSourceHistory.Count > 1;
 
     public async Task<bool> BackAsync()
     {
         if (!CanBack())
             return false;
+
+        if (CanGoToPlaylists())
+        {
+            GoToPlaylists();
+            return true;
+        }
 
         var currentTracksOwner = TrackSourceHistory[^1];
         TrackSourceHistory.RemoveAt(TrackSourceHistory.Count - 1);
@@ -426,6 +433,9 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
         return true;
     }
+
+    private bool CanGoToPlaylists()
+        => SelectedTab == DeviceTabs.Playlists && (TrackSourceHistory.Count == 0 || TrackSourceHistory[^1] is not PlaylistRubricViewModel);
 
     private void GoToPlaylists()
     {
