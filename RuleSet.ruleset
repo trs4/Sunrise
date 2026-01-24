@@ -197,6 +197,7 @@
     <Rule Id="IDE0040" Action="Error" />
     <Rule Id="IDE0044" Action="Error" />
     <Rule Id="IDE0057" Action="None" />
+    <Rule Id="IDE0059" Action="Warning" />
     <Rule Id="IDE0060" Action="None" />
     <Rule Id="IDE0079" Action="None" />
     <Rule Id="IDE0090" Action="None" />
@@ -207,6 +208,7 @@
     <Rule Id="CA1001" Action="Warning" />
     <Rule Id="CA1309" Action="None" />
     <Rule Id="CA1824" Action="Warning" />
+    <Rule Id="CA2016" Action="Warning" />
   </Rules>
   <Rules AnalyzerId="Microsoft.CodeAnalysis.Features" RuleNamespace="Microsoft.CodeAnalysis.Features">
     <Rule Id="IDE0067" Action="Warning" />

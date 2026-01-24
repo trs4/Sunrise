@@ -35,6 +35,7 @@ public sealed class MainDesktopViewModel : MainViewModel
         SynchronizeDeviceCommand = new AsyncRelayCommand(OnSynchronizeDeviceAsync);
         SynchronizeDevicePlaylistsCommand = new AsyncRelayCommand(OnSynchronizeDevicePlaylistsAsync);
         ClearDeviceCommand = new AsyncRelayCommand(OnClearDeviceAsync);
+        AddCalculatedPlaylistCommand = new AsyncRelayCommand(OnAddCalculatedPlaylistAsync);
         InitTracksColumns();
 
         _discoveryClient = DiscoveryClient.Search(OnDeviceDetected);
@@ -75,6 +76,8 @@ public sealed class MainDesktopViewModel : MainViewModel
     public IRelayCommand SynchronizeDevicePlaylistsCommand { get; }
 
     public IRelayCommand ClearDeviceCommand { get; }
+
+    public IRelayCommand AddCalculatedPlaylistCommand { get; }
 
     private void OnDeviceDetected(DiscoveryDeviceInfo deviceInfo)
     {
@@ -136,6 +139,14 @@ public sealed class MainDesktopViewModel : MainViewModel
             return;
 
         await Dispatcher.ClearAsync(token);
+    }
+
+    private async Task OnAddCalculatedPlaylistAsync(CancellationToken token)
+    {
+        if (await CalculatedPlaylistViewModel.ShowAsync(Owner, TrackPlay.Player, token) is not { } calculatedData)
+            return;
+
+        await AddPlaylistAsync(calculatedData, token);
     }
 
     protected override TrackPlayViewModel CreateTrackPlay(Player player) => new TrackPlayDesktopViewModel(this, player);
@@ -248,30 +259,30 @@ public sealed class MainDesktopViewModel : MainViewModel
         });
     }
 
-    protected override async Task DeletePlaylistAsync()
+    protected override async Task DeletePlaylistAsync(CancellationToken token)
     {
         var selectedPlaylist = SelectedPlaylist;
 
-        if (!await TrackPlay.Player.DeletePlaylistAsync(selectedPlaylist?.Playlist))
+        if (!await TrackPlay.Player.DeletePlaylistAsync(selectedPlaylist?.Playlist, token))
             return;
 
         SelectedPlaylist = null;
         Playlists.Remove(selectedPlaylist);
-        await SelectSongsAsync();
+        await SelectSongsAsync(token);
     }
 
-    protected override async Task DeleteCategoryAsync()
+    protected override async Task DeleteCategoryAsync(CancellationToken token)
     {
         var selectedCategory = SelectedCategory;
 
-        if (!await TrackPlay.Player.DeleteCategoryAsync(selectedCategory?.Category))
+        if (!await TrackPlay.Player.DeleteCategoryAsync(selectedCategory?.Category, token))
             return;
 
         SelectedCategory = null;
         Categories.Remove(selectedCategory);
     }
 
-    public override Task OnNextListAsync() => Task.CompletedTask;
+    public override Task OnNextListAsync(CancellationToken token) => Task.CompletedTask;
 
     public override void OnExit()
     {

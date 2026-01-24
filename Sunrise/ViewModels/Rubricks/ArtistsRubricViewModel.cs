@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Sunrise.Model;
 using Sunrise.Model.Common;
 using Sunrise.Model.Resources;
@@ -33,8 +35,8 @@ public sealed class ArtistsRubricViewModel : RubricViewModel
         return trackSources;
     }
 
-    public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
-        => _currentTracks = (trackSource as ArtistViewModel)?.GetTracks() ?? [];
+    public override ValueTask<IReadOnlyList<Track>> GetTracksAsync(TrackSourceViewModel? trackSource = null, CancellationToken token = default)
+        => new(_currentTracks = (trackSource as ArtistViewModel)?.GetTracks() ?? []);
 
     public override IReadOnlyList<Track>? GetCurrentTracks() => _currentTracks;
 }

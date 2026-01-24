@@ -226,6 +226,8 @@
 						  Command="{Binding ExportCommand, Mode=OneWay}" />
 				<MenuItem Header="{x:Static res:Texts.ImportFromITunes}"
 						  Command="{Binding ImportFromITunesCommand, Mode=OneWay}" />
+				<MenuItem Header="{x:Static res:Texts.AddCalculatedPlaylist}"
+						  Command="{Binding Owner.AddCalculatedPlaylistCommand, Mode=OneWay}" />
 				<Separator/>
 				<MenuItem Header="{x:Static res:Texts.Settings}"
 						  Command="{Binding Owner.SettingsCommand, Mode=OneWay}" />

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using MsBox.Avalonia;
 using MsBox.Avalonia.Enums;
@@ -28,7 +29,7 @@ public class InformationDeviceCardViewModel : DeviceCardViewModel
         set => SetProperty(ref _hasPlaylist, value);
     }
 
-    private async Task OnDeleteFromPlaylistAsync()
+    private async Task OnDeleteFromPlaylistAsync(CancellationToken token)
     {
         if (await MessageBoxManager.GetMessageBoxStandard(string.Empty, Texts.DeleteFromPlaylist + "?", ButtonEnum.OkCancel).ShowAsync() != ButtonResult.Ok)
             return;
@@ -39,11 +40,11 @@ public class InformationDeviceCardViewModel : DeviceCardViewModel
         if (currentTrack is null || currentPlaylist is null)
             return;
 
-        await Owner.GoToNextTrackAsync();
-        await Owner.Player.DeleteTrackInPlaylistAsync(currentPlaylist, currentTrack);
+        await Owner.GoToNextTrackAsync(token);
+        await Owner.Player.DeleteTrackInPlaylistAsync(currentPlaylist, currentTrack, token);
     }
 
-    private async Task OnDeleteFromMediaAsync()
+    private async Task OnDeleteFromMediaAsync(CancellationToken token)
     {
         if (await MessageBoxManager.GetMessageBoxStandard(string.Empty, Texts.DeleteFromMedia + "?", ButtonEnum.OkCancel).ShowAsync() != ButtonResult.Ok)
             return;
@@ -53,9 +54,9 @@ public class InformationDeviceCardViewModel : DeviceCardViewModel
         if (currentTrack is null)
             return;
 
-        await Owner.GoToNextTrackAsync();
-        await Owner.Player.DeleteTrackAsync(currentTrack);
-        await Owner.Owner.RemoveAsync(currentTrack);
+        await Owner.GoToNextTrackAsync(token);
+        await Owner.Player.DeleteTrackAsync(currentTrack, token);
+        await Owner.Owner.RemoveAsync(currentTrack, token);
     }
 
 }

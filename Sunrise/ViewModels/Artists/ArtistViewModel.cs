@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Sunrise.Model;
 using Sunrise.Model.Common;
 using Sunrise.Model.Resources;
@@ -43,7 +45,8 @@ public sealed class ArtistViewModel : TrackSourceViewModel
 
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 
-    public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null) => GetTracks();
+    public override ValueTask<IReadOnlyList<Track>> GetTracksAsync(TrackSourceViewModel? trackSource = null, CancellationToken token = default)
+        => new(GetTracks());
 
     public override IReadOnlyList<Track>? GetCurrentTracks() => GetTracks();
 

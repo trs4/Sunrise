@@ -70,6 +70,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Добавить вычисляемый плейлист.
+        /// </summary>
+        public static string AddCalculatedPlaylist {
+            get {
+                return ResourceManager.GetString("AddCalculatedPlaylist", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Добавить категорию.
         /// </summary>
         public static string AddCategory {
@@ -439,6 +448,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Максимально:.
+        /// </summary>
+        public static string MaxObjects {
+            get {
+                return ResourceManager.GetString("MaxObjects", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Медиатека.
         /// </summary>
         public static string MediaLibrary {
@@ -583,6 +601,15 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Порядок следования.
+        /// </summary>
+        public static string Sorting {
+            get {
+                return ResourceManager.GetString("Sorting", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Синхронизировать.
         /// </summary>
         public static string Synchronize {
@@ -597,6 +624,15 @@ namespace Sunrise.Model.Resources {
         public static string SynchronizePlaylists {
             get {
                 return ResourceManager.GetString("SynchronizePlaylists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Условия.
+        /// </summary>
+        public static string Terms {
+            get {
+                return ResourceManager.GetString("Terms", resourceCulture);
             }
         }
         

@@ -334,11 +334,11 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     protected override bool CanAddRubricTracks(RubricViewModel rubricViewModel)
         => rubricViewModel is SongsRubricViewModel || rubricViewModel.IsDependent;
 
-    protected override void ChangePlaylist(Playlist playlist)
+    protected override void ChangePlaylist(Playlist playlist, IReadOnlyList<Track> tracks)
     {
         BackPlaylistCaption = Texts.Playlists;
         PlaylistCaption = playlist.Name;
-        PlaylistDescription = string.Format(Texts.SongsFormat, playlist.Tracks.Count);
+        PlaylistDescription = string.Format(Texts.SongsFormat, tracks.Count);
         IsPlaylistCaptionVisible = true;
         IsPlaylistsVisible = false;
     }
@@ -362,11 +362,11 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     private async ValueTask FillRecentlyAddedTracksAsync(CancellationToken token)
     {
         var player = TrackPlay.Player;
-        var tracksScreenshot = await player.GetTracksAsync(token);
         RecentlyAddedRubric = new RecentlyAddedRubricViewModel(player);
         RecentlyAddedTracks.Clear();
+        var tracks = await RecentlyAddedRubric.GetTracksAsync(token: token);
 
-        foreach (var track in RecentlyAddedRubric.GetTracks(tracksScreenshot).Take(_recentlyAddedTracksCount))
+        foreach (var track in tracks.Take(_recentlyAddedTracksCount))
             RecentlyAddedTracks.Add(GetTrackViewModel(track));
     }
 
@@ -399,7 +399,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     public bool CanBack()
         => CanGoToPlaylists() || TrackSourceHistory.Count > 1;
 
-    public async Task<bool> BackAsync()
+    public async Task<bool> BackAsync(CancellationToken token = default)
     {
         if (!CanBack())
             return false;
@@ -425,7 +425,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
             if (tracksOwner is not not PlaylistRubricViewModel)
                 IsTrackListVisible = TrackSourceHistory.Count > 1;
 
-            await ChangeTracksAsync(tracksOwner);
+            await ChangeTracksAsync(tracksOwner, token: token);
 
             if (currentTracksOwner is TrackSourceViewModel currentTrackSourceViewModel)
                 TracksView?.ScrollIntoView(currentTrackSourceViewModel.Name);
@@ -446,12 +446,12 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
     private static IReadOnlyList<Track>? GetCurrentTracks(object tracksOwner)
         => tracksOwner is RubricViewModel rubricViewModel && rubricViewModel.IsDependent ? rubricViewModel.GetCurrentTracks() : null;
 
-    private async Task OnRandomPlayRunAsync()
+    private async Task OnRandomPlayRunAsync(CancellationToken token)
     {
         var tracksOwner = TrackSourceHistory.Count > 0 ? TrackSourceHistory[^1] : null;
         var tracks = GetCurrentTracks(tracksOwner);
         var rubricViewModel = new RandomizeRubricViewModel(TrackPlay.Player, tracks);
-        await ChangeTracksAsync(rubricViewModel, changeTracks: tracks is null);
+        await ChangeTracksAsync(rubricViewModel, changeTracks: tracks is null, token: token);
         var rubricTracks = rubricViewModel.GetCurrentTracks();
         var track = rubricTracks is null || rubricTracks.Count == 0 ? null : rubricTracks[0];
 
@@ -471,14 +471,14 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
             IsShortTrackVisible = true;
     }
 
-    private Task OnRecentlyAddedAsync()
+    private Task OnRecentlyAddedAsync(CancellationToken token)
     {
         var rubricViewModel = RecentlyAddedRubric;
         TrackPlay.ChangeOwnerRubric(rubricViewModel);
-        return ChangeTracksAsync(rubricViewModel);
+        return ChangeTracksAsync(rubricViewModel, token: token);
     }
 
-    private async Task OnRecentlyAddedPlaylistsAsync()
+    private async Task OnRecentlyAddedPlaylistsAsync(CancellationToken token)
     {
         var playlistViewModel = RecentlyAddedPlaylists.FirstOrDefault();
 
@@ -489,7 +489,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         IsPlaylistsVisible = false;
 
         TrackPlay.ChangeOwnerRubric(playlistViewModel);
-        await ChangeTracksAsync(playlistViewModel);
+        await ChangeTracksAsync(playlistViewModel, token: token);
     }
 
     protected async override void OnPropertyChanging(PropertyChangingEventArgs e)
@@ -636,7 +636,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
             SearchGenres.Add(new GenreViewModel(Genres, name, tracks));
     }
 
-    public async override Task OnNextListAsync()
+    public async override Task OnNextListAsync(CancellationToken token = default)
     {
         var currentRubric = TrackPlay.CurrentRubric;
         var currentTrackSource = TrackPlay.CurrentTrackSource ?? TrackPlay.CurrentRubric;
@@ -675,7 +675,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
         OnExit();
         TrackPlay.ChangeOwnerRubric(currentRubric, TrackPlay.OwnerTrackSource);
-        await SelectTracksAsync(currentTrackSource);
+        await SelectTracksAsync(currentTrackSource, token: token);
         SelectedTrack = TrackPlay.CurrentTrack;
     }
 
@@ -708,14 +708,14 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         }
     }
 
-    private async Task OnApplyPlaylistAsync()
+    private async Task OnApplyPlaylistAsync(CancellationToken token)
     {
         var currentPlaylist = SelectedPlaylist;
 
         if (currentPlaylist is not null)
         {
             var playlist = currentPlaylist.Playlist;
-            await TrackPlay.Player.ChangePlaylistNameAsync(playlist, PlaylistCaption);
+            await TrackPlay.Player.ChangePlaylistNameAsync(playlist, PlaylistCaption, token);
             PlaylistCaption = currentPlaylist.Name = playlist.Name;
 
             foreach (var category in ChangedCategories)
@@ -725,10 +725,10 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
                 if (category.IsChecked)
                 {
                     if (!playlist.Categories.Any(c => c.Id == categoryId))
-                        await TrackPlay.Player.AddCategoryInPlaylistAsync(playlist, category.Category);
+                        await TrackPlay.Player.AddCategoryInPlaylistAsync(playlist, category.Category, token);
                 }
                 else if (playlist.Categories.Any(c => c.Id == categoryId))
-                    await TrackPlay.Player.DeleteCategoryInPlaylistAsync(playlist, category.Category);
+                    await TrackPlay.Player.DeleteCategoryInPlaylistAsync(playlist, category.Category, token);
             }
         }
 
@@ -742,7 +742,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         ChangingPlaylistText = Texts.Change;
     }
 
-    protected override async Task DeletePlaylistAsync()
+    protected override async Task DeletePlaylistAsync(CancellationToken token)
     {
         var currentPlaylist = SelectedPlaylist;
 
@@ -751,17 +751,17 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
 
         TrackPlay.Clear(); // Stop
         GoToPlaylists();
-        await TrackPlay.Player.DeletePlaylistAsync(currentPlaylist.Playlist);
-        await RemoveAsync(currentPlaylist.Playlist);
+        await TrackPlay.Player.DeletePlaylistAsync(currentPlaylist.Playlist, token);
+        await RemoveAsync(currentPlaylist.Playlist, token);
     }
 
-    protected override async Task DeleteCategoryAsync()
+    protected override async Task DeleteCategoryAsync(CancellationToken token)
     {
         var selectedChangedCategory = SelectedChangedCategory;
 
         if (selectedChangedCategory is not null)
         {
-            if (!await TrackPlay.Player.DeleteCategoryAsync(selectedChangedCategory.Category))
+            if (!await TrackPlay.Player.DeleteCategoryAsync(selectedChangedCategory.Category, token))
                 return;
 
             SelectedCategory = SelectedChangedCategory = null;
@@ -769,14 +769,14 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
         }
     }
 
-    public async Task OnApplyCategoryAsync()
+    public async Task OnApplyCategoryAsync(CancellationToken token = default)
     {
         var selectedChangedCategory = SelectedChangedCategory;
 
         if (selectedChangedCategory is not null)
         {
             selectedChangedCategory.Editing = false;
-            await TrackPlay.Player.ChangeCategoryNameAsync(selectedChangedCategory.Category, selectedChangedCategory.Name);
+            await TrackPlay.Player.ChangeCategoryNameAsync(selectedChangedCategory.Category, selectedChangedCategory.Name, token);
             selectedChangedCategory.Name = selectedChangedCategory.Category.Name;
         }
 
@@ -812,7 +812,7 @@ public sealed class MainDeviceViewModel : MainViewModel, IDisposable
             category.Editing = false;
     }
 
-    private async Task OnConnectPlayerAsync()
+    private async Task OnConnectPlayerAsync(CancellationToken token)
     {
         bool settingsDisplayed = SettingsDisplayed;
         var client = _client;

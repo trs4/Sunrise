@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Sunrise.Model;
 using Sunrise.ViewModels.Rubricks;
@@ -32,7 +34,7 @@ public abstract class RubricViewModel : ObservableObject
 
     public abstract IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot);
 
-    public abstract IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null);
+    public abstract ValueTask<IReadOnlyList<Track>> GetTracksAsync(TrackSourceViewModel? trackSource = null, CancellationToken token = default);
 
     public abstract IReadOnlyList<Track>? GetCurrentTracks();
 

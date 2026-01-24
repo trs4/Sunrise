@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Sunrise.Model;
 using Sunrise.Model.Resources;
 using Sunrise.ViewModels.Rubricks;
@@ -21,8 +23,10 @@ public sealed class RandomizeRubricViewModel : RubricViewModel
 
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 
-    public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null)
+    public override async ValueTask<IReadOnlyList<Track>> GetTracksAsync(TrackSourceViewModel? trackSource = null, CancellationToken token = default)
     {
+        var screenshot = await Player.GetTracksAsync(token);
+
         if (!ReferenceEquals(_screenshot, screenshot))
         {
             _screenshot = screenshot;

@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Sunrise.Model;
 using Sunrise.ViewModels.Rubricks;
 
@@ -26,7 +28,8 @@ public sealed class AlbumViewModel : TrackSourceViewModel
 
     public override IReadOnlyList<TrackSourceViewModel>? GetTrackSources(TracksScreenshot screenshot) => null;
 
-    public override IReadOnlyList<Track> GetTracks(TracksScreenshot screenshot, TrackSourceViewModel? trackSource = null) => Tracks;
+    public override ValueTask<IReadOnlyList<Track>> GetTracksAsync(TrackSourceViewModel? trackSource = null, CancellationToken token = default)
+        => new(Tracks);
 
     public override IReadOnlyList<Track>? GetCurrentTracks() => Tracks;
 }

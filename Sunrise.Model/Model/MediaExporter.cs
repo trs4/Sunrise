@@ -1,7 +1,4 @@
-﻿using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.Unicode;
+﻿using Sunrise.Model.Common;
 using Sunrise.Model.Communication;
 using Sunrise.Model.Model.Exchange;
 
@@ -9,13 +6,6 @@ namespace Sunrise.Model.Model;
 
 public static class MediaExporter
 {
-    private static readonly JsonSerializerOptions _options = new()
-    {
-        WriteIndented = true,
-        DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault,
-        Encoder = JavaScriptEncoder.Create(UnicodeRanges.All),
-    };
-
     public static async Task ExportAsync(Player player, Stream stream, CancellationToken token = default)
     {
         ArgumentNullException.ThrowIfNull(player);
@@ -30,12 +20,11 @@ public static class MediaExporter
         var categoriesScreenshot = await player.GetCategoriesAsync(token);
         var document = BuildDocument(devices, folders, tracksScreenshot, playlists, categoriesScreenshot);
 
-        JsonSerializer.Serialize(stream, document, _options);
-        stream.Flush();
+        JsonSerialization.Serialize(stream, document);
     }
 
     internal static MediaDocument? Deserialize(Stream stream)
-        => JsonSerializer.Deserialize<MediaDocument>(stream, _options);
+        => JsonSerialization.Deserialize<MediaDocument>(stream);
 
     private static MediaDocument BuildDocument(List<Device> devices, List<string> folders,
         TracksScreenshot tracksScreenshot, Dictionary<string, Playlist> playlists, CategoriesScreenshot categoriesScreenshot)

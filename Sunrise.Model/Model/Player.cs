@@ -155,6 +155,12 @@ public sealed class Player
             await connection.Schema.CreateColumnQuery<Tracks>().WithColumn(table.FindColumn(nameof(Tracks.Translate))).RunAsync(token);
         }
 
+        if (lastVersion < 4)
+        {
+            var table = TableGenerator.From<Playlists>();
+            await connection.Schema.CreateColumnQuery<Playlists>().WithColumn(table.FindColumn(nameof(Playlists.CalculatedData))).RunAsync(token);
+        }
+
         await AppendUpdateAsync(connection, token);
     }
 
@@ -497,7 +503,46 @@ public sealed class Player
         }
     }
 
-    public async Task<Playlist> AddPlaylistAsync(CancellationToken token = default)
+    public async Task<List<Track>> GetTracksAsync(PlaylistCalculatedData data, CancellationToken token = default)
+    {
+        const string alias = "t";
+        var query = _connection.Select.CreateQuery<Tracks>(alias);
+
+        if (data.MaxTracks > 0)
+            query.Top = data.MaxTracks;
+
+        foreach (var rule in data.TermRules ?? [])
+        {
+            var columnName = (Tracks)rule.Parameter;
+            var op = (Op)rule.Operator;
+            query.WithTerm(columnName, op, rule.Value);
+        }
+
+        foreach (var rule in data.SortingRules ?? [])
+        {
+            var columnName = (Tracks)rule.Parameter;
+            var sortOrder = rule.Sorting == PlaylistParameterSorting.Ascending ? SelectQueryOrder.Ascending : SelectQueryOrder.Descending;
+            query.OrderBy(alias, columnName, sortOrder);
+        }
+
+        var trackIds = await query.GetAsync<List<int>>(token);
+
+        if (trackIds.Count == 0)
+            return [];
+
+        var tracksScreenshot = await GetTracksAsync(token);
+        var tracks = new List<Track>(trackIds.Count);
+
+        foreach (int trackId in trackIds)
+        {
+            if (tracksScreenshot.TracksById.TryGetValue(trackId, out var track))
+                tracks.Add(track);
+        }
+
+        return tracks;
+    }
+
+    public async Task<Playlist> AddPlaylistAsync(PlaylistCalculatedData? calculatedData = null, CancellationToken token = default)
     {
         var now = DateTime.Now;
         var playlists = await GetPlaylistsAsync(token);
@@ -512,6 +557,9 @@ public sealed class Player
             Tracks = [],
             Categories = [],
         };
+
+        if (calculatedData is not null)
+            playlist.CalculatedData = JsonSerialization.Serialize(calculatedData);
 
         await _connection.Insert.CreateWithParseQuery<Playlist, Playlists>(playlist).FillAsync(token);
         playlists.Add(name, playlist);

@@ -24,6 +24,8 @@ public sealed class TrackPlayDesktopViewModel : TrackPlayViewModel
         Player.Media.Volume = _volume;
     }
 
+    public new MainDesktopViewModel Owner => (MainDesktopViewModel)base.Owner;
+
     public IRelayCommand ExportCommand { get; }
 
     public IRelayCommand ImportFromITunesCommand { get; }

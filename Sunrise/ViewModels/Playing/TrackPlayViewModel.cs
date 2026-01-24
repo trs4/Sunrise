@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -395,7 +396,7 @@ public abstract class TrackPlayViewModel : ObservableObject
             Pause(currentTrack);
     }
 
-    public async Task PlayPauseTrackAsync()
+    public async Task PlayPauseTrackAsync(CancellationToken token = default)
     {
         var currentTrack = CurrentTrack ??= await Strategy.GetFirstAsync();
 
@@ -408,7 +409,7 @@ public abstract class TrackPlayViewModel : ObservableObject
             await PlayCoreAsync(currentTrack);
     }
 
-    public async Task GoToPrevTrackAsync()
+    public async Task GoToPrevTrackAsync(CancellationToken token = default)
     {
         var track = CurrentTrack;
 
@@ -447,13 +448,13 @@ public abstract class TrackPlayViewModel : ObservableObject
         }
     }
 
-    public async Task GoToNextTrackAsync()
+    public async Task GoToNextTrackAsync(CancellationToken token = default)
     {
         var track = CurrentTrack;
 
         if (track is null)
         {
-            await PlayPauseTrackAsync();
+            await PlayPauseTrackAsync(token);
             return;
         }
 
@@ -544,7 +545,7 @@ public abstract class TrackPlayViewModel : ObservableObject
 
     protected abstract ValueTask OnTracksEndedAsync();
 
-    private Task OnNextListAsync() => Owner.OnNextListAsync();
+    private Task OnNextListAsync(CancellationToken token) => Owner.OnNextListAsync(token);
 
     private void OnExit() => Owner.OnExit();
 }

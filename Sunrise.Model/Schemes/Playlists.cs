@@ -9,4 +9,5 @@ public enum Playlists
     [Column(ColumnType.String, size: 255)] Name,
     [Column(ColumnType.DateTime)] Created,
     [Column(ColumnType.DateTime)] Updated,
+    [Column(ColumnType.ByteArray, nullable: true)] CalculatedData,
 }

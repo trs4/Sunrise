@@ -1,0 +1,155 @@
+<Window xmlns="https://github.com/avaloniaui"
+		xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+		xmlns:vm="using:Sunrise.ViewModels"
+		xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
+		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+		x:Class="Sunrise.Views.CalculatedPlaylistWindow"
+		x:DataType="vm:CalculatedPlaylistViewModel"
+		x:CompileBindings="False"
+		Height="500" MinHeight="500"
+		Width="500" MinWidth="500"
+		CanResize="False"
+		Title="{x:Static res:Texts.Playlist}">
+	<Design.DataContext>
+		<vm:CalculatedPlaylistViewModel />
+	</Design.DataContext>
+
+	<Grid Margin="10">
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="Auto" />
+			<ColumnDefinition Width="10" />
+			<ColumnDefinition />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+			<RowDefinition />
+			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
+		</Grid.RowDefinitions>
+
+		<TextBlock Grid.ColumnSpan="9" Grid.Row="0"
+				   Text="{x:Static res:Texts.Terms}"
+				   VerticalAlignment="Center" HorizontalAlignment="Left"
+				   FontWeight="SemiBold"
+				   FontSize="18" />
+
+		<Menu Grid.ColumnSpan="9" Grid.Row="1">
+			<MenuItem Header="{x:Static res:Texts.Add}"
+					  Command="{Binding AddTermCommand, Mode=OneWay}" />
+			<MenuItem Header="{x:Static res:Texts.Delete}"
+					  Command="{Binding DeleteTermCommand, Mode=OneWay}" />
+		</Menu>
+
+		<ListBox Grid.ColumnSpan="9" Grid.Row="2"
+				 ItemsSource="{Binding TermRules, Mode=OneWay}"
+				 SelectedValue="{Binding SelectedTermRule}">
+			<ListBox.ItemTemplate>
+				<DataTemplate DataType="vm:PlaylistTermRuleViewModel">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+
+						<ComboBox Grid.Column="0"
+								  ItemsSource="{x:Static vm:PlaylistTermRuleViewModel.Parameters}"
+								  SelectedValue="{Binding Parameter}"
+								  HorizontalAlignment="Center" />
+
+						<ComboBox Grid.Column="1"
+								  ItemsSource="{x:Static vm:PlaylistTermRuleViewModel.Operators}"
+								  SelectedValue="{Binding Operator}"
+								  HorizontalAlignment="Center" />
+
+						<TextBox Grid.Column="2"
+								 VerticalAlignment="Center"
+								 Height="30"
+								 Text="{Binding Value}" />
+					</Grid>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+
+
+		<TextBlock Grid.ColumnSpan="9" Grid.Row="3"
+				   Text="{x:Static res:Texts.Sorting}"
+				   VerticalAlignment="Center" HorizontalAlignment="Left"
+				   FontWeight="SemiBold"
+				   FontSize="18" />
+
+		<Menu Grid.ColumnSpan="9" Grid.Row="4">
+			<MenuItem Header="{x:Static res:Texts.Add}"
+					  Command="{Binding AddSortingCommand, Mode=OneWay}" />
+			<MenuItem Header="{x:Static res:Texts.Delete}"
+					  Command="{Binding DeleteSortingCommand, Mode=OneWay}" />
+		</Menu>
+
+		<ListBox Grid.ColumnSpan="9" Grid.Row="5"
+				 ItemsSource="{Binding SortingRules, Mode=OneWay}"
+				 SelectedValue="{Binding SelectedSortingRule}">
+			<ListBox.ItemTemplate>
+				<DataTemplate DataType="vm:PlaylistSortingRuleViewModel">
+					<Grid>
+						<Grid.ColumnDefinitions>
+							<ColumnDefinition />
+							<ColumnDefinition />
+						</Grid.ColumnDefinitions>
+
+						<ComboBox Grid.Column="0"
+								  ItemsSource="{x:Static vm:PlaylistSortingRuleViewModel.Parameters}"
+								  SelectedValue="{Binding Parameter}"
+								  HorizontalAlignment="Center" />
+
+						<ComboBox Grid.Column="1"
+								  ItemsSource="{x:Static vm:PlaylistSortingRuleViewModel.Sortings}"
+								  SelectedValue="{Binding Sorting}"
+								  HorizontalAlignment="Center" />
+					</Grid>
+				</DataTemplate>
+			</ListBox.ItemTemplate>
+		</ListBox>
+
+
+		<TextBlock Grid.Column="0" Grid.Row="6"
+				   Text="{x:Static res:Texts.MaxObjects}"
+				   VerticalAlignment="Center" HorizontalAlignment="Left"
+				   FontWeight="SemiBold"
+				   FontSize="18" />
+
+		<NumericUpDown Grid.Column="2" Grid.Row="6"
+					   HorizontalAlignment="Stretch"
+					   VerticalAlignment="Center"
+					   Minimum="0"
+					   Increment="1"
+					   ParsingNumberStyle="Integer"
+					   Height="30"
+					   Text="{Binding MaxTracks}" />
+
+
+		<StackPanel Grid.ColumnSpan="9" Grid.Row="7"
+					Orientation="Horizontal"
+					HorizontalAlignment="Right"
+					VerticalAlignment="Center">
+			<Button HorizontalContentAlignment="Center"
+					VerticalContentAlignment="Center"
+					Margin="0 10 10 10"
+					Theme="{StaticResource MaterialFlatButton}"
+					Content="OK"
+					Command="{Binding OkCommand, Mode=OneWay}" />
+
+			<Button HorizontalContentAlignment="Center"
+					VerticalContentAlignment="Center"
+					Margin="0 10 10 10"
+					Theme="{StaticResource MaterialFlatButton}"
+					Content="{x:Static res:Texts.Cancel}"
+					Command="{Binding CancelCommand, Mode=OneWay}" />
+		</StackPanel>
+	</Grid>
+</Window>

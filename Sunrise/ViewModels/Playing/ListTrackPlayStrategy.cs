@@ -61,8 +61,8 @@ public sealed class ListTrackPlayStrategy : TrackPlayStrategy
 
     private async ValueTask<IReadOnlyList<Track>> InitTracksAsync()
     {
-        var tracksScreenshot = await Owner.TrackPlay.Player.GetTracksAsync();
-        return _ownerRubric?.GetTracks(tracksScreenshot, _ownerTrackSource) ?? [];
+        var ownerRubric = _ownerRubric;
+        return ownerRubric is null ? [] : await ownerRubric.GetTracksAsync(_ownerTrackSource);
     }
 
     public override bool Equals(bool randomPlay, RubricViewModel? ownerRubric, TrackSourceViewModel? ownerTrackSource)

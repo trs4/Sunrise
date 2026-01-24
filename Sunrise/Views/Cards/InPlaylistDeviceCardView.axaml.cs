@@ -22,7 +22,7 @@ public partial class InPlaylistDeviceCardView : UserControl
         if (currentTrack is null)
             return;
 
-        var tracks = playlistViewModel.Playlist.Tracks;
+        var tracks = await playlistViewModel.Playlist.GetTracksAsync(viewModel.Owner.Player);
 
         if (tracks.Count == 0 || tracks[^1] != currentTrack)
         {
