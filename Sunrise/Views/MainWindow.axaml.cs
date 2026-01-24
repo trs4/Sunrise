@@ -32,7 +32,7 @@ public partial class MainWindow : Window
         mainViewModel.IsPlaylistsVisible = !mainViewModel.IsPlaylistsVisible;
     }
 
-    private void Playlist_SelectionChanged(object? sender, SelectionChangedEventArgs e)
+    private async void Playlist_SelectionChanged(object? sender, SelectionChangedEventArgs e)
     {
         var playlistViewModel = e.GetSelectedItem<PlaylistRubricViewModel>();
 
@@ -40,6 +40,7 @@ public partial class MainWindow : Window
             return;
 
         mainViewModel.SelectedPlaylist = playlistViewModel;
+        await mainViewModel.ChangeTracksAsync(playlistViewModel);
     }
 
     private async void Playlist_Tapped(object? sender, TappedEventArgs e)
