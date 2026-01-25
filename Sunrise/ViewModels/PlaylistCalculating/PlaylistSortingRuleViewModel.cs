@@ -10,8 +10,8 @@ public sealed class PlaylistSortingRuleViewModel : ObservableObject
 
     public static readonly PlaylistParameterSorting[] Sortings = Enum.GetValues<PlaylistParameterSorting>();
 
-    private PlaylistParameter _parameter;
-    private PlaylistParameterSorting _sorting;
+    private PlaylistParameter _parameter = PlaylistParameter.Reproduced;
+    private PlaylistParameterSorting _sorting = PlaylistParameterSorting.Descending;
 
     public PlaylistParameter Parameter
     {

@@ -1,4 +1,5 @@
 ﻿using RedLight;
+using Sunrise.Model.Resources;
 
 namespace Sunrise.Model;
 
@@ -21,4 +22,18 @@ public enum PlaylistParameterOperator
 
     /// <summary>Меньше или равно</summary>
     LessThanOrEqual = Op.LessThanOrEqual,
+}
+
+public static class PlaylistParameterOperatorExtensions
+{
+    public static string GetName(this PlaylistParameterOperator @operator) => @operator switch
+    {
+        PlaylistParameterOperator.Equal => Texts.Equal,
+        PlaylistParameterOperator.NotEqual => Texts.NotEqual,
+        PlaylistParameterOperator.GreaterThan => Texts.GreaterThan,
+        PlaylistParameterOperator.GreaterThanOrEqual => Texts.GreaterThanOrEqual,
+        PlaylistParameterOperator.LessThan => Texts.LessThan,
+        PlaylistParameterOperator.LessThanOrEqual => Texts.LessThanOrEqual,
+        _ => throw new NotSupportedException(@operator.ToString()),
+    };
 }

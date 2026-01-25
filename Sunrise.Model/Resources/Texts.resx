@@ -324,4 +324,34 @@
   <data name="MaxObjects" xml:space="preserve">
     <value>Максимально:</value>
   </data>
+  <data name="Equal" xml:space="preserve">
+    <value>Равно</value>
+  </data>
+  <data name="NotEqual" xml:space="preserve">
+    <value>Не равно</value>
+  </data>
+  <data name="GreaterThan" xml:space="preserve">
+    <value>Больше</value>
+  </data>
+  <data name="GreaterThanOrEqual" xml:space="preserve">
+    <value>Больше или равно</value>
+  </data>
+  <data name="LessThan" xml:space="preserve">
+    <value>Меньше</value>
+  </data>
+  <data name="LessThanOrEqual" xml:space="preserve">
+    <value>Меньше или равно</value>
+  </data>
+  <data name="Picked" xml:space="preserve">
+    <value>Выбран</value>
+  </data>
+  <data name="LastWrite" xml:space="preserve">
+    <value>Дата последнего изменения</value>
+  </data>
+  <data name="Descending" xml:space="preserve">
+    <value>По убыванию</value>
+  </data>
+  <data name="Ascending" xml:space="preserve">
+    <value>По возрастанию</value>
+  </data>
 </root>

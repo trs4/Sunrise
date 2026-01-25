@@ -1,4 +1,5 @@
-﻿using Sunrise.Model.Schemes;
+﻿using Sunrise.Model.Resources;
+using Sunrise.Model.Schemes;
 
 namespace Sunrise.Model;
 
@@ -39,4 +40,24 @@ public enum PlaylistParameter
 
     /// <summary>Дата последнего изменения</summary>
     LastWrite = Tracks.LastWrite,
+}
+
+public static class PlaylistParameterExtensions
+{
+    public static string GetName(this PlaylistParameter parameter) => parameter switch
+    {
+        PlaylistParameter.Picked => Texts.Picked,
+        PlaylistParameter.Title => Texts.Title,
+        PlaylistParameter.Year => Texts.Year,
+        PlaylistParameter.Duration => Texts.Duration,
+        PlaylistParameter.Rating => Texts.Rating,
+        PlaylistParameter.Artist => Texts.Artist,
+        PlaylistParameter.Genre => Texts.Genre,
+        PlaylistParameter.LastPlay => Texts.LastPlay,
+        PlaylistParameter.Reproduced => Texts.Reproduced,
+        PlaylistParameter.Album => Texts.Album,
+        PlaylistParameter.Added => Texts.Added,
+        PlaylistParameter.LastWrite => Texts.LastWrite,
+        _ => throw new NotSupportedException(parameter.ToString()),
+    };
 }

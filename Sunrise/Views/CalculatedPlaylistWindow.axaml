@@ -3,6 +3,8 @@
 		xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
 		xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
 		xmlns:vm="using:Sunrise.ViewModels"
+		xmlns:scv="clr-namespace:Sunrise.Converters"
+		xmlns:sm="clr-namespace:Sunrise.Model;assembly=Sunrise.Model"
 		xmlns:res="clr-namespace:Sunrise.Model.Resources;assembly=Sunrise.Model"
 		mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
 		x:Class="Sunrise.Views.CalculatedPlaylistWindow"
@@ -61,12 +63,26 @@
 						<ComboBox Grid.Column="0"
 								  ItemsSource="{x:Static vm:PlaylistTermRuleViewModel.Parameters}"
 								  SelectedValue="{Binding Parameter}"
-								  HorizontalAlignment="Center" />
+								  HorizontalAlignment="Center">
+							<ComboBox.ItemTemplate>
+								<DataTemplate DataType="sm:PlaylistParameter">
+									<TextBlock Text="{Binding ., Converter={x:Static scv:PlaylistParameterConverter.Instance}}"
+											   VerticalAlignment="Center" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
 
 						<ComboBox Grid.Column="1"
 								  ItemsSource="{x:Static vm:PlaylistTermRuleViewModel.Operators}"
 								  SelectedValue="{Binding Operator}"
-								  HorizontalAlignment="Center" />
+								  HorizontalAlignment="Center">
+							<ComboBox.ItemTemplate>
+								<DataTemplate DataType="sm:PlaylistParameterOperator">
+									<TextBlock Text="{Binding ., Converter={x:Static scv:PlaylistParameterOperatorConverter.Instance}}"
+											   VerticalAlignment="Center" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
 
 						<TextBox Grid.Column="2"
 								 VerticalAlignment="Center"
@@ -105,12 +121,26 @@
 						<ComboBox Grid.Column="0"
 								  ItemsSource="{x:Static vm:PlaylistSortingRuleViewModel.Parameters}"
 								  SelectedValue="{Binding Parameter}"
-								  HorizontalAlignment="Center" />
+								  HorizontalAlignment="Center">
+							<ComboBox.ItemTemplate>
+								<DataTemplate DataType="sm:PlaylistParameter">
+									<TextBlock Text="{Binding ., Converter={x:Static scv:PlaylistParameterConverter.Instance}}"
+											   VerticalAlignment="Center" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
 
 						<ComboBox Grid.Column="1"
 								  ItemsSource="{x:Static vm:PlaylistSortingRuleViewModel.Sortings}"
 								  SelectedValue="{Binding Sorting}"
-								  HorizontalAlignment="Center" />
+								  HorizontalAlignment="Center">
+							<ComboBox.ItemTemplate>
+								<DataTemplate DataType="sm:PlaylistParameterSorting">
+									<TextBlock Text="{Binding ., Converter={x:Static scv:PlaylistParameterSortingConverter.Instance}}"
+											   VerticalAlignment="Center" />
+								</DataTemplate>
+							</ComboBox.ItemTemplate>
+						</ComboBox>
 					</Grid>
 				</DataTemplate>
 			</ListBox.ItemTemplate>

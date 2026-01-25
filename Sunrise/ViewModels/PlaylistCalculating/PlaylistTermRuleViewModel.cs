@@ -10,8 +10,8 @@ public sealed class PlaylistTermRuleViewModel : ObservableObject
 
     public static readonly PlaylistParameterOperator[] Operators = Enum.GetValues<PlaylistParameterOperator>();
 
-    private PlaylistParameter _parameter;
-    private PlaylistParameterOperator _operator;
+    private PlaylistParameter _parameter = PlaylistParameter.Rating;
+    private PlaylistParameterOperator _operator = PlaylistParameterOperator.Equal;
     private string _value;
 
     public PlaylistParameter Parameter
