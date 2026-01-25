@@ -66,7 +66,7 @@ public class Playlist
         {
             foreach (var rule in calculatedData.TermRules)
             {
-                if (rule.Value is JsonElement jsonElement)
+                if (rule.Value is JsonElement jsonElement) // %%RedLight
                     rule.Value = jsonElement.GetString();
             }
         }

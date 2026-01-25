@@ -150,14 +150,14 @@ public sealed class Player
             await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("OriginalText").RunAsync(token);
             await connection.Schema.DeleteColumnQuery<Tracks>().WithColumn("TranslateText").RunAsync(token);
 
-            var table = TableGenerator.From<Tracks>();
+            var table = TableGenerator.From<Tracks>(); // %%RedLight
             await connection.Schema.CreateColumnQuery<Tracks>().WithColumn(table.FindColumn(nameof(Tracks.Lyrics))).RunAsync(token);
             await connection.Schema.CreateColumnQuery<Tracks>().WithColumn(table.FindColumn(nameof(Tracks.Translate))).RunAsync(token);
         }
 
         if (lastVersion < 4)
         {
-            var table = TableGenerator.From<Playlists>();
+            var table = TableGenerator.From<Playlists>(); // %%RedLight
             await connection.Schema.CreateColumnQuery<Playlists>().WithColumn(table.FindColumn(nameof(Playlists.CalculatedData))).RunAsync(token);
         }
 
@@ -571,6 +571,8 @@ public sealed class Player
         if (playlist is null || track is null)
             return;
 
+        await UpdatePlaylistAsync(playlist, token);
+
         await _connection.Insert.CreateQuery<PlaylistTracks>()
             .AddColumn(nameof(PlaylistTracks.PlaylistId), playlist.Id)
             .AddColumn(nameof(PlaylistTracks.TrackId), track.Id)
@@ -580,10 +582,22 @@ public sealed class Player
         playlist.Tracks.Add(track);
     }
 
+    private async Task UpdatePlaylistAsync(Playlist playlist, CancellationToken token)
+    {
+        playlist.Updated = DateTime.Now;
+
+        await _connection.Update.CreateQuery<Playlists>()
+            .WithTerm(Playlists.Id, playlist.Id)
+            .AddColumn(Playlists.Updated, playlist.Updated)
+            .RunAsync(token);
+    }
+
     public async Task DeleteTrackInPlaylistAsync(Playlist? playlist, Track? track, CancellationToken token = default)
     {
         if (playlist is null || track is null)
             return;
+
+        await UpdatePlaylistAsync(playlist, token);
 
         await _connection.Delete.CreateQuery<PlaylistTracks>()
             .WithTerm(PlaylistTracks.PlaylistId, playlist.Id)
@@ -598,6 +612,8 @@ public sealed class Player
         if (playlist is null || category is null)
             return;
 
+        await UpdatePlaylistAsync(playlist, token);
+
         await _connection.Insert.CreateQuery<PlaylistCategories>()
             .AddColumn(nameof(PlaylistCategories.PlaylistId), playlist.Id)
             .AddColumn(nameof(PlaylistCategories.CategoryId), category.Id)
@@ -610,6 +626,8 @@ public sealed class Player
     {
         if (playlist is null || category is null)
             return;
+
+        await UpdatePlaylistAsync(playlist, token);
 
         await _connection.Delete.CreateQuery<PlaylistCategories>()
             .WithTerm(nameof(PlaylistCategories.PlaylistId), playlist.Id)
@@ -654,9 +672,12 @@ public sealed class Player
         if (playlists.ContainsKey(name))
             return false;
 
+        playlist.Updated = DateTime.Now;
+
         bool result = await _connection.Update.CreateQuery<Playlists>()
             .WithTerm(Playlists.Id, playlist.Id)
             .AddColumn(Playlists.Name, name)
+            .AddColumn(Playlists.Updated, playlist.Updated)
             .RunAsync(token) > 0;
 
         if (!result)
@@ -702,9 +723,28 @@ public sealed class Player
         if (!result)
             return false;
 
+        var playlistIds = await _connection.Select.CreateQuery<PlaylistTracks>()
+            .WithDistinct()
+            .AddColumn(PlaylistTracks.PlaylistId)
+            .WithTerm(PlaylistTracks.TrackId, trackId)
+            .GetAsync<List<int>>(token);
+
+        if (playlistIds.Count == 0)
+            return true;
+
         await _connection.Delete.CreateQuery<PlaylistTracks>()
             .WithTerm(PlaylistTracks.TrackId, trackId)
             .RunAsync(token);
+
+        var playlists = await GetPlaylistsAsync(token);
+
+        foreach (int playlistId in playlistIds) // %%TODO Оптимизировать
+        {
+            var playlist = playlists.Values.FirstOrDefault(p => p.Id == playlistId);
+
+            if (playlist is not null)
+                await UpdatePlaylistAsync(playlist, token);
+        }
 
         return true;
     }
