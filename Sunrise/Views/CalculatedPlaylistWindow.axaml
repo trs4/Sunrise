@@ -27,6 +27,7 @@
 		<Grid.RowDefinitions>
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
+			<RowDefinition Height="Auto" />
 			<RowDefinition />
 			<RowDefinition Height="Auto" />
 			<RowDefinition Height="Auto" />
@@ -35,20 +36,28 @@
 			<RowDefinition Height="Auto" />
 		</Grid.RowDefinitions>
 
-		<TextBlock Grid.ColumnSpan="9" Grid.Row="0"
-				   Text="{x:Static res:Texts.Terms}"
+		<TextBlock Grid.Column="0" Grid.Row="0"
 				   VerticalAlignment="Center" HorizontalAlignment="Left"
-				   FontWeight="SemiBold"
-				   FontSize="18" />
+				   Text="{x:Static res:Texts.Name}" />
 
-		<Menu Grid.ColumnSpan="9" Grid.Row="1">
+		<TextBox Grid.Column="2" Grid.Row="0"
+				 VerticalAlignment="Center"
+				 Height="30"
+				 Theme="{StaticResource FilledTextBox}"
+				 Text="{Binding Name}" />
+
+		<TextBlock Grid.ColumnSpan="9" Grid.Row="1"
+				   VerticalAlignment="Center" HorizontalAlignment="Left"
+				   Text="{x:Static res:Texts.Terms}" />
+
+		<Menu Grid.ColumnSpan="9" Grid.Row="2">
 			<MenuItem Header="{x:Static res:Texts.Add}"
 					  Command="{Binding AddTermCommand, Mode=OneWay}" />
 			<MenuItem Header="{x:Static res:Texts.Delete}"
 					  Command="{Binding DeleteTermCommand, Mode=OneWay}" />
 		</Menu>
 
-		<ListBox Grid.ColumnSpan="9" Grid.Row="2"
+		<ListBox Grid.ColumnSpan="9" Grid.Row="3"
 				 ItemsSource="{Binding TermRules, Mode=OneWay}"
 				 SelectedValue="{Binding SelectedTermRule}">
 			<ListBox.ItemTemplate>
@@ -94,20 +103,18 @@
 		</ListBox>
 
 
-		<TextBlock Grid.ColumnSpan="9" Grid.Row="3"
-				   Text="{x:Static res:Texts.Sorting}"
+		<TextBlock Grid.ColumnSpan="9" Grid.Row="4"
 				   VerticalAlignment="Center" HorizontalAlignment="Left"
-				   FontWeight="SemiBold"
-				   FontSize="18" />
+				   Text="{x:Static res:Texts.Sorting}" />
 
-		<Menu Grid.ColumnSpan="9" Grid.Row="4">
+		<Menu Grid.ColumnSpan="9" Grid.Row="5">
 			<MenuItem Header="{x:Static res:Texts.Add}"
 					  Command="{Binding AddSortingCommand, Mode=OneWay}" />
 			<MenuItem Header="{x:Static res:Texts.Delete}"
 					  Command="{Binding DeleteSortingCommand, Mode=OneWay}" />
 		</Menu>
 
-		<ListBox Grid.ColumnSpan="9" Grid.Row="5"
+		<ListBox Grid.ColumnSpan="9" Grid.Row="6"
 				 ItemsSource="{Binding SortingRules, Mode=OneWay}"
 				 SelectedValue="{Binding SelectedSortingRule}">
 			<ListBox.ItemTemplate>
@@ -147,13 +154,11 @@
 		</ListBox>
 
 
-		<TextBlock Grid.Column="0" Grid.Row="6"
-				   Text="{x:Static res:Texts.MaxObjects}"
+		<TextBlock Grid.Column="0" Grid.Row="7"
 				   VerticalAlignment="Center" HorizontalAlignment="Left"
-				   FontWeight="SemiBold"
-				   FontSize="18" />
+				   Text="{x:Static res:Texts.MaxObjects}" />
 
-		<NumericUpDown Grid.Column="2" Grid.Row="6"
+		<NumericUpDown Grid.Column="2" Grid.Row="7"
 					   HorizontalAlignment="Stretch"
 					   VerticalAlignment="Center"
 					   Minimum="0"
@@ -163,7 +168,7 @@
 					   Text="{Binding MaxTracks}" />
 
 
-		<StackPanel Grid.ColumnSpan="9" Grid.Row="7"
+		<StackPanel Grid.ColumnSpan="9" Grid.Row="9"
 					Orientation="Horizontal"
 					HorizontalAlignment="Right"
 					VerticalAlignment="Center">

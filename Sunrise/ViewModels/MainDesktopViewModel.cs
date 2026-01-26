@@ -143,10 +143,12 @@ public sealed class MainDesktopViewModel : MainViewModel
 
     private async Task OnAddCalculatedPlaylistAsync(CancellationToken token)
     {
-        if (await CalculatedPlaylistViewModel.ShowAsync(Owner, TrackPlay.Player, token) is not { } calculatedData)
+        var (name, calculatedData) = await CalculatedPlaylistViewModel.ShowAsync(Owner, TrackPlay.Player, token);
+
+        if (calculatedData is null)
             return;
 
-        await AddPlaylistAsync(calculatedData, token);
+        await AddPlaylistAsync(name, calculatedData, token);
     }
 
     protected override TrackPlayViewModel CreateTrackPlay(Player player) => new TrackPlayDesktopViewModel(this, player);

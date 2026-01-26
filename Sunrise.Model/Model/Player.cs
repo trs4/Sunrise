@@ -542,11 +542,11 @@ public sealed class Player
         return tracks;
     }
 
-    public async Task<Playlist> AddPlaylistAsync(PlaylistCalculatedData? calculatedData = null, CancellationToken token = default)
+    public async Task<Playlist> AddPlaylistAsync(string? name = null, PlaylistCalculatedData? calculatedData = null, CancellationToken token = default)
     {
         var now = DateTime.Now;
         var playlists = await GetPlaylistsAsync(token);
-        string name = FindNewPlaylistName(playlists);
+        name = FindNewPlaylistName(name, playlists);
 
         var playlist = new Playlist()
         {
@@ -637,9 +637,10 @@ public sealed class Player
         playlist.Categories.Remove(category);
     }
 
-    private static string FindNewPlaylistName(Dictionary<string, Playlist> playlists)
+    private static string FindNewPlaylistName(string? name, Dictionary<string, Playlist> playlists)
     {
-        string name = Texts.Playlist;
+        string defaultName = name ?? Texts.Playlist;
+        name = defaultName;
 
         if (playlists.ContainsKey(name))
         {
@@ -647,7 +648,7 @@ public sealed class Player
 
             while (true)
             {
-                name = $"{Texts.Playlist} {number++}";
+                name = $"{defaultName} {number++}";
 
                 if (!playlists.ContainsKey(name))
                     break;

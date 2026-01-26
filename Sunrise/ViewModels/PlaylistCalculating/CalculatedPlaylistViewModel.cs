@@ -12,6 +12,7 @@ namespace Sunrise.ViewModels;
 
 public class CalculatedPlaylistViewModel : ObservableObject
 {
+    private string _name;
     private PlaylistTermRuleViewModel _selectedTermRule;
     private PlaylistSortingRuleViewModel _selectedSortingRule;
     private int _maxTracks;
@@ -27,6 +28,12 @@ public class CalculatedPlaylistViewModel : ObservableObject
         DeleteSortingCommand = new RelayCommand(OnDeleteSorting, CanDeleteSorting);
         OkCommand = new RelayCommand(OnOk);
         CancelCommand = new RelayCommand(OnCancel);
+    }
+
+    public string Name
+    {
+        get => _name;
+        set => SetProperty(ref _name, value);
     }
 
     public IRelayCommand AddTermCommand { get; }
@@ -149,13 +156,13 @@ public class CalculatedPlaylistViewModel : ObservableObject
 
     private void OnCancel() => View?.Close();
 
-    public static async Task<PlaylistCalculatedData?> ShowAsync(Window owner, Player player, CancellationToken token)
+    public static async Task<(string name, PlaylistCalculatedData? calculatedData)> ShowAsync(Window owner, Player player, CancellationToken token)
     {
         var viewModel = new CalculatedPlaylistViewModel(player);
         var dialog = new CalculatedPlaylistWindow() { DataContext = viewModel };
         viewModel.View = dialog;
         await dialog.ShowDialog(owner);
-        return viewModel._calculatedData;
+        return (viewModel._name, viewModel._calculatedData);
     }
 
 }

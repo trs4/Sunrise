@@ -320,11 +320,11 @@ public abstract class MainViewModel : ObservableObject
     protected abstract Task DeleteCategoryAsync(CancellationToken token);
 
     private Task AddPlaylistAsync(CancellationToken token)
-        => AddPlaylistAsync(null, token);
+        => AddPlaylistAsync(null, null, token);
 
-    public async Task AddPlaylistAsync(PlaylistCalculatedData? calculatedData, CancellationToken token)
+    public async Task AddPlaylistAsync(string? name, PlaylistCalculatedData? calculatedData, CancellationToken token)
     {
-        var playlist = await TrackPlay.Player.AddPlaylistAsync(calculatedData, token);
+        var playlist = await TrackPlay.Player.AddPlaylistAsync(name, calculatedData, token);
         var playlistViewModel = GetPlaylistViewModel(playlist);
         Playlists.Insert(0, playlistViewModel);
         SelectedPlaylist = playlistViewModel;

@@ -322,7 +322,7 @@
     <value>Порядок следования</value>
   </data>
   <data name="MaxObjects" xml:space="preserve">
-    <value>Максимально:</value>
+    <value>Максимально</value>
   </data>
   <data name="Equal" xml:space="preserve">
     <value>Равно</value>
@@ -353,5 +353,8 @@
   </data>
   <data name="Ascending" xml:space="preserve">
     <value>По возрастанию</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Наименование</value>
   </data>
 </root>

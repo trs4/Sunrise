@@ -520,7 +520,7 @@ namespace Sunrise.Model.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Максимально:.
+        ///   Looks up a localized string similar to Максимально.
         /// </summary>
         public static string MaxObjects {
             get {
@@ -543,6 +543,15 @@ namespace Sunrise.Model.Resources {
         public static string MixAll {
             get {
                 return ResourceManager.GetString("MixAll", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Наименование.
+        /// </summary>
+        public static string Name {
+            get {
+                return ResourceManager.GetString("Name", resourceCulture);
             }
         }
         
