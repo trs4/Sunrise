@@ -54,15 +54,16 @@
 		</Grid.RowDefinitions>
 
 		<!--  Back  -->
-		<Grid Grid.Row="0" Background="Transparent"
-			  Margin="10"
-			  PointerPressed="TrackIcon_PointerPressed"
-			  PointerMoved="TrackIcon_PointerMoved"
-			  PointerReleased="TrackIcon_PointerReleased">
+		<Grid Grid.Row="0"
+			  Margin="10">
 			<Grid.ColumnDefinitions>
 				<ColumnDefinition Width="Auto" />
 				<ColumnDefinition />
 			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition Height="Auto" />
+				<RowDefinition />
+			</Grid.RowDefinitions>
 
 			<Button Grid.Column="0" Background="Transparent"
 					Theme="{StaticResource MaterialFlatButton}"
@@ -74,6 +75,15 @@
 					   OpacityMask="Gray" Opacity="0.2" />
 			</Button>
 
+			<Grid Grid.Column="1" Background="Transparent"
+				  PointerPressed="TrackIcon_PointerPressed"
+				  PointerMoved="TrackIcon_PointerMoved"
+				  PointerReleased="TrackIcon_PointerReleased" />
+
+			<Grid Grid.Row="1" Grid.ColumnSpan="9" Background="Transparent"
+				  PointerPressed="TrackIcon_PointerPressed"
+				  PointerMoved="TrackIcon_PointerMoved"
+				  PointerReleased="TrackIcon_PointerReleased" />
 		</Grid>
 
 		<Grid Grid.Row="1" Background="Transparent"
