@@ -37,13 +37,13 @@ public sealed class DelayLastQueue
         {
             try
             {
+                await Task.Delay(_delay).ConfigureAwait(false);
                 Action lastAction = null;
 
                 while (_queue.TryDequeue(out var action))
                     lastAction = action;
 
                 lastAction?.Invoke();
-                await Task.Delay(_delay).ConfigureAwait(false);
 
                 lock (_syncLock)
                 {
